@@ -1,0 +1,8 @@
+make -C ../../src/MinA/common/ 
+make[1]: Entering directory '/home/thanachot/Desktop/MinA/src/MinA/common'
+g++ -c -std=c++11 Parameter.cpp OptimizationAlgorithm.cpp Minimizer.cpp -I../../../include -I../../../src
+make[1]: Leaving directory '/home/thanachot/Desktop/MinA/src/MinA/common'
+cp ../../src/MinA/common/*.o .
+g++ -c -I../../include/ main.cpp Simplex.cpp -std=c++11
+g++ -o main OptimizationAlgorithm.o main.o Minimizer.o Simplex.o
+makefile:4: recipe for target 'default' failed

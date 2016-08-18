@@ -9,9 +9,13 @@
 class Myfunction:public Functiontobeoptimized{
     public:
 	Myfunction(){
-	
-		parameters.insert("x");
-		parameters.insert("y");
+		Parameter first,second;
+		first.setname("x");
+		second.setname("y");	
+		parameters.insert(first);
+		parameters.insert(second);
+		//parameters.insert("x");
+		//parameters.insert("y");
 	};
 
 	double evaluate(std::map <string, double> para){

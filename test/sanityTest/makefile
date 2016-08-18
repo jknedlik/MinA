@@ -3,7 +3,7 @@ CXX=g++
 default:cpo
 		
 	$(CXX) -c -I../../include/ main.cpp Simplex.cpp -std=c++11
-	$(CXX) -o main OptimizationAlgorithm.o main.o Minimizer.o Simplex.o
+	$(CXX) -o main OptimizationAlgorithm.o main.o Minimizer.o Simplex.o Parameter.o
 
 
 cpo:
