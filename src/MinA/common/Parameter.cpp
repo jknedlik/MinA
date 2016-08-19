@@ -30,3 +30,15 @@ void Parameter::setboundaryLeft(double bl){
 void Parameter::setboundaryRight(double br){
 	boundaryRight=std::allocate_shared<double> (alloc,br);
 	}
+
+double Parameter::getstartingPoint()const{
+	return 	*startingPoint;
+	}
+
+double Parameter::getboundaryLeft() const{
+	return 	*boundaryLeft;
+	}
+
+double Parameter::getboundaryRight() const{
+	return 	*boundaryRight;
+	}

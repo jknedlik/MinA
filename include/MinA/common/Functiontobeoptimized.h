@@ -5,6 +5,10 @@
 #include <iostream>
 #include <set>
 #include "MinA/common/Parameter.h"
+#include <algorithm>
+#include <iterator>
+#include <memory>
+
  using namespace std;
 class Functiontobeoptimized{
     public:

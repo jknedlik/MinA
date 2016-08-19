@@ -21,6 +21,9 @@ class Parameter{
 	void setstartingPoint(double sp);
 	void setboundaryLeft(double bl);
 	void setboundaryRight(double br);
+	double getstartingPoint()const;
+	double getboundaryLeft()const;
+	double getboundaryRight()const;
 	
     private:
 	string name;
