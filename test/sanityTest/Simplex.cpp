@@ -1,41 +1,44 @@
 #include "Simplex.h"
-#include <algorithm>
 Simplex::Simplex(){
 	SetOptimizationAlgorithmParameter("alpha",1);
 	SetOptimizationAlgorithmParameter("beta",0.5);
 	SetOptimizationAlgorithmParameter("gramma",1);
-	SetOptimizationAlgorithmParameter("town",0.5);
+	SetOptimizationAlgorithmParameter("town",.5);
 	SetOptimizationAlgorithmParameter("stepsize",0.5);	
 }
 Simplex::~Simplex(){}
 Result Simplex::algorithm(Functiontobeoptimized* start){
 	int dimension=start->getparametersize();
-	//double A[dimension+1][dimension];
 	double func[dimension+1];	
-	//double alpha=1,beta=0.5,gramma=1,town=0.5;
-//dimension=2;	
-std::map <string, double> A[dimension+1];
-cout<<dimension<<" ";
-
 	
+std::map <string, double> A[dimension+1];
+cout<<"dimension ="<<dimension<<endl;
+
+
+
+
+
+		
 //Initial
-A[0]["x"]=1;A[0]["y"]=3;
-    	A[1]["x"]=-4;A[1]["y"]=-4;
-    	A[2]["x"]=1;A[2]["y"]=-8;
-/*
-int d=9;
-for(int i=0;i<=dimension;i++){
+
+for (std::set<Parameter>::iterator it=start->parameters.begin(); it!=start->parameters.end(); ++it)
+A[0][it->getname()]=it->getstartingPoint();
+
+
+for(int i=1;i<=dimension;i++){
 
 	for (std::set<Parameter>::iterator it=start->parameters.begin(); it!=start->parameters.end(); ++it){
-	A[i][it->getname()]=d;
-	d--;
+	if(std::distance(start->parameters.begin(),it)==i-1)
+	A[i][it->getname()]=A[0][it->getname()]+GetOptimizationAlgorithmParameter("stepsize");
+	else
+	A[i][it->getname()]=A[0][it->getname()];
 	}
 
-}*/
+}
 
 showfunc(start,A);
-for(int jj=0;jj<100;jj++){
-//cout<<"//////////////////="<<jj<<endl;
+while(int jj=0;jj<40;jj++){
+
 //Sort
 std::map <string, double> M,Ar,Ac,Ae;
 std::sort(A,A+dimension+1,[start](std::map <string, double>  & a, std::map <string, double>  & b) -> bool{
@@ -54,7 +57,7 @@ for (std::set<Parameter>::iterator it=start->parameters.begin(); it!=start->para
 	M[it->getname()]/=dimension;		
 	}
 for (std::set<Parameter>::iterator it=start->parameters.begin(); it!=start->parameters.end(); ++it){
-	cout<<it->getname()<<"->"<<M[it->getname()];		
+		
 	}
 //calculate
 	//Ar
@@ -110,10 +113,8 @@ for (std::set<Parameter>::iterator it=start->parameters.begin(); it!=start->para
 }
 Result rs;
 for (std::set<Parameter>::iterator it=start->parameters.begin(); it!=start->parameters.end(); ++it)
-rs.optimizationparameter["it->getname()"]=A[0][it->getname()];
-rs.result=start->evaluate(A[0]);
-//*/
-
+	rs.optimizationparameter["it->getname()"]=A[0][it->getname()];
+	rs.result=start->evaluate(A[0]);l
 return 	rs;
 }
 
