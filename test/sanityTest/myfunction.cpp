@@ -18,7 +18,7 @@ class Myfunction:public Functiontobeoptimized{
 		second.setname("y");	
 		second.setstartingPoint(4);
 		third.setname("z");
-		third.setstartingPoint(5);
+		third.setstartingPoint(5s);
 		parameters.insert(second);
 		parameters.insert(first);
 		parameters.insert(third);
