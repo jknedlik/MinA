@@ -1,3 +1,0 @@
-/home/thanachot/Desktop/Simplex_beta/SimplexNew/build/CMakeFiles/rebuild_cache.dir
-/home/thanachot/Desktop/Simplex_beta/SimplexNew/build/CMakeFiles/edit_cache.dir
-/home/thanachot/Desktop/Simplex_beta/SimplexNew/build/CMakeFiles/main.dir

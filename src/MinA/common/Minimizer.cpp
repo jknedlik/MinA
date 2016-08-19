@@ -1,4 +1,5 @@
 #include "MinA/common/Minimizer.h"
+
 Result Minimizer::minimize(Functiontobeoptimized *start,OptimizationAlgorithm *sim ){
 	return sim->algorithm(start);
 	}

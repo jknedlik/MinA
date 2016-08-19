@@ -12,8 +12,6 @@
 class Parameter{
     public:
 	
-	
-	
 	Parameter();
 	bool operator< (const Parameter&  e) const;
 	void setname(string na);

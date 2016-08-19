@@ -8,9 +8,9 @@
 
 class Simplex:public OptimizationAlgorithm{
     public:
-	 Simplex();
+	Simplex();
 	~Simplex();
-	 Result algorithm(Functiontobeoptimized* start);
+	Result algorithm(Functiontobeoptimized* start);
 	void showfunc(Functiontobeoptimized* start,std::map <string, double> *para);
 
   
