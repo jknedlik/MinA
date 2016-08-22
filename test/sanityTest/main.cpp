@@ -14,7 +14,7 @@ int main(void){
 	Michalewicz_function test4;
 	Simplex altest;
 	Minimizer mina;
-        cout<<"function minimized value="<<mina.minimize(&test1,&altest).result<<endl;
+        cout<<"function minimized value="<<mina.minimize(&test2,&altest).result<<endl;
 
     return(0);
 }

@@ -33,15 +33,15 @@ Result Simplex::algorithm(Functiontobeoptimized* start){
 
 	}
 
-	showfunc(start,A);
+	//showfunc(start,A);
 
-	for(int jj=0;jj<40;jj++){
+	for(int jj=0;jj<100;jj++){
 
 	//Sort
 		std::map <string, double> M,Ar,Ac,Ae;
 		std::sort(A,A+dimension+1,[start](std::map <string, double>  & a, std::map <string, double>  & b) -> bool{
 		return start->evaluate(a) < start->evaluate(b) ; });
-	
+	cout<<"jj= "<<jj<<endl;
 	showfunc(start,A);
 
 	//Mean

@@ -35,7 +35,9 @@ class Himmelblaufunction:public Functiontobeoptimized{
 	Himmelblaufunction(){
 		Parameter first,second;
 		first.setname("x");
+		first.setstartingPoint(3);		
 		second.setname("y");	
+		second.setstartingPoint(4);
 		parameters.insert(first);
 		parameters.insert(second);
 		//parameters.insert("x");
@@ -53,7 +55,9 @@ class Boot_s_function:public Functiontobeoptimized{
 	Boot_s_function(){
 		Parameter first,second;
 		first.setname("x");
+		first.setstartingPoint(3);		
 		second.setname("y");	
+		second.setstartingPoint(4);	
 		parameters.insert(first);
 		parameters.insert(second);
 		
@@ -71,7 +75,9 @@ class Michalewicz_function:public Functiontobeoptimized{
 	Michalewicz_function(){
 		Parameter first,second,third;
 		first.setname("x");
+		first.setstartingPoint(3);		
 		second.setname("y");	
+		second.setstartingPoint(4);	
 		//third.setname("z");
 		parameters.insert(first);
 		parameters.insert(second);
