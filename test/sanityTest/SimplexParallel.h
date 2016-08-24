@@ -1,5 +1,5 @@
-#ifndef SIMPLEX_H
-#define SIMPLEX_H
+#ifndef SIMPLEXPARALLEL_H
+#define SIMPLEXPARALLEL_H
 #include <map>
 #include <iostream>
 #include<memory>
@@ -7,10 +7,10 @@
 #include "MinA/common/OptimizationAlgorithm.h"
 
 
-class Simplex:public OptimizationAlgorithm{
+class SimplexParallel:public OptimizationAlgorithm{
     public:
-	Simplex();
-	~Simplex();
+	SimplexParallel();
+	~SimplexParallel();
 	Result algorithm(Functiontobeoptimized* start);
 	void showfunc(Functiontobeoptimized* start,std::map <string, double> *para);
 

@@ -1,9 +1,9 @@
-CXX=g++
+CXX=mpicxx
 
 default:cpo
 		
-	$(CXX) -c -I../../include/ main.cpp Simplex.cpp -std=c++11
-	$(CXX) -o main OptimizationAlgorithm.o main.o Minimizer.o Simplex.o Parameter.o
+	$(CXX) -c -I../../include/ main.cpp Simplex.cpp SimplexParallel.cpp -std=c++11
+	$(CXX) -o main OptimizationAlgorithm.o main.o Minimizer.o Simplex.o Parameter.o SimplexParallel.o
 
 
 cpo:
