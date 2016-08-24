@@ -13,22 +13,25 @@ Simplex::Simplex(){
 Simplex::~Simplex(){}
 Result Simplex::algorithm(Functiontobeoptimized* start){
 	
-	int dimension=start->getparametersize();
-	std::map <string, double> A[dimension+1];
+	dimension=start->getparametersize();
+
+	
+
+	vertex A[dimension+1];
 	cout<<"dimension ="<<dimension<<endl;
 		
 	//Initial
 
 	for (auto it : start->parameters)
-		A[0][it.getname()]=it.getstartingPoint();
+		A[0].par[it.getname()]=it.getstartingPoint();
 
 
 	for(int i=1;i<=dimension;i++){
 		for ( std::set<Parameter>::iterator it=start->parameters.begin(); it!=start->parameters.end(); ++it){
 			if(std::distance(start->parameters.begin(),it)==i-1)
-				A[i][it->getname()]=A[0][it->getname()]+GetOptimizationAlgorithmParameter("stepsize");
+				A[i].par[it->getname()]=A[0].par[it->getname()]+GetOptimizationAlgorithmParameter("stepsize");
 			else
-				A[i][it->getname()]=A[0][it->getname()];
+				A[i].par[it->getname()]=A[0].par[it->getname()];
 		}
 
 	}
@@ -38,78 +41,81 @@ Result Simplex::algorithm(Functiontobeoptimized* start){
 	for(int jj=0;jj<100;jj++){
 
 	//Sort
-		std::map <string, double> M,Ar,Ac,Ae;
-		std::sort(A,A+dimension+1,[start](std::map <string, double>  & a, std::map <string, double>  & b) -> bool{
-		return start->evaluate(a) < start->evaluate(b) ; });
+		vertex M,Ar,Ac,Ae;
+		for(int i=0;i<=dimension;i++){A[i].func=start->evaluate(A[i].par);}
+		std::sort(A,A+dimension+1,[](vertex  & a, vertex   & b) -> bool{
+		return a.func < b.func; });
 	cout<<"jj= "<<jj<<endl;
-	showfunc(start,A);
+	showfunc(A);
 
 	//Mean
 		for(int i=0;i<dimension;i++){
 			for(auto it : start->parameters){
-				M[it.getname()]+=A[i][it.getname()];		
+				M.par[it.getname()]+=A[i].par[it.getname()];		
 			}
 		}
 		for (auto it : start->parameters){
-			M[it.getname()]/=dimension;		
+			M.par[it.getname()]/=dimension;		
 		}
 
 	//calculate
 		//Ar
 		for (auto it : start->parameters){
-			Ar[it.getname()]=M[it.getname()]+GetOptimizationAlgorithmParameter("alpha")*(M[it.getname()]-A[dimension][it.getname()]);		
+			Ar.par[it.getname()]=M.par[it.getname()]+GetOptimizationAlgorithmParameter("alpha")*(M.par[it.getname()]-A[dimension].par[it.getname()]);		
 		}
+		Ar.func=start->evaluate(Ar.par);
 		//Ae
 		for (auto it : start->parameters){
-			Ae[it.getname()]=Ar[it.getname()]+GetOptimizationAlgorithmParameter("gramma")*(Ar[it.getname()]-M[it.getname()]);		
+			Ae.par[it.getname()]=Ar.par[it.getname()]+GetOptimizationAlgorithmParameter("gramma")*(Ar.par[it.getname()]-M.par[it.getname()]);		
 		}
+		Ae.func=start->evaluate(Ae.par);
 		//Ac
-		if(start->evaluate(Ar)>start->evaluate(A[dimension])){
+		if(Ar.func>A[dimension].func){
 			for (auto it : start->parameters){
-				Ac[it.getname()]=M[it.getname()]+GetOptimizationAlgorithmParameter("beta")*(A[dimension][it.getname()]-M[it.getname()]);			
+				Ac.par[it.getname()]=M.par[it.getname()]+GetOptimizationAlgorithmParameter("beta")*(A[dimension].par[it.getname()]-M.par[it.getname()]);			
 			}
 		}
 		else{
 			for (auto it : start->parameters){
-				Ac[it.getname()]=M[it.getname()]+GetOptimizationAlgorithmParameter("beta")*(Ar[it.getname()]-M[it.getname()]);			
+				Ac.par[it.getname()]=M.par[it.getname()]+GetOptimizationAlgorithmParameter("beta")*(Ar.par[it.getname()]-M.par[it.getname()]);			
 			}
 		}
-
+		Ac.func=start->evaluate(Ac.par);
 	//case//Update vertex step3
 		//case 1
-		if(start->evaluate(Ar)<start->evaluate(A[0])){
-			if(start->evaluate(Ae)<start->evaluate(A[0]))
-				for (auto it : start->parameters){A[dimension][it.getname()]=Ae[it.getname()];}
+		if(Ar.func<A[0].func){
+			if(Ae.func<A[0].func)
+				for (auto it : start->parameters){A[dimension].par[it.getname()]=Ae.par[it.getname()];}
 			else
-				for (auto it : start->parameters){A[dimension][it.getname()]=Ar[it.getname()];}
+				for (auto it : start->parameters){A[dimension].par[it.getname()]=Ar.par[it.getname()];}
 		}	
 		//case 2
-		else if(start->evaluate(Ar)<start->evaluate(A[dimension-1]))
-			for (auto it : start->parameters){A[dimension][it.getname()]=Ar[it.getname()];}
+		else if(Ar.func<A[dimension-1].func)
+			for (auto it : start->parameters){A[dimension].par[it.getname()]=Ar.par[it.getname()];}
 		//case 3
-		else if(start->evaluate(Ac)<start->evaluate(A[dimension]))
-			for (auto it : start->parameters){A[dimension][it.getname()]=Ac[it.getname()];}
+		else if(Ac.func<A[dimension].func)
+			for (auto it : start->parameters){A[dimension].par[it.getname()]=Ac.par[it.getname()];}
 		//case 4
 		else{
 			for(int i=1;i<=dimension;i++)
 				for (auto it : start->parameters)	
-					A[i][it.getname()]=GetOptimizationAlgorithmParameter("town")*A[0][it.getname()]+(1-GetOptimizationAlgorithmParameter("town"))*A[i][it.getname()];
+					A[i].par[it.getname()]=GetOptimizationAlgorithmParameter("town")*A[0].par[it.getname()]+(1-GetOptimizationAlgorithmParameter("town"))*A[i].par[it.getname()];
 		}
 
 	//Return result
 	}
 	Result rs;
 		for (auto it : start->parameters)
-		rs.optimizationparameter["it.getname()"]=A[0][it.getname()];
-		rs.result=start->evaluate(A[0]);
+		rs.optimizationparameter["it.getname()"]=A[0].par[it.getname()];
+		rs.result=A[0].func;
 	return 	rs;
 }
 
-void Simplex::showfunc(Functiontobeoptimized* start,std::map <string, double> *para){
-	int dimension=start->getparametersize();
+void Simplex::showfunc(vertex *para){
+	
 	for(int i=0;i<=dimension;i++){
-		for (std::map<string, double>::iterator it=para[i].begin(); it!=para[i].end(); ++it)
+		for (std::map<string, double>::iterator it=para[i].par.begin(); it!=para[i].par.end(); ++it)
     			std::cout << it->first << "=" << it->second << " ";	
-		cout<<"f(A"<<i<<")="<<start->evaluate(para[i])<<endl;
+		cout<<"f(A"<<i<<")="<<para[i].func<<endl;
 	}
 }

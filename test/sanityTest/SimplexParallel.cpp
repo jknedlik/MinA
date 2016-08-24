@@ -14,23 +14,23 @@ SimplexParallel::~SimplexParallel(){}
 Result SimplexParallel::algorithm(Functiontobeoptimized* start){
 	
 
-	int dimension=start->getparametersize();
-	std::map <string, double> A[dimension+1];
+	dimension=start->getparametersize();
+	vertex A[dimension+1];
 
 			
 	//Initial
 	
 	
 	for (auto it : start->parameters)
-		A[0][it.getname()]=it.getstartingPoint();
+		A[0].par[it.getname()]=it.getstartingPoint();
 
 
 	for(int i=1;i<=dimension;i++){
 		for ( std::set<Parameter>::iterator it=start->parameters.begin(); it!=start->parameters.end(); ++it){
 			if(std::distance(start->parameters.begin(),it)==i-1)
-				A[i][it->getname()]=A[0][it->getname()]+GetOptimizationAlgorithmParameter("stepsize");
+				A[i].par[it->getname()]=A[0].par[it->getname()]+GetOptimizationAlgorithmParameter("stepsize");
 			else
-				A[i][it->getname()]=A[0][it->getname()];
+				A[i].par[it->getname()]=A[0].par[it->getname()];
 		}
 
 	}
@@ -45,35 +45,37 @@ Result SimplexParallel::algorithm(Functiontobeoptimized* start){
 
 	if(world_rank==0){
 	//Sort
-		std::sort(A,A+dimension+1,[start](std::map <string, double>  & a, std::map <string, double>  & b) -> bool{
-		return start->evaluate(a) < start->evaluate(b) ; });
+
+		for(int i=0;i<=dimension;i++){A[i].func=start->evaluate(A[i].par);}
+		std::sort(A,A+dimension+1,[](vertex  & a, vertex   & b) -> bool{
+		return a.func < b.func; });
 	cout<<"jj= "<<jj<<endl;
-	showfunc(start,A);
+	showfunc(A);
 
 	//Mean
-	std::map <string, double> M;
+		vertex M;
 		for(int i=0;i<=dimension-world_size+1;i++){
 			for(auto it : start->parameters){
-				M[it.getname()]+=A[i][it.getname()];		
+				M.par[it.getname()]+=A[i].par[it.getname()];		
 			}
 		}
 		for (auto it : start->parameters){
-			M[it.getname()]/=(dimension-world_size+2);		
+			M.par[it.getname()]/=(dimension-world_size+2);		
 		}
 
 	//sending M,A0,Aj_1,Aj	
 		double box[4][dimension];
 		int run=0;
 		for (auto it : start->parameters){
-			box[1][run]=A[0][it.getname()];		
-			box[0][run]=M[it.getname()];
+			box[1][run]=A[0].par[it.getname()];		
+			box[0][run]=M.par[it.getname()];
 			run++;
 		}
 		for(int i=1;i<world_size;i++){
 			run=0;
 			for (auto it : start->parameters){
-			box[2][run]=A[dimension-i][it.getname()];		
-			box[3][run]=A[dimension-i+1][it.getname()];
+			box[2][run]=A[dimension-i].par[it.getname()];		
+			box[3][run]=A[dimension-i+1].par[it.getname()];
 			run++;
 			}
 			MPI_Send(&(box[0][0]), 4*dimension, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
@@ -87,59 +89,65 @@ Result SimplexParallel::algorithm(Functiontobeoptimized* start){
    	 MPI_Recv(&(box[0][0]), 4*dimension, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 	//cout<<"world_rank="<<world_rank<<endl;	
 
-	std::map <string, double> M,Aj,Aj_1,A0,Ar,Ac,Ae;
+	vertex M,Aj,Aj_1,A0,Ar,Ac,Ae;
 	int run=0;
 	for (auto it : start->parameters){
-			M[it.getname()]=box[0][run];		
-			A0[it.getname()]=box[1][run];
-			Aj_1[it.getname()]=box[2][run];			
-			Aj[it.getname()]=box[3][run];
+			M.par[it.getname()]=box[0][run];		
+			A0.par[it.getname()]=box[1][run];
+			Aj_1.par[it.getname()]=box[2][run];			
+			Aj.par[it.getname()]=box[3][run];
 			run++;
 		}
 	//calculate
-		
+		A0.func=start->evaluate(A0.par);
+		Aj_1.func=start->evaluate(Aj_1.par);
+		Aj.func=start->evaluate(Aj.par);
 		int check=0;
 		//Ar
 		for (auto it : start->parameters){
-			Ar[it.getname()]=M[it.getname()]+GetOptimizationAlgorithmParameter("alpha")*(M[it.getname()]-Aj[it.getname()]);		
+			Ar.par[it.getname()]=M.par[it.getname()]+GetOptimizationAlgorithmParameter("alpha")*(M.par[it.getname()]-Aj.par[it.getname()]);		
 		}
+		Ar.func=start->evaluate(Ar.par);
 		//Ae
 		for (auto it : start->parameters){
-			Ae[it.getname()]=Ar[it.getname()]+GetOptimizationAlgorithmParameter("gramma")*(Ar[it.getname()]-M[it.getname()]);		
+			Ae.par[it.getname()]=Ar.par[it.getname()]+GetOptimizationAlgorithmParameter("gramma")*(Ar.par[it.getname()]-M.par[it.getname()]);		
 		}
 		//Ac
-		if(start->evaluate(Ar)>start->evaluate(Aj)){
+		if(Ar.func>Aj.func){
 			for (auto it : start->parameters){
-				Ac[it.getname()]=M[it.getname()]+GetOptimizationAlgorithmParameter("beta")*(Aj[it.getname()]-M[it.getname()]);			
+				Ac.par[it.getname()]=M.par[it.getname()]+GetOptimizationAlgorithmParameter("beta")*(Aj.par[it.getname()]-M.par[it.getname()]);			
 			}
 		}
 		else{
 			for (auto it : start->parameters){
-				Ac[it.getname()]=M[it.getname()]+GetOptimizationAlgorithmParameter("beta")*(Ar[it.getname()]-M[it.getname()]);			
+				Ac.par[it.getname()]=M.par[it.getname()]+GetOptimizationAlgorithmParameter("beta")*(Ar.par[it.getname()]-M.par[it.getname()]);			
 			}
 		}
 
-
+		
+		
+		Ac.func=start->evaluate(Ac.par);
+		Ae.func=start->evaluate(Ae.par);
 	//case//Update vertex step3
 		//case 1
-		if(start->evaluate(Ar)<start->evaluate(A0)){
-			if(start->evaluate(Ae)<start->evaluate(A0))
-				for (auto it : start->parameters){Aj[it.getname()]=Ae[it.getname()];check=1;}
+		if(Ar.func<A0.func){
+			if(Ae.func<A0.func)
+				for (auto it : start->parameters){Aj.par[it.getname()]=Ae.par[it.getname()];check=1;}
 			else
-				for (auto it : start->parameters){Aj[it.getname()]=Ar[it.getname()];check=2;}
+				for (auto it : start->parameters){Aj.par[it.getname()]=Ar.par[it.getname()];check=2;}
 		}	
 		//case 2
-		else if(start->evaluate(Ar)<start->evaluate(Aj_1))
-			for (auto it : start->parameters){Aj[it.getname()]=Ar[it.getname()];check=3;}
+		else if(Ar.func<Aj_1.func)
+			for (auto it : start->parameters){Aj.par[it.getname()]=Ar.par[it.getname()];check=3;}
 		//case 3
-		else if(start->evaluate(Ac)<start->evaluate(Aj))
-			for (auto it : start->parameters){Aj[it.getname()]=Ac[it.getname()];check=4;}
+		else if(Ac.func<Aj.func)
+			for (auto it : start->parameters){Aj.par[it.getname()]=Ac.par[it.getname()];check=4;}
 		
 			double Ajd[dimension];
 	
 			run=0;
 			for (auto it : start->parameters){
-			Ajd[run]=Aj[it.getname()];		
+			Ajd[run]=Aj.par[it.getname()];		
 			run++;
 			}
 			/*for (auto it : start->parameters)
@@ -168,7 +176,7 @@ Result SimplexParallel::algorithm(Functiontobeoptimized* start){
 			sumcheck+=check; 		
 			int run=0;
 			for (auto it : start->parameters){
-			A[dimension-i+1][it.getname()]=Ajd[run];
+			A[dimension-i+1].par[it.getname()]=Ajd[run];
 			run++;
 			}
 			
@@ -179,7 +187,7 @@ Result SimplexParallel::algorithm(Functiontobeoptimized* start){
 		if(sumcheck==0){
 			for(int i=1;i<=dimension;i++)
 				for (auto it : start->parameters)	
-					A[i][it.getname()]=GetOptimizationAlgorithmParameter("tau")*A[0][it.getname()]+(1-GetOptimizationAlgorithmParameter("tau"))*A[i][it.getname()];
+					A[i].par[it.getname()]=GetOptimizationAlgorithmParameter("tau")*A[0].par[it.getname()]+(1-GetOptimizationAlgorithmParameter("tau"))*A[i].par[it.getname()];
 		}	
 		//showfunc(start,A);
 	}
@@ -189,19 +197,19 @@ Result SimplexParallel::algorithm(Functiontobeoptimized* start){
 	//Return result
 	Result rs;
 		for (auto it : start->parameters)
-		rs.optimizationparameter["it.getname()"]=A[0][it.getname()];
-		rs.result=start->evaluate(A[0]);
+		rs.optimizationparameter["it.getname()"]=A[0].par[it.getname()];
+		rs.result=A[0].func;
 	
 	return 	rs;
 	}
 	 MPI_Finalize();	
 }
 
-void SimplexParallel::showfunc(Functiontobeoptimized* start,std::map <string, double> *para){
-	int dimension=start->getparametersize();
+void SimplexParallel::showfunc(vertex *para){
+	
 	for(int i=0;i<=dimension;i++){
-		for (std::map<string, double>::iterator it=para[i].begin(); it!=para[i].end(); ++it)
+		for (std::map<string, double>::iterator it=para[i].par.begin(); it!=para[i].par.end(); ++it)
     			std::cout << it->first << "=" << it->second << " ";	
-		cout<<"f(A"<<i<<")="<<start->evaluate(para[i])<<endl;
+		cout<<"f(A"<<i<<")="<<para[i].func<<endl;
 	}
 }

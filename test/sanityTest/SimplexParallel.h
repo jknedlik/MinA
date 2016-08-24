@@ -5,6 +5,7 @@
 #include<memory>
 #include "mpi.h"
 #include "MinA/common/OptimizationAlgorithm.h"
+#include "Simplex.h"
 
 
 class SimplexParallel:public OptimizationAlgorithm{
@@ -12,7 +13,9 @@ class SimplexParallel:public OptimizationAlgorithm{
 	SimplexParallel();
 	~SimplexParallel();
 	Result algorithm(Functiontobeoptimized* start);
-	void showfunc(Functiontobeoptimized* start,std::map <string, double> *para);
+	void showfunc(vertex *para);
+    protected:
+	int dimension;
 
   
 };

@@ -13,7 +13,7 @@ int main(void){
 	Himmelblaufunction test2;
 	Boot_s_function test3;
 	Michalewicz_function test4;
-	Simplex altest;
+	Simplex altest1;
 	SimplexParallel altest2;
 	Minimizer mina;
         cout<<"function minimized value="<<mina.minimize(&test1,&altest2).result<<endl;
