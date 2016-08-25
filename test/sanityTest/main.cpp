@@ -2,7 +2,7 @@
 #include <map>
 #include "MinA/common/Minimizer.h"
 #include "MinA/common/Result.h"
-#include "myfunction.cpp"
+#include "TestFunction.cpp"
 #include "Simplex.h"
 #include "SimplexParallel.h"
 #include <utility>

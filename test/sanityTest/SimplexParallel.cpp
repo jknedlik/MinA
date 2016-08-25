@@ -24,92 +24,102 @@ Result SimplexParallel::algorithm(Functiontobeoptimized* start){
   	int world_size;
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
         
-	for(int jj=0;jj<100;jj++){
+	
+
 
 	if(world_rank==0){
-	
-
-		for(int i=0;i<=dimension;i++){A[i].func=function->evaluate(A[i].par);}//Evaluate(A)
-
-		std::sort(A,A+dimension+1,[](vertex  & a, vertex   & b) -> bool{return a.func < b.func; });//Sort
-	
-		cout<<"loop= "<<jj<<endl;
-		showVertex(A);
-	
-		vertex M;
-		calculateM(A,M,world_size);//Mean
+	int mode;
+		int jj=0;
+		while(jj<100){
 		
-		for(int i=1;i<world_size;i++){
-		sendVertex(M,i,0);
-		sendVertex(A[0],i,1);
-		sendVertex(A[dimension-i],i,2);
-		sendVertex(A[dimension-i+1],i,3);
-		}//sending M,A0,Aj_1,Aj	
-	}
-
-        if (world_rank !=0){
+			for(int i=0;i<=dimension;i++){A[i].func=function->evaluate(A[i].par);}//Evaluate(A)
+			std::sort(A,A+dimension+1,[](vertex  & a, vertex   & b) -> bool{return a.func < b.func; });//Sort
+			cout<<"loop= "<<jj<<endl;
+			showVertex(A);
 	
-	vertex M,Aj,Aj_1,A0,Ar,Ac,Ae;
-	M=receiveVertex(0,0);
-	A0=receiveVertex(0,1);	
-	Aj_1=receiveVertex(0,2);	
-	Aj=receiveVertex(0,3);//receiving M,A0,Aj,Aj_1
-	
-	//calculate
-		A0.func=function->evaluate(A0.par);
-		Aj_1.func=function->evaluate(Aj_1.par);
-		Aj.func=function->evaluate(Aj.par);
-		int check=0;
-		
-	//Update vertex step3
-		calculateAr(Ar,M,Aj);//Ar
-		if(Ar.func<A0.func){
-			calculateAe(Ae,M,Ar);//Ae
-			if(Ae.func<A0.func){push(Aj,Ae);check=1;}
-			else{push(Aj,Ar);check=2;}
-		}//case 1	
-		else if(Ar.func<Aj_1.func){push(Aj,Ar);check=3;}//case 2 
-		else {
-			if(Ar.func>Aj.func){
-				calculateAc(Ac,M,Aj);
-			}else{
-				calculateAc(Ac,M,Ar);
-			}//Ac
-			if(Ac.func<Aj.func){		
-				push(Aj,Ac);
-				check=4;
-			}
-		}//case 3
-		
-			sendVertex(Aj,0,world_rank);
-			MPI_Send(&(check), 1, MPI_INT, 0, world_rank+1, MPI_COMM_WORLD);		
-		}
-
-	if(world_rank==0){
-		
-		int sumcheck=0;
-		for(int i=1;i<world_size;i++){
-			int check;
-			MPI_Recv(&(check), 1, MPI_INT, i, i+1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-			sumcheck+=check;
-			vertex b=receiveVertex(i,i);
-			push(A[dimension-i+1],b);
-		}
+			vertex M;
+			calculateM(A,M,world_size);//Mean
+			mode=1;
+			for(int i=1;i<world_size;i++){					
+				MPI_Send(&mode, 1, MPI_INT, i,world_size, MPI_COMM_WORLD);		
+				sendVertex(M,i,0);
+				sendVertex(A[0],i,1);
+				sendVertex(A[dimension-i],i,2);
+				sendVertex(A[dimension-i+1],i,3);
 			
-		if(sumcheck==0){
-			newVertex(A);
-		}	//case 4
+			}//sending M,A0,Aj_1,Aj
+		
+			int sumcheck=0;
+			for(int i=1;i<world_size;i++){
+				int check;
+				MPI_Recv(&(check), 1, MPI_INT, i, i+1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+				sumcheck+=check;
+				vertex b=receiveVertex(i,i);
+				push(A[dimension-i+1],b);
+			}
+			
+			if(sumcheck==0){
+				newVertex(A);
+			}//case 4
+		jj++;		
+		}
+
+		mode=0;
+		for(int i=1;i<world_size;i++)	
+		MPI_Send(&mode, 1, MPI_INT, i,0, MPI_COMM_WORLD);
+	}
+
+	 if (world_rank !=0){
+		int mode;
+		
+		while(1){
+		MPI_Recv(&(mode), 1, MPI_INT, 0, world_size, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			if(mode==1){
+				vertex M,Aj,Aj_1,A0,Ar,Ac,Ae;
+				M=receiveVertex(0,0);
+				A0=receiveVertex(0,1);	
+				Aj_1=receiveVertex(0,2);	
+				Aj=receiveVertex(0,3);//receiving M,A0,Aj,Aj_1
+		
+				//calculate
+				A0.func=function->evaluate(A0.par);
+				Aj_1.func=function->evaluate(Aj_1.par);
+				Aj.func=function->evaluate(Aj.par);
+				int check=0;
+			
+				//Update vertex step3
+				calculateAr(Ar,M,Aj);//Ar
+				if(Ar.func<A0.func){
+					calculateAe(Ae,M,Ar);//Ae
+					if(Ae.func<A0.func){push(Aj,Ae);check=1;}
+					else{push(Aj,Ar);check=2;}
+				}//case 1	
+				else if(Ar.func<Aj_1.func){push(Aj,Ar);check=3;}//case 2 
+				else {
+					if(Ar.func>Aj.func){
+						calculateAc(Ac,M,Aj);
+					}else{
+					calculateAc(Ac,M,Ar);
+					}//Ac
+					if(Ac.func<Aj.func){		
+						push(Aj,Ac);
+						check=4;
+					}
+				}//case 3
+			
+				sendVertex(Aj,0,world_rank);
+				MPI_Send(&(check), 1, MPI_INT, 0, world_rank+1, MPI_COMM_WORLD);
+			}
+			else if(mode==0) break;	
+				
+		}
 		
 	}
-}
-	
 		
 	if(world_rank==0){		
-	
-	Result rs;
-	pushResult(rs,A[0]);//Result
-		
-	return 	rs;
+		Result rs;
+		pushResult(rs,A[0]);//Result
+		return 	rs;
 	}
 	MPI_Finalize();
 	 
