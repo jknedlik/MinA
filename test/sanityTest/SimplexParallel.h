@@ -6,10 +6,8 @@
 #include "mpi.h"
 #include "MinA/common/OptimizationAlgorithm.h"
 
-struct vertex{
-  		std::map <std::string, double> par;
-    		double func;
-	};
+
+typedef std::pair <std::map <std::string, double>,double> vertex;
 
 class SimplexParallel:public OptimizationAlgorithm{
     public:

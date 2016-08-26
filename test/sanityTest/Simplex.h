@@ -5,9 +5,9 @@
 #include<memory>
 #include "mpi.h"
 #include "MinA/common/OptimizationAlgorithm.h"
-#include "SimplexParallel.h"
 
 
+typedef std::pair <std::map <std::string, double>,double> vertex;
 class Simplex:public OptimizationAlgorithm{
     public:
 	Simplex();
