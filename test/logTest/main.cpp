@@ -6,7 +6,7 @@
 #include <cstdio>
 int main(void){
   Log::getLog().setLogOutput("testlog.txt");
-  Log::getLog().pushMessage("test123");
+  Log::getLog() << "test123" ;
   Log::getLog().flushLog();
   std::ifstream myfile;
   myfile.open("testlog.txt");

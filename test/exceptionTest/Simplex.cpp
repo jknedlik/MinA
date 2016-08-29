@@ -87,7 +87,7 @@ Result Simplex::algorithm(Functiontobeoptimized* start){
 		else if(start->evaluate(Ar)<start->evaluate(A[dimension-1]))
 			for (auto it : start->parameters){A[dimension][it.getname()]=Ar[it.getname()];}
 		//case 3
-                  else if(start->evaluate(Ac)<start->evaluate(A[dimension]))
+		else if(start->evaluate(Ac)<start->evaluate(A[dimension]))
 			for (auto it : start->parameters){A[dimension][it.getname()]=Ac[it.getname()];}
 		//case 4
 		else{
