@@ -1,5 +1,6 @@
-logTest
-SanityTest
+build
+lib
+*.exe
 *.txt
 CMakeCache.txt
 CMakeFiles
