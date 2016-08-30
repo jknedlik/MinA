@@ -17,7 +17,7 @@ Result Simplex::algorithm(Functiontobeoptimized* start){
 
 	
 
-	vertex A[dimension+1];
+        auto A=std::vector<vertex>(dimension+1);
 	cout<<"dimension ="<<dimension<<endl;
 		
 	//Initial
@@ -43,7 +43,7 @@ Result Simplex::algorithm(Functiontobeoptimized* start){
 	//Sort
 		vertex M,Ar,Ac,Ae;
 		for(int i=0;i<=dimension;i++){A[i].second=start->evaluate(A[i].first);}
-		std::sort(A,A+dimension+1,[](vertex  & a, vertex   & b) -> bool{
+		std::sort(A.begin(),A.end(),[](vertex  & a, vertex   & b) -> bool{
 		return a.second < b.second; });
 	cout<<"jj= "<<jj<<endl;
 	showfunc(A);
@@ -111,11 +111,8 @@ Result Simplex::algorithm(Functiontobeoptimized* start){
 	return 	rs;
 }
 
-void Simplex::showfunc(vertex *para){
-	
-	for(int i=0;i<=dimension;i++){
-		for (std::map<string, double>::iterator it=para[i].first.begin(); it!=para[i].first.end(); ++it)
-    			std::cout << it->first << "=" << it->second << " ";	
-		cout<<"f(A"<<i<<")="<<para[i].second<<endl;
-	}
+void Simplex::showfunc(std::vector<vertex> &para){
+	for(auto it:para){
+          for (auto itx :it.first){std::cout << itx.first << "=" << itx.second << " ";}
+        }
 }
