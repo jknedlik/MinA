@@ -12,11 +12,15 @@ class OptimizationAlgorithm{
 	virtual ~OptimizationAlgorithm();
 	virtual Result algorithm(Functiontobeoptimized *start)=0;
 	
-	 void SetOptimizationAlgorithmParameter(string nam,double nu);
-	 double GetOptimizationAlgorithmParameter(string nam);
+	 void setOptimizationAlgorithmParameter(string nam,double nu);
+	 double getOptimizationAlgorithmParameter(string nam);
+	virtual void save()const=0;
+	virtual void restore()=0;
+	std::map <string, double> getAdditionalInformation()const{return additionalInformation;}
+	void setAdditionalInformation(std::map <string, double> additionalInformation_re){additionalInformation=additionalInformation_re;}
     private:
-	std::map <string, double> OptimizationAlgorithmParameter;
-	std::map <string, double> additionalIntregration;
+	std::map <string, double> optimizationAlgorithmParameter;
+	std::map <string, double> additionalInformation;
 };
 
 #endif

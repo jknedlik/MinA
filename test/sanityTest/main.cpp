@@ -16,7 +16,7 @@ int main(void){
 	Simplex altest1;
 	SimplexParallel altest2;
 	Minimizer mina;
-        cout<<"function minimized value="<<mina.minimize(&test1,&altest2).result<<endl;
+        cout<<"function minimized value="<<mina.minimize(&test1,&altest1).result<<endl;
 
     return(0);
 }

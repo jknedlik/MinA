@@ -1,9 +1,9 @@
 #include "MinA/common/OptimizationAlgorithm.h"
 
 OptimizationAlgorithm::~OptimizationAlgorithm(){;}
-void OptimizationAlgorithm::SetOptimizationAlgorithmParameter(string nam,double nu){
-		OptimizationAlgorithmParameter[nam]=nu;
+void OptimizationAlgorithm::setOptimizationAlgorithmParameter(string nam,double nu){
+		optimizationAlgorithmParameter[nam]=nu;
 	};
-double OptimizationAlgorithm::GetOptimizationAlgorithmParameter(string nam){
-		return OptimizationAlgorithmParameter[nam];
+double OptimizationAlgorithm::getOptimizationAlgorithmParameter(string nam){
+		return optimizationAlgorithmParameter[nam];
 	};

@@ -2,114 +2,154 @@
 
 
 Simplex::Simplex(){
-	SetOptimizationAlgorithmParameter("alpha",1);
-	SetOptimizationAlgorithmParameter("beta",0.5);
-	SetOptimizationAlgorithmParameter("gramma",1);
-	SetOptimizationAlgorithmParameter("town",.5);
-	SetOptimizationAlgorithmParameter("stepsize",0.5);	
+	setOptimizationAlgorithmParameter("alpha",1);
+	setOptimizationAlgorithmParameter("beta",0.5);
+	setOptimizationAlgorithmParameter("gramma",1);
+	setOptimizationAlgorithmParameter("town",.5);
+	setOptimizationAlgorithmParameter("stepsize",0.5);	
 }
 
 
 Simplex::~Simplex(){}
 Result Simplex::algorithm(Functiontobeoptimized* start){
 	
-	int dimension=start->getparametersize();
-	std::map <string, double> A[dimension+1];
-	cout<<"dimension ="<<dimension<<endl;
+	dimension=start->getparametersize();
+	vertexVector A;
+	restore();
+	//for(int i=0;i<1000;i++)std::cout<<i<<endl;
+	if(Acopy.empty()){
+		cout<<"dimension ="<<dimension<<endl;
+       		//A=std::vector<vertex>();
+		cout<<"dimension =3"<<dimension<<endl;
+		A.resize(dimension+1);
+		cout<<"dimension =22"<<dimension<<endl;
+
 		
-	//Initial
+		//Initial
 
-	for (auto it : start->parameters)
-		A[0][it.getname()]=it.getstartingPoint();
-
-
-	for(int i=1;i<=dimension;i++){
-		for ( std::set<Parameter>::iterator it=start->parameters.begin(); it!=start->parameters.end(); ++it){
-			if(std::distance(start->parameters.begin(),it)==i-1)
-				A[i][it->getname()]=A[0][it->getname()]+GetOptimizationAlgorithmParameter("stepsize");
-			else
-				A[i][it->getname()]=A[0][it->getname()];
+		for (auto it : start->parameters)
+			A[0].first[it.getname()]=it.getstartingPoint();
+	
+	
+		for(int i=1;i<=dimension;i++){
+			for ( std::set<Parameter>::iterator it=start->parameters.begin(); it!=start->parameters.end(); ++it){
+				if(std::distance(start->parameters.begin(),it)==i-1)
+					A[i].first[it->getname()]=A[0].first[it->getname()]+getOptimizationAlgorithmParameter("stepsize");
+				else
+					A[i].first[it->getname()]=A[0].first[it->getname()];
+			}
+	
 		}
+	}
+	else {A=Acopy;
 
 	}
 
 	//showfunc(start,A);
 
 	for(int jj=0;jj<100;jj++){
-
+	
 	//Sort
-		std::map <string, double> M,Ar,Ac,Ae;
-		std::sort(A,A+dimension+1,[start](std::map <string, double>  & a, std::map <string, double>  & b) -> bool{
-		return start->evaluate(a) < start->evaluate(b) ; });
+		vertex M,Ar,Ac,Ae;
+		std::cout<<"hello world"<<std::endl;
+		for(int i=0;i<=dimension;i++){A[i].second=start->evaluate(A[i].first);}
+		std::cout<<"hello world2"<<std::endl;
+		std::sort(A.begin(),A.end(),[](vertex  & a, vertex   & b) -> bool{
+		return a.second < b.second; });
 	cout<<"jj= "<<jj<<endl;
-	showfunc(start,A);
+	showfunc(A);
 
 	//Mean
 		for(int i=0;i<dimension;i++){
 			for(auto it : start->parameters){
-				M[it.getname()]+=A[i][it.getname()];		
+				M.first[it.getname()]+=A[i].first[it.getname()];		
 			}
 		}
 		for (auto it : start->parameters){
-			M[it.getname()]/=dimension;		
+			M.first[it.getname()]/=dimension;		
 		}
 
 	//calculate
 		//Ar
 		for (auto it : start->parameters){
-			Ar[it.getname()]=M[it.getname()]+GetOptimizationAlgorithmParameter("alpha")*(M[it.getname()]-A[dimension][it.getname()]);		
+			Ar.first[it.getname()]=M.first[it.getname()]+getOptimizationAlgorithmParameter("alpha")*(M.first[it.getname()]-A[dimension].first[it.getname()]);		
 		}
+		Ar.second=start->evaluate(Ar.first);
 		//Ae
 		for (auto it : start->parameters){
-			Ae[it.getname()]=Ar[it.getname()]+GetOptimizationAlgorithmParameter("gramma")*(Ar[it.getname()]-M[it.getname()]);		
+			Ae.first[it.getname()]=Ar.first[it.getname()]+getOptimizationAlgorithmParameter("gramma")*(Ar.first[it.getname()]-M.first[it.getname()]);		
 		}
+		Ae.second=start->evaluate(Ae.first);
 		//Ac
-		if(start->evaluate(Ar)>start->evaluate(A[dimension])){
+		if(Ar.second>A[dimension].second){
 			for (auto it : start->parameters){
-				Ac[it.getname()]=M[it.getname()]+GetOptimizationAlgorithmParameter("beta")*(A[dimension][it.getname()]-M[it.getname()]);			
+				Ac.first[it.getname()]=M.first[it.getname()]+getOptimizationAlgorithmParameter("beta")*(A[dimension].first[it.getname()]-M.first[it.getname()]);			
 			}
 		}
 		else{
 			for (auto it : start->parameters){
-				Ac[it.getname()]=M[it.getname()]+GetOptimizationAlgorithmParameter("beta")*(Ar[it.getname()]-M[it.getname()]);			
+				Ac.first[it.getname()]=M.first[it.getname()]+getOptimizationAlgorithmParameter("beta")*(Ar.first[it.getname()]-M.first[it.getname()]);			
 			}
 		}
-
+		Ac.second=start->evaluate(Ac.first);
 	//case//Update vertex step3
 		//case 1
-		if(start->evaluate(Ar)<start->evaluate(A[0])){
-			if(start->evaluate(Ae)<start->evaluate(A[0]))
-				for (auto it : start->parameters){A[dimension][it.getname()]=Ae[it.getname()];}
+		if(Ar.second<A[0].second){
+			if(Ae.second<A[0].second)
+				for (auto it : start->parameters){A[dimension].first[it.getname()]=Ae.first[it.getname()];}
 			else
-				for (auto it : start->parameters){A[dimension][it.getname()]=Ar[it.getname()];}
+				for (auto it : start->parameters){A[dimension].first[it.getname()]=Ar.first[it.getname()];}
 		}	
 		//case 2
-		else if(start->evaluate(Ar)<start->evaluate(A[dimension-1]))
-			for (auto it : start->parameters){A[dimension][it.getname()]=Ar[it.getname()];}
+		else if(Ar.second<A[dimension-1].second)
+			for (auto it : start->parameters){A[dimension].first[it.getname()]=Ar.first[it.getname()];}
 		//case 3
-		else if(start->evaluate(Ac)<start->evaluate(A[dimension]))
-			for (auto it : start->parameters){A[dimension][it.getname()]=Ac[it.getname()];}
+		else if(Ac.second<A[dimension].second)
+			for (auto it : start->parameters){A[dimension].first[it.getname()]=Ac.first[it.getname()];}
 		//case 4
 		else{
 			for(int i=1;i<=dimension;i++)
 				for (auto it : start->parameters)	
-					A[i][it.getname()]=GetOptimizationAlgorithmParameter("town")*A[0][it.getname()]+(1-GetOptimizationAlgorithmParameter("town"))*A[i][it.getname()];
+					A[i].first[it.getname()]=getOptimizationAlgorithmParameter("town")*A[0].first[it.getname()]+(1-getOptimizationAlgorithmParameter("town"))*A[i].first[it.getname()];
 		}
-
-	//Return result
+	Acopy=A;
+	save();
 	}
+	//Return result*/
 	Result rs;
 		for (auto it : start->parameters)
-		rs.optimizationparameter["it.getname()"]=A[0][it.getname()];
-		rs.result=start->evaluate(A[0]);
+		rs.optimizationparameter["it.getname()"]=A[0].first[it.getname()];
+		rs.result=A[0].second;
 	return 	rs;
 }
 
-void Simplex::showfunc(Functiontobeoptimized* start,std::map <string, double> *para){
-	int dimension=start->getparametersize();
-	for(int i=0;i<=dimension;i++){
-		for (std::map<string, double>::iterator it=para[i].begin(); it!=para[i].end(); ++it)
-    			std::cout << it->first << "=" << it->second << " ";	
-		cout<<"f(A"<<i<<")="<<start->evaluate(para[i])<<endl;
+void Simplex::showfunc(std::vector<vertex> &para){
+	for(auto it:para){
+          for (auto itx :it.first){std::cout << itx.first << "=" << itx.second << " ";}
+	std::cout<<"\n";       
+	 }
+	
+}
+void Simplex::restore(){
+	std::ifstream f(".Simplex.save");
+	if(f.good()){
+		Log::getLog() <<"Loading from file .Simplex.save";
+		Log::getLog().flushLog();
+		std::ifstream infile(".Simplex.save");
+   	 	boost::archive::text_iarchive ia(infile);
+		std::map <string, double> additionalInformation;
+		
+    		ia >>Acopy;
+		ia >>additionalInformation;
+		setAdditionalInformation(additionalInformation);
+	}
+  }
+void Simplex::save()const{
+	if(!Acopy.empty()){	
+	std::ofstream outfile(".Simplex.save");
+	boost::archive::text_oarchive oa(outfile);
+	oa<<Acopy;
+	auto ai = getAdditionalInformation();
+	 oa<<ai;
 	}
 }
