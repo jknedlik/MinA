@@ -16,11 +16,12 @@ class OptimizationAlgorithm{
 	 double getOptimizationAlgorithmParameter(string nam);
 	virtual void save()const=0;
 	virtual void restore()=0;
-	std::map <string, double> getAdditionalInformation()const{return additionalInformation;}
-	void setAdditionalInformation(std::map <string, double> additionalInformation_re){additionalInformation=additionalInformation_re;}
+	std::map <string, string> getAdditionalInformation()const;
+	void setAdditionalInformation(std::map <string, string> additionalInformation_re);
+	void setAdditionalInformation(string s1,string s2);
     private:
 	std::map <string, double> optimizationAlgorithmParameter;
-	std::map <string, double> additionalInformation;
+	std::map <string, string> additionalInformation;
 };
 
 #endif

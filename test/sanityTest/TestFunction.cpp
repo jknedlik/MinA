@@ -4,7 +4,7 @@
 #include <cmath>
 # define PI           3.14159265358979323846
 #include "MinA/common/Functiontobeoptimized.h"
-
+#include<string>
 #define MYFUNCTION_CPP
 
 
@@ -30,6 +30,7 @@ class Myfunction:public Functiontobeoptimized{
 	}
  
 };
+
 class Himmelblaufunction:public Functiontobeoptimized{
     public:
 	Himmelblaufunction(){
@@ -50,6 +51,7 @@ class Himmelblaufunction:public Functiontobeoptimized{
 	}
  
 };
+
 class Boot_s_function:public Functiontobeoptimized{
     public:
 	Boot_s_function(){
@@ -78,18 +80,42 @@ class Michalewicz_function:public Functiontobeoptimized{
 		first.setstartingPoint(3);		
 		second.setname("y");	
 		second.setstartingPoint(4);	
-		//third.setname("z");
 		parameters.insert(first);
 		parameters.insert(second);
-		//parameters.insert(third);
+
 		
 	};
 
 	double getEvaluation(std::map <string, double> para){
 	double fz;
-	fz=-sin(para["x"])*pow(sin(pow(para["x"],2)/PI),2)-sin(para["x"])*pow(sin(2*pow(para["y"],2)/PI),2);//-sin(para["z"])*pow(sin(3*pow(para["z"],2)/PI),2);
+	fz=-sin(para["x"])*pow(sin(pow(para["x"],2)/PI),2)-sin(para["x"])*pow(sin(2*pow(para["y"],2)/PI),2);
+	return fz;
+	};
+ 
+};
+class Matthias_function:public Functiontobeoptimized{
+    public:
+
+	Matthias_function(){
+		n = 1;
+		
+			for(int i=0;i<n;i++){
+			Parameter par;		
+			par.setname(std::to_string(i));
+			par.setstartingPoint(10-i);
+			parameters.insert(par);
+		
+		}
+		
+	};
+
+	double getEvaluation(std::map <string, double> para){
+		double sum_xs=0;
+		for (auto it : parameters) sum_xs+=pow(para[it.getname()],2);
+		double fz=6*pow(cos(3*sum_xs),2)+exp(sum_xs);
 	return fz;
 	}
+	int n;
  
 };
 
