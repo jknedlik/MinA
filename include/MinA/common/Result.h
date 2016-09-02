@@ -9,8 +9,8 @@
 class Result{
     public:
 	
-	std::map <std::string, double> optimizationparameter;
-	std::map <std::string, std::string> additionalingormation;
+	std::map <std::string, double> optimizationParameter;
+	std::map <std::string, std::string> additionalInformation;
 	double result;
 	
  

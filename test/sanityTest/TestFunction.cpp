@@ -13,12 +13,18 @@ class Myfunction:public Functiontobeoptimized{
 	Myfunction(){
 		Parameter first,second,third;
 
-		first.setname("x");
-		first.setstartingPoint(3);		
-		second.setname("y");	
-		second.setstartingPoint(4);
-		third.setname("z");
-		third.setstartingPoint(5);
+		first.setName("x");
+		first.setStartingPoint(3);		
+		second.setName("y");	
+		second.setStartingPoint(4);
+		third.setName("z");
+		third.setStartingPoint(5);
+		//first.setBoundaryLeft(-100);
+	//	first.setBoundaryRight(100);
+		//third.setBoundaryLeft(-100);
+		//third.setBoundaryRight(100);
+		//second.setBoundaryLeft(-100);
+	//	second.setBoundaryRight(100);
 		parameters.insert(second);
 		parameters.insert(first);
 		parameters.insert(third);
@@ -35,14 +41,12 @@ class Himmelblaufunction:public Functiontobeoptimized{
     public:
 	Himmelblaufunction(){
 		Parameter first,second;
-		first.setname("x");
-		first.setstartingPoint(3);		
-		second.setname("y");	
-		second.setstartingPoint(4);
+		first.setName("x");
+		first.setStartingPoint(3);		
+		second.setName("y");	
+		second.setStartingPoint(4);
 		parameters.insert(first);
 		parameters.insert(second);
-		//parameters.insert("x");
-		//parameters.insert("y");
 	};
 
 	double getEvaluation(std::map <string, double> para){
@@ -56,10 +60,10 @@ class Boot_s_function:public Functiontobeoptimized{
     public:
 	Boot_s_function(){
 		Parameter first,second;
-		first.setname("x");
-		first.setstartingPoint(3);		
-		second.setname("y");	
-		second.setstartingPoint(4);	
+		first.setName("x");
+		first.setStartingPoint(3);		
+		second.setName("y");	
+		second.setStartingPoint(4);	
 		parameters.insert(first);
 		parameters.insert(second);
 		
@@ -76,10 +80,10 @@ class Michalewicz_function:public Functiontobeoptimized{
     public:
 	Michalewicz_function(){
 		Parameter first,second,third;
-		first.setname("x");
-		first.setstartingPoint(3);		
-		second.setname("y");	
-		second.setstartingPoint(4);	
+		first.setName("x");
+		first.setStartingPoint(3);		
+		second.setName("y");	
+		second.setStartingPoint(4);	
 		parameters.insert(first);
 		parameters.insert(second);
 
@@ -96,26 +100,41 @@ class Michalewicz_function:public Functiontobeoptimized{
 class Matthias_function:public Functiontobeoptimized{
     public:
 
-	Matthias_function(){
-		n = 1;
-		
-			for(int i=0;i<n;i++){
+	Matthias_function(int dimension){
+		alpha=6;
+		beta=3;
+		gramma=1;
+		eata=1;
+			for(int i=0;i< dimension;i++){
 			Parameter par;		
-			par.setname(std::to_string(i));
-			par.setstartingPoint(10-i);
+			par.setName("x"+std::to_string(i));
+			par.setStartingPoint(-0.3);
+			par.setBoundaryLeft(-100);
+			par.setBoundaryRight(100);
 			parameters.insert(par);
-		
 		}
 		
 	};
+	void reDimension(int dimension){
+			for(int i=0;i<dimension;i++){
+			Parameter par;		
+			par.setName("x"+std::to_string(i));
+			par.setStartingPoint(3);
+			par.setBoundaryLeft(-9.5);
+			par.setBoundaryRight(9.5);
+			parameters.insert(par);
+		}
+		
+	};	
 
 	double getEvaluation(std::map <string, double> para){
 		double sum_xs=0;
-		for (auto it : parameters) sum_xs+=pow(para[it.getname()],2);
-		double fz=6*pow(cos(3*sum_xs),2)+exp(sum_xs);
+		for (auto it : parameters) sum_xs+=pow(para[it.getName()],2);
+		double fz=alpha*pow(cos(beta*sum_xs),2)+gramma*exp(eata*sum_xs);
 	return fz;
 	}
-	int n;
+	double alpha,beta,gramma,eata;
+
  
 };
 

@@ -14,12 +14,12 @@ class BadTen:public Functiontobeoptimized{
 	BadTen():i(0){
 		Parameter first,second,third;
 
-		first.setname("x");
-		first.setstartingPoint(3);		
-		second.setname("y");	
-		second.setstartingPoint(4);
-		third.setname("z");
-		third.setstartingPoint(5);
+		first.setName("x");
+		first.setStartingPoint(3);		
+		second.setName("y");	
+		second.setStartingPoint(4);
+		third.setName("z");
+		third.setStartingPoint(5);
 		parameters.insert(second);
 		parameters.insert(first);
 		parameters.insert(third);

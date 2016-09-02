@@ -48,7 +48,7 @@ handle_arith handle;
         return result;
         }
 	virtual double getEvaluation(std::map <string, double> para)=0;
-        int getparametersize(){return parameters.size();}
+        int getParameterSize(){return parameters.size();}
 	std::set<Parameter> parameters;
     protected:
 	

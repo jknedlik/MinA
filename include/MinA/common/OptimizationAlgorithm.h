@@ -10,7 +10,7 @@ using namespace std;
 class OptimizationAlgorithm{
     public:
 	virtual ~OptimizationAlgorithm();
-	virtual Result algorithm(Functiontobeoptimized *start)=0;
+	virtual Result algorithm(std::shared_ptr<Functiontobeoptimized> start)=0;
 	
 	 void setOptimizationAlgorithmParameter(string nam,double nu);
 	 double getOptimizationAlgorithmParameter(string nam);

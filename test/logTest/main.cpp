@@ -13,6 +13,6 @@ int main(void){
   std::string line;
   std::getline(myfile,line);
   myfile.close();
-  std::remove("testlog.txt");
+ // std::remove("testlog.txt");
   return !(line.compare("test123")==0);
 }

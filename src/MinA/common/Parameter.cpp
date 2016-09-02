@@ -6,39 +6,39 @@ Parameter::Parameter(){
 	boundaryRight=nullptr;
 	}
 bool Parameter::operator< (const Parameter&  e)const  {
-	return strcmp (getname().c_str(),e.getname().c_str())<0;
+	return strcmp (getName().c_str(),e.getName().c_str())<0;
 	}
 
 
 
-void Parameter::setname(string na){
+void Parameter::setName(string na){
 	name=na;
 	}
 
-string Parameter::getname()const{
+string Parameter::getName()const{
 	return name;
 	}
 
-void Parameter::setstartingPoint(double sp){
+void Parameter::setStartingPoint(double sp){
 	startingPoint=std::allocate_shared<double> (alloc,sp);
 	}
 
-void Parameter::setboundaryLeft(double bl){
+void Parameter::setBoundaryLeft(double bl){
 	boundaryLeft=std::allocate_shared<double> (alloc,bl);
 	}
 
-void Parameter::setboundaryRight(double br){
+void Parameter::setBoundaryRight(double br){
 	boundaryRight=std::allocate_shared<double> (alloc,br);
 	}
 
-double Parameter::getstartingPoint()const{
-	return 	*startingPoint;
+std::shared_ptr<double> Parameter::getStartingPoint()const{
+	return 	startingPoint;
 	}
 
-double Parameter::getboundaryLeft() const{
-	return 	*boundaryLeft;
+std::shared_ptr<double> Parameter::getBoundaryLeft() const{
+	return 	boundaryLeft;
 	}
 
-double Parameter::getboundaryRight() const{
-	return 	*boundaryRight;
+std::shared_ptr<double> Parameter::getBoundaryRight() const{
+	return 	boundaryRight;
 	}

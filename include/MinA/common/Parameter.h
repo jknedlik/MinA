@@ -14,14 +14,14 @@ class Parameter{
 	
 	Parameter();
 	bool operator< (const Parameter&  e) const;
-	void setname(string na);
-	string getname() const;
-	void setstartingPoint(double sp);
-	void setboundaryLeft(double bl);
-	void setboundaryRight(double br);
-	double getstartingPoint()const;
-	double getboundaryLeft()const;
-	double getboundaryRight()const;
+	void setName(string na);
+	string getName() const;
+	void setStartingPoint(double sp);
+	void setBoundaryLeft(double bl);
+	void setBoundaryRight(double br);
+	std::shared_ptr<double> getStartingPoint()const;
+	std::shared_ptr<double> getBoundaryLeft()const;
+	std::shared_ptr<double> getBoundaryRight()const;
 	
     private:
 	string name;

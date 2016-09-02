@@ -1,39 +1,38 @@
-#include "SimplexParallel.h"
+#include "MinA/algorithm/SimplexParallel.h"
 
 
-SimplexParallel::SimplexParallel(){
-	setOptimizationAlgorithmParameter("alpha",1);
-	setOptimizationAlgorithmParameter("beta",0.5);
-	setOptimizationAlgorithmParameter("gramma",1);
-	setOptimizationAlgorithmParameter("tau",.5);
-	setOptimizationAlgorithmParameter("stepsize",0.5);	
-	setAdditionalInformation("stopingiteration","20");
-	currentiteration=0;
+SimplexParallel::SimplexParallel(int stop ):Simplex(stop){
+	if(!MPI::Is_initialized())throw std::runtime_error("MPI_INIT must be used beforehand");
 }
 
 
 SimplexParallel::~SimplexParallel(){}
-Result SimplexParallel::algorithm(Functiontobeoptimized* start){
+Result SimplexParallel::algorithm(std::shared_ptr<Functiontobeoptimized> start){
 	
 	function=start;
-	dimension=function->getparametersize();
+	dimension=function->getParameterSize();
 	vertexVector A;
+	
 	restore();
+	cout<<"Start with current loop= "<<currentiteration<<endl;
+	setStepSize();
 	if(Acopy.empty()){
 		
 		A.resize(dimension+1);
 		
-		InitialVertex(A);//Initial
+		createInitialVertex(A);//Initial
 	}
 	else {	A=Acopy;
 	}
-	MPI_Init(NULL, NULL);
-  	int world_rank;
+
+	int world_rank;
   	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-  	int world_size;
-	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-        
+	int world_size;
 	
+	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+	
+        
+
 
 
 	if(world_rank==0){
@@ -42,8 +41,7 @@ Result SimplexParallel::algorithm(Functiontobeoptimized* start){
 		while(checkStopingCondition()){
 		
 			for(int i=0;i<=dimension;i++){A[i].second=function->evaluate(A[i].first);}//Evaluate(A)
-			std::sort(A.begin(),A.end(),[](vertex  & a, vertex   & b) -> bool{
-		return a.second < b.second; });
+			std::sort(A.begin(),A.end(),[](vertex  & a, vertex   & b) -> bool{return a.second < b.second; });
 			cout<<"loop= "<<currentiteration<<endl;
 			showVertex(A);
 	
@@ -69,32 +67,43 @@ Result SimplexParallel::algorithm(Functiontobeoptimized* start){
 			}
 			
 			if(sumcheck==0){
-				newVertex(A);
-			}//case 4
-		
+				createNewVertex(A);
+			}//case 4*/
+		ofstream dataFile;
+		dataFile.open("dataFile2.txt",std::ios::app);
+		dataFile<<"Iteration= "<<currentiteration<<"	f(A0)= "<<A[0].second<<"	";
+		for (std::map<string, double>::iterator it=A[0].first.begin(); it!=A[0].first.end(); ++it)
+			dataFile<<it->first<< " = "<<it->second<<"	";
+		dataFile<<"\n";
+		dataFile.close();
+		difference=(A[0].second-A[1].second)*(A[0].second-A[1].second);
 		Acopy=A;
 		save();
 
 		}
 		
 		mode=0;
-		for(int i=1;i<world_size;i++)	
-		MPI_Send(&mode, 1, MPI_INT, i,0, MPI_COMM_WORLD);
+		for(int i=1;i<world_size;i++){			
+		MPI_Send(&mode, 1, MPI_INT, i,world_size, MPI_COMM_WORLD);
+		
+		}	
 	}
 
+
 	if (world_rank !=0){
-		int mode;
+		
 		
 		while(1){
-		MPI_Recv(&(mode), 1, MPI_INT, 0, world_size, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		int mode;
+		
+		MPI_Recv(&mode, 1, MPI_INT, 0, world_size, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		
 			if(mode==1){
 				vertex M,Aj,Aj_1,A0,Ar,Ac,Ae;
 				M=receiveVertex(0,0);
 				A0=receiveVertex(0,1);	
 				Aj_1=receiveVertex(0,2);	
 				Aj=receiveVertex(0,3);//receiving M,A0,Aj,Aj_1
-		
-				//calculate
 				A0.second=function->evaluate(A0.first);
 				Aj_1.second=function->evaluate(Aj_1.first);
 				Aj.second=function->evaluate(Aj.first);
@@ -119,30 +128,33 @@ Result SimplexParallel::algorithm(Functiontobeoptimized* start){
 						check=4;
 					}
 				}//case 3
-			
+				
 				sendVertex(Aj,0,world_rank);
 				MPI_Send(&(check), 1, MPI_INT, 0, world_rank+1, MPI_COMM_WORLD);
 			}
-			else if(mode==0) break;	
+			else 
+			if(mode==0){ Result rs;return rs;}
 				
 		}
 		
+		
 	}
 		
-	if(world_rank==0){		
+	if(world_rank==0){	
+		
 		Result rs;
-		pushResult(rs,A[0]);//Result
+		pushResult(rs,A[0]);//Result	
 		return 	rs;
 	}
-	MPI_Finalize();
-	 
+	
+	
 }
 
 void SimplexParallel::sendVertex(vertex &An,int receiver,int tag){
 			double Ad[dimension];	
 			int run=0;
 			for (auto it : function->parameters){
-			Ad[run]=An.first[it.getname()];		
+			Ad[run]=An.first[it.getName()];		
 			run++;
 			}
 
@@ -156,7 +168,7 @@ vertex SimplexParallel::receiveVertex(int sender,int tag){
 					
 			int run=0;
 			for (auto it : function->parameters){
-			An.first[it.getname()]=Ad[run];
+			An.first[it.getName()]=Ad[run];
 			run++;
 			}
 return An;	

@@ -3,14 +3,15 @@
 #include <map>
 #include <iostream>
 #include<memory>
-#include "mpi.h"
+//#include "mpi.h"
 #include <boost/serialization/vector.hpp>
 #include "MinA/common/OptimizationAlgorithm.h"
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-#include "Simplex.h"
+#include "MinA/algorithm/Simplex.h"
+#include <boost/mpi.hpp>
 
 
 typedef std::pair <std::map <std::string, double>,double> vertex;
@@ -18,9 +19,9 @@ typedef std::vector<std::pair <std::map <std::string, double>,double>> vertexVec
 
 class SimplexParallel:public Simplex{
     public:
-	SimplexParallel();
+	SimplexParallel(int stop = 100 );
 	~SimplexParallel();
-	Result algorithm(Functiontobeoptimized* start);
+	Result algorithm(std::shared_ptr<Functiontobeoptimized> start);
 	void sendVertex(vertex &A,int receiver,int tag);
 	vertex receiveVertex(int sender,int tag);
 	

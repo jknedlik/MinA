@@ -12,8 +12,8 @@ class Minimizer{
     public:
 	
 
-	Result minimize(Functiontobeoptimized *start,OptimizationAlgorithm *sim );
-	Result operator()(Functiontobeoptimized *start,OptimizationAlgorithm *sim);
+	Result minimize(std::shared_ptr<Functiontobeoptimized> start,std::shared_ptr<OptimizationAlgorithm> sim );
+	Result operator()(std::shared_ptr<Functiontobeoptimized> start,std::shared_ptr<OptimizationAlgorithm> sim);
 	private:
 
 };
