@@ -8,33 +8,31 @@ SimplexParallel::SimplexParallel(int stop ):Simplex(stop){
 
 SimplexParallel::~SimplexParallel(){}
 Result SimplexParallel::algorithm(std::shared_ptr<Functiontobeoptimized> start){
+	int size, rank;
 	
+	    MPI_Comm_size(MPI_COMM_WORLD, &size);
+	    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	
+	
+
 	function=start;
 	dimension=function->getParameterSize();
 	vertexVector A;
 	
-	restore();
+	//restore();
 	cout<<"Start with current loop= "<<currentiteration<<endl;
 	setStepSize();
 	if(Acopy.empty()){
-		
 		A.resize(dimension+1);
-		
 		createInitialVertex(A);//Initial
 	}
 	else {	A=Acopy;
 	}
-
+	
 	int world_rank;
   	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 	int world_size;
-	
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-	
-        
-
-
-
 	if(world_rank==0){
 	int mode;
 		
@@ -58,30 +56,48 @@ Result SimplexParallel::algorithm(std::shared_ptr<Functiontobeoptimized> start){
 			}//sending M,A0,Aj_1,Aj
 		
 			int sumcheck=0;
+			
 			for(int i=1;i<world_size;i++){
 				int check;
 				MPI_Recv(&(check), 1, MPI_INT, i, i+1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+				cout<<"check="<<check<<endl;
 				sumcheck+=check;
-				vertex b=receiveVertex(i,i);
-				push(A[dimension-i+1],b);
 			}
-			
+			//cout<<"sumcheck="<<sumcheck<<endl;
 			if(sumcheck==0){
-				createNewVertex(A);
-			}//case 4*/
-		ofstream dataFile;
-		dataFile.open("dataFile2.txt",std::ios::app);
-		dataFile<<"Iteration= "<<currentiteration<<"	f(A0)= "<<A[0].second<<"	";
-		for (std::map<string, double>::iterator it=A[0].first.begin(); it!=A[0].first.end(); ++it)
-			dataFile<<it->first<< " = "<<it->second<<"	";
-		dataFile<<"\n";
-		dataFile.close();
-		difference=(A[0].second-A[1].second)*(A[0].second-A[1].second);
-		Acopy=A;
-		save();
-
+				for(int i=1;i<dimension-world_size+1;i++){
+				vertex Anew;
+				calculateNewPoint(Anew,A[i],A[0]);
+				push(A[i],Anew);				
+				}
+				for(int i=1;i<world_size;i++){
+				vertex b=receiveVertex(i,i);
+				vertex Anew;
+				calculateNewPoint(Anew,b,A[0]);
+				push(A[dimension-world_size+i+1],Anew);
+				}
+			}//case 4
+			else
+				for(int i=1;i<world_size;i++){
+				vertex b=receiveVertex(i,i);
+				//cout<<"loop="<<currentiteration<<"index="<<dimension-world_size+i+1<<" world_rank="<<i<<" ";
+				b.second=function->evaluate(b.first);
+				//1111		showVertex(b);
+				//cout<<"checkA["<<dimension-world_size+i+1<<"]="<<checkA[dimension-world_size+i+1]<<endl;
+				push(A[dimension-world_size+i+1],b);
+				}
+					
+			ofstream dataFile;
+			dataFile.open("SimplexParallel"+getFunctionName(),std::ios::app);
+			dataFile<<"Iteration= "<<currentiteration<<"	f(A0)= "<<A[0].second<<"	";
+			for (std::map<string, double>::iterator it=A[0].first.begin(); it!=A[0].first.end(); ++it)
+				dataFile<<it->first<< " = "<<it->second<<"	";
+			dataFile<<"\n";
+			dataFile.close();
+			
+			//save();
 		}
-		
+	
 		mode=0;
 		for(int i=1;i<world_size;i++){			
 		MPI_Send(&mode, 1, MPI_INT, i,world_size, MPI_COMM_WORLD);
@@ -89,17 +105,15 @@ Result SimplexParallel::algorithm(std::shared_ptr<Functiontobeoptimized> start){
 		}	
 	}
 
-
 	if (world_rank !=0){
 		
 		
 		while(1){
 		int mode;
-		
 		MPI_Recv(&mode, 1, MPI_INT, 0, world_size, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		
 			if(mode==1){
-				vertex M,Aj,Aj_1,A0,Ar,Ac,Ae;
+				vertex M,Aj,Aj_1,A0,Ar,Ac,Ae,Ap;
 				M=receiveVertex(0,0);
 				A0=receiveVertex(0,1);	
 				Aj_1=receiveVertex(0,2);	
@@ -118,25 +132,28 @@ Result SimplexParallel::algorithm(std::shared_ptr<Functiontobeoptimized> start){
 				}//case 1	
 				else if(Ar.second<Aj_1.second){push(Aj,Ar);check=3;}//case 2 
 				else {
-					if(Ar.second>Aj.second){
-						calculateAc(Ac,M,Aj);
+					if(Ar.second<Aj.second){
+						Ap=Ar;
 					}else{
-					calculateAc(Ac,M,Ar);
+					Ap=Aj;
 					}//Ac
-					if(Ac.second<Aj.second){		
+					calculateAc(Ac,M,Ap);
+
+					if(Ac.second<Ap.second){
+						//if(Ac.second<Aj.second)cout<<"Ac="<<Ac.second<<endl;	
+						//else 	cout<<"Aj="<<Aj.second<<endl;
 						push(Aj,Ac);
 						check=4;
-					}
-				}//case 3
+					}//case 3
+					else push(Aj,Ap);
+				}
 				
 				sendVertex(Aj,0,world_rank);
 				MPI_Send(&(check), 1, MPI_INT, 0, world_rank+1, MPI_COMM_WORLD);
 			}
 			else 
-			if(mode==0){ Result rs;return rs;}
-				
+			if(mode==0){ Result rs;return rs;}		
 		}
-		
 		
 	}
 		
@@ -146,7 +163,7 @@ Result SimplexParallel::algorithm(std::shared_ptr<Functiontobeoptimized> start){
 		pushResult(rs,A[0]);//Result	
 		return 	rs;
 	}
-	
+	Result rs;return rs;
 	
 }
 
@@ -172,4 +189,10 @@ vertex SimplexParallel::receiveVertex(int sender,int tag){
 			run++;
 			}
 return An;	
+}
+
+void SimplexParallel::calculateAc(vertex &Ac,vertex &M,vertex &Ajp){
+	for (auto it : function->parameters)
+	Ac.first[it.getName()]=getOptimizationAlgorithmParameter("beta")*(Ajp.first[it.getName()]+M.first[it.getName()]);			
+	Ac.second=function->evaluate(Ac.first);	
 }

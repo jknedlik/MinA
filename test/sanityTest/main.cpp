@@ -1,5 +1,6 @@
 #include <iostream>
 #include <map>
+#include "mpi.h"
 #include "MinA/common/Minimizer.h"
 #include "MinA/common/Result.h"
 #include "TestFunction.cpp"
@@ -7,31 +8,36 @@
 #include "MinA/algorithm/SimplexParallel.h"
 #include <utility>
 
-int main(void){
+int main(int argc, char **argv){
+
 	if(!MPI::Is_initialized())MPI::Init();
 	Minimizer mina;
+	int world_rank;
+  	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-	std::shared_ptr<Simplex> altest1(new Simplex(100));
-	std::shared_ptr<SimplexParallel> altest2(new SimplexParallel(100));
+	std::shared_ptr<Simplex> altest1(new Simplex(4000));
+	altest1->setFunctionName("Schwefel");
+	std::shared_ptr<SimplexParallel> altest2(new SimplexParallel(5000));
+	altest2->setFunctionName("Schwefel");
 
 
-	//Myfunction test1;
-	std::shared_ptr<Myfunction> test1(new Myfunction);
-	//Himmelblaufunction test2;
-	//Boot_s_function test3;
-	//Michalewicz_function test4;
-	std::shared_ptr<Matthias_function> test5(new Matthias_function(5));
-	//test5.reDimension(5);
+	std::shared_ptr<SquareFunction> test5(new SquareFunction(20));
+	std::shared_ptr< McCormick_function> test2(new  McCormick_function);
+	std::shared_ptr<Matthias_function> test1(new Matthias_function(6));
+
+	std::shared_ptr<Schwefel_function> test6(new Schwefel_function(3));
+	
 	
 	vector<double> stepSize;
-	//stepSize.resize(test1->getParameterSize());
-//	std::cout<<"parametersize="<<test1.getParameterSize();
-	//for(int i=0;i<test1.getParameterSize();i++)stepSize[i]=1.5;
-	//std::cout<<stepSize.size();
-	//altest1->setStepSize(stepSize);
-//	altest2->setStepSize(stepSize);
-	cout<<"function minimized value="<<mina.minimize(test1,altest1).result<<endl;
-        //cout<<"function minimized value="<<mina.minimize(test1,altest2).result<<endl;
+	stepSize.resize(test5->getParameterSize());
+	
+	for(int i=0;i<test5->getParameterSize();i++)stepSize[i]=5+2*i;
+	altest1->setStepSize(stepSize);
+	altest2->setStepSize(stepSize);
+	if(world_rank==0)
+	cout<<"function minimized value="<<mina.minimize(test5,altest2).result<<endl;
+	else
+	auto rs=mina.minimize(test5,altest2);
 	MPI_Finalize();
     return(0);
 }

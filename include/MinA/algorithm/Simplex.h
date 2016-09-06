@@ -26,6 +26,10 @@ class Simplex:public OptimizationAlgorithm{
 	void checkBoundaryCondition(vertex &A);
 	void setStepSize(vector<double> s);
 	void setStepSize();
+	void setStopingIteration(int n);
+	void setFunctionName(string name);
+	string getFunctionName();
+	
    protected:
 	int dimension;
 	std::shared_ptr<Functiontobeoptimized> function;
@@ -37,14 +41,16 @@ class Simplex:public OptimizationAlgorithm{
 	void calculateM(vertexVector &A,vertex &M,int world_size);
 	void calculateAr(vertex &Ar,vertex &M,vertex &Aj);
 	void calculateAe(vertex &Ae,vertex &M,vertex &Ar);
-	void calculateAc(vertex &Ac,vertex &M,vertex &Ajp);	
+	virtual void calculateAc(vertex &Ac,vertex &M,vertex &Ajp);	
 	void createNewVertex(vertexVector &A);
+	void calculateNewPoint(vertex &Anew,vertex &Ap,vertex &A0);
 	void save()const;
 	void restore();
 	vertexVector Acopy;
 	int currentiteration;
 	double difference;
 	int stoppingIteration;
+	string FunctionName;
    private:
 	
   	

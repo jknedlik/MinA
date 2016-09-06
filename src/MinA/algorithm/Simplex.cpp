@@ -6,13 +6,12 @@ Simplex::Simplex(int stop){
 	setOptimizationAlgorithmParameter("alpha",1);
 	setOptimizationAlgorithmParameter("beta",0.5);
 	setOptimizationAlgorithmParameter("gramma",1);
-	setOptimizationAlgorithmParameter("town",.5);	
-	setAdditionalInformation("stopingiteration","100");
+	setOptimizationAlgorithmParameter("tau",0.5);	
 	setAdditionalInformation("checkboundary","");
-	setAdditionalInformation("stopingConditionType","iteration");
-	setAdditionalInformation("stopingdifference","0.01");
+	
+	
 	currentiteration=0;	
-	difference=100;
+	
 	
 }
 
@@ -25,14 +24,10 @@ Result Simplex::algorithm(std::shared_ptr<Functiontobeoptimized> start){
 	setStepSize();
 
 	vertexVector A;
-	restore();
+	//restore();
 	if(Acopy.empty()){
-		
 		A.resize(dimension+1);
-		
-		//Initial
-
-		createInitialVertex(A);
+		createInitialVertex(A);//Initial
 	}
 	else {A=Acopy;
 	}	
@@ -42,8 +37,8 @@ Result Simplex::algorithm(std::shared_ptr<Functiontobeoptimized> start){
 	while(checkStopingCondition()){
 	
 		
-		vertex Ar,Ac,Ae;
-		for(int i=0;i<=dimension;i++){A[i].second=start->evaluate(A[i].first);}
+		vertex Ar,Ac,Ae,Anew,Ap;
+		for(int i=0;i<=dimension;i++){A[i].second=start->getEvaluation(A[i].first);}
 		
 		std::sort(A.begin(),A.end(),[](vertex  & a, vertex   & b) -> bool{return a.second < b.second; });//Sort
 		cout<<"loop= "<<currentiteration<<endl;
@@ -55,39 +50,42 @@ Result Simplex::algorithm(std::shared_ptr<Functiontobeoptimized> start){
 		calculateAr(Ar,M,A[dimension]);//Ar
 				if(Ar.second<A[0].second){
 					calculateAe(Ae,M,Ar);//Ae
-					if(Ae.second<A[0].second){push(A[dimension],Ae);check=1;}
-					else{push(A[dimension],Ar);check=2;}
+					if(Ae.second<A[0].second){Anew=Ae;check=1;}
+					else{Anew=Ar;check=2;}
 				}//case 1	
-				else if(Ar.second<A[dimension-1].second){push(A[dimension],Ar);check=3;}//case 2 
+				else if(Ar.second<A[dimension-1].second){Anew=Ar;check=3;}//case 2 
 				else {
-					if(Ar.second>A[dimension].second){
-						calculateAc(Ac,M,A[dimension]);
+					if(Ar.second<A[dimension].second){				
+						Ap=	Ar;					
 					}else{
-					calculateAc(Ac,M,Ar);
+						Ap=A[dimension];
 					}//Ac
+					calculateAc(Ac,M,Ar);
 					if(Ac.second<A[dimension].second){		
-						push(A[dimension],Ac);
+						Anew=Ac;					
 						check=4;
 					}
 	     			}//case 3
-				if(check==0)createNewVertex(A);
-		//if(currentiteration==39)for (auto it : function->parameters) A[dimension].first[it.getName()]=1000;
-
+				if(check==0){
+					for(int i=1;i<=dimension;i++)	
+					calculateNewPoint(Anew,Ap,A[0]);
+				}
+		showVertex(Ap);	cout<<"check="<<check<<endl;
+		push(A[dimension],Anew);
 		checkBoundaryCondition(A[dimension]);
 		Acopy=A;
-		save();		
-
+		//save();		
+	
 		ofstream dataFile;
-		dataFile.open("dataFile.txt",std::ios::app);
+		dataFile.open("Simplex"+getFunctionName(),std::ios::app);
 		dataFile<<"Iteration= "<<currentiteration<<"	f(A0)= "<<A[0].second<<"	";
 		for (std::map<string, double>::iterator it=A[0].first.begin(); it!=A[0].first.end(); ++it)
 			dataFile<<it->first<< " = "<<it->second<<"	";
 		dataFile<<"\n";
 		dataFile.close();
-		difference=(A[0].second-A[1].second)*(A[0].second-A[1].second);
-	
-
+		
 	}
+
 	//Return result*/
 	Result rs;
 	pushResult(rs,A[0]);
@@ -106,26 +104,32 @@ void Simplex::setStepSize(vector<double> s){
 	stepSize=s;
 }
 
+void Simplex::setFunctionName(string name){
+	FunctionName=name;
+}
+
+string Simplex::getFunctionName(){
+return FunctionName;
+}
+
+void Simplex::setStopingIteration(int n){
+
+	stoppingIteration=n;
+}
+
 bool Simplex::checkStopingCondition(){
 
-	if(getAdditionalInformation()["stopingConditionType"]=="iteration"){
-		if(currentiteration>=stoppingIteration){			
+
+	if(currentiteration>=stoppingIteration){			
 			return false;
-		}
 	}
-	else if(getAdditionalInformation()["stopingConditionType"]=="difference"){
-		if(stod(getAdditionalInformation()["stopingdifference"])>=difference)
-			return false;
-	}	
+	
 
 	if(getAdditionalInformation()["checkboundary"]!=""){
 		std::cout<<getAdditionalInformation()["checkboundary"]<<"\n";			
 		return false;
 	}
-	if(currentiteration>5000){
-		cout<<"Number of iteration is maximum";
-		return false;
-	}
+
 		currentiteration++;
 	return true;
 }
@@ -134,12 +138,12 @@ void Simplex::checkBoundaryCondition(vertex &A){
 	
 	for (auto it : function->parameters){
 		if(it.getBoundaryLeft()!=nullptr)		
-			if(A.first[it.getName()]<*it.getBoundaryLeft())check++;	
+			if(A.first[it.getName()]<*it.getBoundaryLeft())A.first[it.getName()]=*it.getBoundaryLeft();	
 
 		if(it.getBoundaryRight()!=nullptr)		
-			if(A.first[it.getName()]>*it.getBoundaryRight())check++;
+			if(A.first[it.getName()]>*it.getBoundaryRight())A.first[it.getName()]=*it.getBoundaryRight();
 	}
-	if(check!=0){setAdditionalInformation("checkboundary","out of boundary");}
+//	if(check!=0){setAdditionalInformation("checkboundary","out of boundary");}
 }
 void Simplex::showVertex(vertexVector &para){
 	int ii=0;
@@ -212,12 +216,23 @@ void Simplex::calculateAc(vertex &Ac,vertex &M,vertex &Ajp){
 	Ac.second=function->evaluate(Ac.first);	
 }
 
+void Simplex::calculateNewPoint(vertex &Anew,vertex &Ap,vertex &A0){	
+	for (auto it : function->parameters) 	
+	Anew.first[it.getName()]=getOptimizationAlgorithmParameter("tau")*A0.first[it.getName()]+(1-getOptimizationAlgorithmParameter("tau"))*Ap.first[it.getName()];
+}
 
 void Simplex::createNewVertex(vertexVector &A){
-	for(int i=1;i<=dimension;i++)
+	for(int i=1;i<=dimension;i++){
+	cout<<i<<"before----->"<<getOptimizationAlgorithmParameter("tau");
+	showVertex(A[i]);		
 		for (auto it : function->parameters) 	
 			A[i].first[it.getName()]=getOptimizationAlgorithmParameter("tau")*A[0].first[it.getName()]+(1-getOptimizationAlgorithmParameter("tau"))*A[i].first[it.getName()];
-	
+		
+cout<<endl;
+cout<<i<<"After----->";
+	showVertex(A[i]);
+		
+	}		
 }
 
 void Simplex::restore(){
