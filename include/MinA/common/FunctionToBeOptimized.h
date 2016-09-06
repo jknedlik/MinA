@@ -1,6 +1,5 @@
 #ifndef FUNCTIONTOBEOPTIMIZED_H
 #define FUNCTIONTOBEOPTIMIZED_H
-
 #include <map>
 #include <iostream>
 #include <set>
@@ -11,7 +10,6 @@
 #include <sstream>
 #include "MinA/common/Exception.h"
 #include "MinA/common/Log.h"
-using namespace std;
 
 enum handle_arith { MinA_EHIGH, MinA_ETHROW, MinA_EWARN };
 class FunctionToBeOptimized {
@@ -26,7 +24,7 @@ class FunctionToBeOptimized {
     {
         handle = ha;
     }
-    double evaluate(std::map<string, double> para)
+    double evaluate(std::map<std::string, double> para)
     {
         double result;
         try {
@@ -35,7 +33,7 @@ class FunctionToBeOptimized {
                 throw Arithmetical_Exception(result);
         }
         catch (Arithmetical_Exception& ae) {
-            stringstream err;
+          std::stringstream err;
             switch (handle) {
                 case MinA_EHIGH:
                     err << "Exception caught:" << ae.what()
@@ -56,7 +54,7 @@ class FunctionToBeOptimized {
         }
         return result;
     }
-    virtual double getEvaluation(std::map<string, double> para) = 0;
+    virtual double getEvaluation(std::map<std::string, double> para) = 0;
     int getParameterSize()
     {
         return parameters.size();

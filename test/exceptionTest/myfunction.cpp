@@ -6,6 +6,7 @@
 
 #define PI 3.14159265358979323846
 #define MYFUNCTION_CPP
+using namespace std;
 
 class BadTen : public FunctionToBeOptimized {
     int i;
@@ -26,7 +27,7 @@ class BadTen : public FunctionToBeOptimized {
         parameters.insert(third);
     };
 
-    double getEvaluation(std::map<string, double> para)
+    double getEvaluation(map<string, double> para)
     {
         i++;
         if (!(i % 10))

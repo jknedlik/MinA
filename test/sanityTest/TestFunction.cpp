@@ -6,6 +6,7 @@
 #include "MinA/common/FunctionToBeOptimized.h"
 #include <string>
 #define MYFUNCTION_CPP
+using namespace std;
 
 class SquareFunction : public FunctionToBeOptimized {
   public:
@@ -13,13 +14,13 @@ class SquareFunction : public FunctionToBeOptimized {
     {
         for (int i = 0; i < dimension; i++) {
             Parameter par;
-            par.setName("x" + std::to_string(i));
+            par.setName("x" + to_string(i));
             par.setStartingPoint(30.521);
             parameters.insert(par);
         }
     };
 
-    double getEvaluation(std::map<string, double> para)
+    double getEvaluation(map<string, double> para)
     {
         double sum_square = 0;
         for (auto it : parameters)
@@ -41,7 +42,7 @@ class Himmelblaufunction : public FunctionToBeOptimized {
         parameters.insert(second);
     };
 
-    double getEvaluation(std::map<string, double> para)
+    double getEvaluation(map<string, double> para)
     {
 
         return (para["x"] * para["x"] + para["y"] - 11) * (para["x"] * para["x"] + para["y"] - 11) +
@@ -62,7 +63,7 @@ class Boot_s_function : public FunctionToBeOptimized {
         parameters.insert(second);
     };
 
-    double getEvaluation(std::map<string, double> para)
+    double getEvaluation(map<string, double> para)
     {
 
         return pow((para["x"] + 2 * para["y"] - 7), 2) + pow((2 * para["x"] + para["y"] - 5), 2);
@@ -82,7 +83,7 @@ class Michalewicz_function : public FunctionToBeOptimized {
         parameters.insert(second);
     };
 
-    double getEvaluation(std::map<string, double> para)
+    double getEvaluation(map<string, double> para)
     {
         double sum_xs = 0;
         double fz = 0;
@@ -104,7 +105,7 @@ class Matthias_function : public FunctionToBeOptimized {
         eata = 1;
         for (int i = 0; i < dimension; i++) {
             Parameter par;
-            par.setName("x" + std::to_string(i));
+            par.setName("x" + to_string(i));
             par.setStartingPoint(0);
             par.setBoundaryLeft(-100);
             par.setBoundaryRight(100);
@@ -112,7 +113,7 @@ class Matthias_function : public FunctionToBeOptimized {
         }
     };
 
-    double getEvaluation(std::map<string, double> para)
+    double getEvaluation(map<string, double> para)
     {
         double sum_xs = 0;
         for (auto it : parameters)
@@ -140,7 +141,7 @@ class McCormick_function : public FunctionToBeOptimized {
         parameters.insert(second);
     };
 
-    double getEvaluation(std::map<string, double> para)
+    double getEvaluation(map<string, double> para)
     {
         double fz;
         fz = sin(para["x"] + para["y"]) + pow(para["x"] - para["y"], 2) - 1.5 * para["x"] +
@@ -156,7 +157,7 @@ class Schwefel_function : public FunctionToBeOptimized {
         d = dimension;
         for (int i = 0; i < dimension; i++) {
             Parameter par;
-            par.setName("x" + std::to_string(i));
+            par.setName("x" + to_string(i));
             par.setStartingPoint(-0.3);
             par.setBoundaryLeft(-500);
             par.setBoundaryRight(500);
@@ -164,7 +165,7 @@ class Schwefel_function : public FunctionToBeOptimized {
         }
     };
 
-    double getEvaluation(std::map<string, double> para)
+    double getEvaluation(map<string, double> para)
     {
         double sum_xsin = 0;
         for (auto it : parameters)

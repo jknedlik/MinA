@@ -2,7 +2,7 @@
 #include <iostream>
 #include <exception>
 
-class Arithmetical_Exception : public exception {
+class Arithmetical_Exception : public std::exception {
     const double value;
 
   public:

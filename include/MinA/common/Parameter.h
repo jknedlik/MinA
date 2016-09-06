@@ -4,14 +4,13 @@
 #include <iostream>
 #include <cstring>
 #include <memory>
-using namespace std;
 
 class Parameter {
   public:
     Parameter();
     bool operator<(const Parameter& e) const;
-    void setName(string na);
-    string getName() const;
+    void setName(std::string na);
+    std::string getName() const;
     void setStartingPoint(double sp);
     void setBoundaryLeft(double bl);
     void setBoundaryRight(double br);
@@ -20,7 +19,7 @@ class Parameter {
     std::shared_ptr<double> getBoundaryRight() const;
 
   private:
-    string name;
+    std::string name;
     std::shared_ptr<double> startingPoint;
     std::shared_ptr<double> boundaryLeft;
     std::shared_ptr<double> boundaryRight;

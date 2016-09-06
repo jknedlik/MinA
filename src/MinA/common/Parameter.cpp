@@ -1,4 +1,5 @@
 #include "MinA/common/Parameter.h"
+using namespace std;
 
 Parameter::Parameter()
 {
