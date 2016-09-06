@@ -3,12 +3,12 @@
 #include <map>
 #include <cmath>
 # define PI           3.14159265358979323846
-#include "MinA/common/Functiontobeoptimized.h"
+#include "MinA/common/FunctionToBeOptimized.h"
 #include<string>
 #define MYFUNCTION_CPP
 
 
-class Myfunction:public Functiontobeoptimized{
+class Myfunction:public FunctionToBeOptimized{
     public:
 	Myfunction(){
 		Parameter first,second,third;
@@ -37,7 +37,7 @@ class Myfunction:public Functiontobeoptimized{
  
 };
 
-class Himmelblaufunction:public Functiontobeoptimized{
+class Himmelblaufunction:public FunctionToBeOptimized{
     public:
 	Himmelblaufunction(){
 		Parameter first,second;
@@ -56,7 +56,7 @@ class Himmelblaufunction:public Functiontobeoptimized{
  
 };
 
-class Boot_s_function:public Functiontobeoptimized{
+class Boot_s_function:public FunctionToBeOptimized{
     public:
 	Boot_s_function(){
 		Parameter first,second;
@@ -76,7 +76,7 @@ class Boot_s_function:public Functiontobeoptimized{
  
 };
 
-class Michalewicz_function:public Functiontobeoptimized{
+class Michalewicz_function:public FunctionToBeOptimized{
     public:
 	Michalewicz_function(){
 		Parameter first,second,third;
@@ -97,7 +97,7 @@ class Michalewicz_function:public Functiontobeoptimized{
 	};
  
 };
-class Matthias_function:public Functiontobeoptimized{
+class Matthias_function:public FunctionToBeOptimized{
     public:
 
 	Matthias_function(int dimension){

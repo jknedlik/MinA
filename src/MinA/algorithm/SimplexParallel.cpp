@@ -7,7 +7,7 @@ SimplexParallel::SimplexParallel(int stop ):Simplex(stop){
 
 
 SimplexParallel::~SimplexParallel(){}
-Result SimplexParallel::algorithm(std::shared_ptr<Functiontobeoptimized> start){
+Result SimplexParallel::algorithm(std::shared_ptr<FunctionToBeOptimized> start){
 	int size, rank;
 	
 	    MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -20,7 +20,7 @@ Result SimplexParallel::algorithm(std::shared_ptr<Functiontobeoptimized> start){
 	vertexVector A;
 	
 	//restore();
-	cout<<"Start with current loop= "<<currentiteration<<endl;
+	cout<<"Start with current loop= "<<currentIteration<<endl;
 	setStepSize();
 	if(Acopy.empty()){
 		A.resize(dimension+1);
@@ -36,11 +36,11 @@ Result SimplexParallel::algorithm(std::shared_ptr<Functiontobeoptimized> start){
 	if(world_rank==0){
 	int mode;
 		
-		while(checkStopingCondition()){
+		while(checkStoppingCondition()){
 		
 			for(int i=0;i<=dimension;i++){A[i].second=function->evaluate(A[i].first);}//Evaluate(A)
 			std::sort(A.begin(),A.end(),[](vertex  & a, vertex   & b) -> bool{return a.second < b.second; });
-			cout<<"loop= "<<currentiteration<<endl;
+			cout<<"loop= "<<currentIteration<<endl;
 			showVertex(A);
 	
 			vertex M;
@@ -80,7 +80,7 @@ Result SimplexParallel::algorithm(std::shared_ptr<Functiontobeoptimized> start){
 			else
 				for(int i=1;i<world_size;i++){
 				vertex b=receiveVertex(i,i);
-				//cout<<"loop="<<currentiteration<<"index="<<dimension-world_size+i+1<<" world_rank="<<i<<" ";
+				//cout<<"loop="<<currentIteration<<"index="<<dimension-world_size+i+1<<" world_rank="<<i<<" ";
 				b.second=function->evaluate(b.first);
 				//1111		showVertex(b);
 				//cout<<"checkA["<<dimension-world_size+i+1<<"]="<<checkA[dimension-world_size+i+1]<<endl;
@@ -89,7 +89,7 @@ Result SimplexParallel::algorithm(std::shared_ptr<Functiontobeoptimized> start){
 					
 			ofstream dataFile;
 			dataFile.open("SimplexParallel"+getFunctionName(),std::ios::app);
-			dataFile<<"Iteration= "<<currentiteration<<"	f(A0)= "<<A[0].second<<"	";
+			dataFile<<"Iteration= "<<currentIteration<<"	f(A0)= "<<A[0].second<<"	";
 			for (std::map<string, double>::iterator it=A[0].first.begin(); it!=A[0].first.end(); ++it)
 				dataFile<<it->first<< " = "<<it->second<<"	";
 			dataFile<<"\n";

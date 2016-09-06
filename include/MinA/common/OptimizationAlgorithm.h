@@ -4,13 +4,13 @@
 #include <iostream>
 #include<memory>
 using namespace std;
-#include"MinA/common/Functiontobeoptimized.h"
+#include"MinA/common/FunctionToBeOptimized.h"
 #include"MinA/common/Result.h"
  using namespace std;
 class OptimizationAlgorithm{
     public:
 	virtual ~OptimizationAlgorithm();
-	virtual Result algorithm(std::shared_ptr<Functiontobeoptimized> start)=0;
+	virtual Result algorithm(std::shared_ptr<FunctionToBeOptimized> start)=0;
 	
 	 void setOptimizationAlgorithmParameter(string nam,double nu);
 	 double getOptimizationAlgorithmParameter(string nam);

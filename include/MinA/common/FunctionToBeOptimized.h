@@ -13,11 +13,11 @@
 #include "MinA/common/Log.h"
  using namespace std;
  enum handle_arith {MinA_EHIGH,MinA_ETHROW,MinA_EWARN};
-class Functiontobeoptimized{
+class FunctionToBeOptimized{
   private:
 handle_arith handle;
     public:
-        Functiontobeoptimized():handle(MinA_ETHROW){}
+        FunctionToBeOptimized():handle(MinA_ETHROW){}
         void setHandle(handle_arith ha){handle=ha;}
         double evaluate(std::map<string,double> para){
           double result;

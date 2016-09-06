@@ -3,12 +3,12 @@
 #include <map>
 #include <cmath>
 # define PI           3.14159265358979323846
-#include "MinA/common/Functiontobeoptimized.h"
+#include "MinA/common/FunctionToBeOptimized.h"
 
 #define MYFUNCTION_CPP
 
 
-class BadTen:public Functiontobeoptimized{
+class BadTen:public FunctionToBeOptimized{
   int i;
     public:
 	BadTen():i(0){

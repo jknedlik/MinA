@@ -20,21 +20,21 @@ class Simplex:public OptimizationAlgorithm{
     public:
 	Simplex(int stop = 100 );
 	~Simplex();
-	virtual Result algorithm(std::shared_ptr<Functiontobeoptimized> start);
+	virtual Result algorithm(std::shared_ptr<FunctionToBeOptimized> start);
 	void showVertex(vertexVector &para);
 	void showVertex(vertex &para);
 	void checkBoundaryCondition(vertex &A);
 	void setStepSize(vector<double> s);
 	void setStepSize();
-	void setStopingIteration(int n);
+	void setStoppingIteration(int n);
 	void setFunctionName(string name);
 	string getFunctionName();
 	
    protected:
 	int dimension;
-	std::shared_ptr<Functiontobeoptimized> function;
+	std::shared_ptr<FunctionToBeOptimized> function;
 	std::vector<double> stepSize;
-	bool checkStopingCondition();
+	bool checkStoppingCondition();
 	void push(vertex &a,vertex &b);
 	void pushResult(Result &rs,vertex &A);
 	void createInitialVertex(vertexVector &A);
@@ -47,7 +47,7 @@ class Simplex:public OptimizationAlgorithm{
 	void save()const;
 	void restore();
 	vertexVector Acopy;
-	int currentiteration;
+	int currentIteration;
 	double difference;
 	int stoppingIteration;
 	string FunctionName;

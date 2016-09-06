@@ -21,7 +21,7 @@ class SimplexParallel:public Simplex{
     public:
 	SimplexParallel(int stop = 100 );
 	~SimplexParallel();
-	Result algorithm(std::shared_ptr<Functiontobeoptimized> start);
+	Result algorithm(std::shared_ptr<FunctionToBeOptimized> start);
 	void sendVertex(vertex &A,int receiver,int tag);
 	vertex receiveVertex(int sender,int tag);
 	void calculateAc(vertex &Ac,vertex &M,vertex &Ajp);

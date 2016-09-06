@@ -10,14 +10,14 @@ Simplex::Simplex(int stop){
 	setAdditionalInformation("checkboundary","");
 	
 	
-	currentiteration=0;	
+	currentIteration=0;	
 	
 	
 }
 
 
 Simplex::~Simplex(){}
-Result Simplex::algorithm(std::shared_ptr<Functiontobeoptimized> start){
+Result Simplex::algorithm(std::shared_ptr<FunctionToBeOptimized> start){
 	
 	function=start;
 	dimension=start->getParameterSize();
@@ -31,17 +31,17 @@ Result Simplex::algorithm(std::shared_ptr<Functiontobeoptimized> start){
 	}
 	else {A=Acopy;
 	}	
-	cout<<"Start with current loop= "<<currentiteration<<endl;
+	cout<<"Start with current loop= "<<currentIteration<<endl;
 	for(int i=0;i<=dimension;i++)
 	checkBoundaryCondition(A[i]);
-	while(checkStopingCondition()){
+	while(checkStoppingCondition()){
 	
 		
 		vertex Ar,Ac,Ae,Anew,Ap;
 		for(int i=0;i<=dimension;i++){A[i].second=start->getEvaluation(A[i].first);}
 		
 		std::sort(A.begin(),A.end(),[](vertex  & a, vertex   & b) -> bool{return a.second < b.second; });//Sort
-		cout<<"loop= "<<currentiteration<<endl;
+		cout<<"loop= "<<currentIteration<<endl;
 		showVertex(A);
 		vertex M;
 		calculateM(A,M,2);//Mean
@@ -78,7 +78,7 @@ Result Simplex::algorithm(std::shared_ptr<Functiontobeoptimized> start){
 	
 		ofstream dataFile;
 		dataFile.open("Simplex"+getFunctionName(),std::ios::app);
-		dataFile<<"Iteration= "<<currentiteration<<"	f(A0)= "<<A[0].second<<"	";
+		dataFile<<"Iteration= "<<currentIteration<<"	f(A0)= "<<A[0].second<<"	";
 		for (std::map<string, double>::iterator it=A[0].first.begin(); it!=A[0].first.end(); ++it)
 			dataFile<<it->first<< " = "<<it->second<<"	";
 		dataFile<<"\n";
@@ -112,15 +112,15 @@ string Simplex::getFunctionName(){
 return FunctionName;
 }
 
-void Simplex::setStopingIteration(int n){
+void Simplex::setStoppingIteration(int n){
 
 	stoppingIteration=n;
 }
 
-bool Simplex::checkStopingCondition(){
+bool Simplex::checkStoppingCondition(){
 
 
-	if(currentiteration>=stoppingIteration){			
+	if(currentIteration>=stoppingIteration){			
 			return false;
 	}
 	
@@ -130,7 +130,7 @@ bool Simplex::checkStopingCondition(){
 		return false;
 	}
 
-		currentiteration++;
+		currentIteration++;
 	return true;
 }
 void Simplex::checkBoundaryCondition(vertex &A){
@@ -243,7 +243,7 @@ void Simplex::restore(){
 		std::ifstream infile(".Simplex.save");
    	 	boost::archive::text_iarchive ia(infile);
     		ia >>Acopy;
-		ia>>currentiteration;
+		ia>>currentIteration;
 	}
   }
 void Simplex::save()const{
@@ -251,6 +251,6 @@ void Simplex::save()const{
 		std::ofstream outfile(".Simplex.save");
 		boost::archive::text_oarchive oa(outfile);
 		oa<<Acopy;
-		oa<<currentiteration;
+		oa<<currentIteration;
 	}
 }
