@@ -15,7 +15,9 @@ class SquareFunction : public FunctionToBeOptimized {
         for (int i = 0; i < dimension; i++) {
             Parameter par;
             par.setName("x" + to_string(i));
-            par.setStartingPoint(30.521);
+            par.setStartingPoint(8);
+	    par.setBoundaryLeft(-10);
+            par.setBoundaryRight(10);
             parameters.insert(par);
         }
     };
@@ -106,9 +108,9 @@ class Matthias_function : public FunctionToBeOptimized {
         for (int i = 0; i < dimension; i++) {
             Parameter par;
             par.setName("x" + to_string(i));
-            par.setStartingPoint(0);
-            par.setBoundaryLeft(-100);
-            par.setBoundaryRight(100);
+            par.setStartingPoint(i*0.5);
+            par.setBoundaryLeft(-5);
+            par.setBoundaryRight(5);
             parameters.insert(par);
         }
     };
@@ -118,7 +120,7 @@ class Matthias_function : public FunctionToBeOptimized {
         double sum_xs = 0;
         for (auto it : parameters)
             sum_xs += pow(para[it.getName()], 2);
-        double fz = alpha * pow(cos(beta * sum_xs), 2) + gramma * exp(eata * sum_xs);
+        double fz = alpha * pow(sin(beta * sum_xs), 2) +  sum_xs*gramma * exp(eata * sum_xs);
         return fz;
     }
     double alpha, beta, gramma, eata;
@@ -158,7 +160,7 @@ class Schwefel_function : public FunctionToBeOptimized {
         for (int i = 0; i < dimension; i++) {
             Parameter par;
             par.setName("x" + to_string(i));
-            par.setStartingPoint(-0.3);
+            par.setStartingPoint(50);
             par.setBoundaryLeft(-500);
             par.setBoundaryRight(500);
             parameters.insert(par);
@@ -169,10 +171,64 @@ class Schwefel_function : public FunctionToBeOptimized {
     {
         double sum_xsin = 0;
         for (auto it : parameters)
-            sum_xsin += para[it.getName()] * sqrt(abs(para[it.getName()]));
+            sum_xsin += para[it.getName()] * sin(sqrt(abs(para[it.getName()])));
         double fz = 418.9829 * d - sum_xsin;
         return fz;
     }
     double d;
+};
+
+class Gaussian_function : public FunctionToBeOptimized {
+  public:
+    Gaussian_function(int dimension)
+    {
+        d = dimension;
+        for (int i = 0; i < dimension; i++) {
+            Parameter par;
+            par.setName("x" + to_string(i));
+            par.setStartingPoint(5);
+            par.setBoundaryLeft(-10);
+            par.setBoundaryRight(10);
+            parameters.insert(par);
+        }
+    };
+
+    double getEvaluation(map<string, double> para)
+    {
+        double sum_xsin = 0;
+        for (auto it : parameters)
+            sum_xsin += pow((para[it.getName()]+1),2);
+        double fz = -exp(-sum_xsin);
+        return fz;
+    }
+    double d;
+};
+class Modify_Matthias_function : public FunctionToBeOptimized {
+  public:
+    Modify_Matthias_function(int dimension)
+    {
+        alpha = 6;
+        beta = 3;
+        gramma = 1;
+        eata = 1;
+        for (int i = 0; i < dimension; i++) {
+            Parameter par;
+            par.setName("x" + to_string(i));
+            par.setStartingPoint(i*0.5);
+            par.setBoundaryLeft(-5);
+            par.setBoundaryRight(5);
+            parameters.insert(par);
+        }
+    };
+
+    double getEvaluation(map<string, double> para)
+    {
+        double sum_xs = 0;
+        for (auto it : parameters)
+            sum_xs += pow(para[it.getName()], 2);
+        double fz = alpha * pow(cos(beta * sum_xs), 2) +  gramma * exp(eata * sum_xs);
+        return fz;
+    }
+    double alpha, beta, gramma, eata;
 };
 #endif

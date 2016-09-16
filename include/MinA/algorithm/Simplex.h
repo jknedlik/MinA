@@ -29,6 +29,7 @@ class Simplex : public OptimizationAlgorithm {
     void setStoppingIteration(int n);
     void setFunctionName(string name);
     string getFunctionName();
+    double getSimplexSize(vertexVector& para);
 
   protected:
     int dimension;

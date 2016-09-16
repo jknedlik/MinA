@@ -12,6 +12,7 @@
 #include <boost/archive/text_iarchive.hpp>
 #include "MinA/algorithm/Simplex.h"
 
+
 typedef std::pair<std::map<std::string, double>, double> vertex;
 typedef std::vector<std::pair<std::map<std::string, double>, double>> vertexVector;
 

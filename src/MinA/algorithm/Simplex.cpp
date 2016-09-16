@@ -73,7 +73,7 @@ Result Simplex::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
             else {
                 Ap = A[dimension];
             } // Ac
-            calculateAc(Ac, M, Ar);
+            calculateAc(Ac, M, Ap);
             if (Ac.second < A[dimension].second) {
                 Anew = Ac;
                 check = 4;
@@ -83,7 +83,7 @@ Result Simplex::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
             for (int i = 1; i <= dimension; i++)
                 calculateNewPoint(Anew, Ap, A[0]);
         }
-        showVertex(Ap);
+       
         cout << "check=" << check << endl;
         push(A[dimension], Anew);
         checkBoundaryCondition(A[dimension]);
@@ -108,10 +108,35 @@ Result Simplex::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
 
 void Simplex::setStepSize()
 {
+ 	   
     if (stepSize.empty()) {
         stepSize.resize(dimension);
-        for (int i = 0; i < dimension; i++)
-            stepSize[i] = 0.5;
+	int i=0;
+        for (auto it : function->parameters){
+	
+	    double lengthLeft,step,lengthRight;
+	    if (it.getBoundaryRight())
+            	lengthRight= (*it.getBoundaryRight())-(*it.getStartingPoint());
+	    else
+		lengthRight=0;
+
+	    if (it.getBoundaryLeft())
+            	lengthLeft= (*it.getStartingPoint())-(*it.getBoundaryLeft());
+	    else
+		lengthLeft=0;
+
+
+	    if (lengthLeft<lengthRight)step=-lengthLeft;
+	    else step=lengthRight;
+
+	    if (it.getBoundaryRight()||it.getBoundaryLeft()){
+            	stepSize[i] =step/2;
+	    }
+	    else{ 
+		stepSize[i] =0.5;
+            }
+	i++;
+	}
     }
 }
 
@@ -220,15 +245,15 @@ void Simplex::createInitialVertex(vertexVector& A)
 }
 
 void Simplex::calculateM(vertexVector& A, vertex& M, int world_size)
-{
-    for (int i = 0; i <= dimension - world_size + 1; i++) {
-        for (auto it : function->parameters) {
-            M.first[it.getName()] += A[i].first[it.getName()];
-        }
-    }
+{   
     for (auto it : function->parameters) {
-        M.first[it.getName()] /= (dimension - world_size + 2);
+	double mZero=0;
+    	for (int i = 0; i < dimension - world_size + 2; i++) {        
+             mZero+= A[i].first[it.getName()];
+        }
+	M.first[it.getName()]=mZero/(dimension - world_size + 2);
     }
+
 }
 
 void Simplex::calculateAr(vertex& Ar, vertex& M, vertex& Aj)
@@ -304,3 +329,15 @@ void Simplex::save() const
         oa << currentIteration;
     }
 }
+double Simplex::getSimplexSize(vertexVector& para){
+	vertex M;
+	double distance=0;
+	calculateM(para, M, 1);
+    	for (int i=0;i<dimension;i++) {
+        for (auto itx : function->parameters) {
+		distance+=sqrt(pow((M.first[itx.getName()]-para[i].first[itx.getName()]),2));
+        }
+    }
+return distance;
+}
+
