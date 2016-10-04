@@ -30,6 +30,8 @@ class Simplex : public OptimizationAlgorithm {
     void setFunctionName(string name);
     string getFunctionName();
     double getSimplexSize(vertexVector& para);
+    void save() const;
+    void restore();
 
   protected:
     int dimension;
@@ -45,8 +47,6 @@ class Simplex : public OptimizationAlgorithm {
     virtual void calculateAc(vertex& Ac, vertex& M, vertex& Ajp);
     void createNewVertex(vertexVector& A);
     void calculateNewPoint(vertex& Anew, vertex& Ap, vertex& A0);
-    void save() const;
-    void restore();
     vertexVector Acopy;
     int currentIteration;
     double difference;

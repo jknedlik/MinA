@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <exception>
-
+#include <cmath>
 class Arithmetical_Exception : public std::exception {
     const double value;
 
