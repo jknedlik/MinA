@@ -52,7 +52,6 @@ class Simplex : public OptimizationAlgorithm {
     double difference;
     int stoppingIteration;
     string FunctionName;
-
 };
 
 #endif

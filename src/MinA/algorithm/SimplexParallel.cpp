@@ -1,6 +1,5 @@
 #include "MinA/algorithm/SimplexParallel.h"
 
-
 SimplexParallel::SimplexParallel(int stop) : Simplex(stop)
 {
     if (!MPI::Is_initialized())
@@ -14,13 +13,12 @@ SimplexParallel::~SimplexParallel()
 Result SimplexParallel::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
 {
 
-
     function = start;
     dimension = function->getParameterSize();
     vertexVector A;
 
     // restore();
-   // cout << "Start with current loop= " << currentIteration << endl;
+    // cout << "Start with current loop= " << currentIteration << endl;
     setStepSize();
     if (Acopy.empty()) {
         A.resize(dimension + 1);
@@ -44,40 +42,43 @@ Result SimplexParallel::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
             } // Evaluate(A)
             std::sort(A.begin(), A.end(),
                       [](vertex& a, vertex& b) -> bool { return a.second < b.second; });
-            //cout << "loop= " << currentIteration << endl;
-           // showVertex(A);
-	    
+            // cout << "loop= " << currentIteration << endl;
+            // showVertex(A);
+
             ofstream dataFile;
-            dataFile.open("z_SimplexParallel" + getFunctionName()+std::to_string(world_size), std::ios::app);
-	     dataFile<<currentIteration<<std::endl;
-	     for(int i=0;i<=dimension;i++){
-            	dataFile << "Iteration= " << currentIteration << "	f(A"<<i<<")= " << A[i].second << "	";
-            	for (std::map<string, double>::iterator it = A[i].first.begin(); it != A[i].first.end();
-                 ++it)
-                dataFile << it->first << " = " << it->second << "	";
-            	dataFile << "\n";
-	    }
+            dataFile.open("z_SimplexParallel" + getFunctionName() + std::to_string(world_size),
+                          std::ios::app);
+            dataFile << currentIteration << std::endl;
+            for (int i = 0; i <= dimension; i++) {
+                dataFile << "Iteration= " << currentIteration << "	f(A" << i
+                         << ")= " << A[i].second << "	";
+                for (std::map<string, double>::iterator it = A[i].first.begin();
+                     it != A[i].first.end(); ++it)
+                    dataFile << it->first << " = " << it->second << "	";
+                dataFile << "\n";
+            }
             dataFile.close();
 
             vertex M;
-	 
+
             calculateM(A, M, world_size); // Mean
             M.second = function->evaluate(M.first);
-	    ofstream dataMean;
-	    dataMean.open("z_mean"+std::to_string(world_size), std::ios::app);
-	    dataMean << "Iteration= " << currentIteration << "	Mean= " << M.second <<"	SimplexSize =	"<<getSimplexSize(A)<< "	";
-	        /*for (std::map<string, double>::iterator it = M.first.begin(); it != M.first.end();
+            ofstream dataMean;
+            dataMean.open("z_mean" + std::to_string(world_size), std::ios::app);
+            dataMean << "Iteration= " << currentIteration << "	Mean= " << M.second
+                     << "	SimplexSize =	" << getSimplexSize(A) << "	";
+            /*for (std::map<string, double>::iterator it = M.first.begin(); it != M.first.end();
                  ++it)
                 dataMean << it->first << " = " << it->second << "	\n";*/
-	    dataMean<<std::endl;
-	    dataMean.close();
+            dataMean << std::endl;
+            dataMean.close();
             mode = 1;
             for (int i = 1; i < world_size; i++) {
                 MPI_Send(&mode, 1, MPI_INT, i, world_size, MPI_COMM_WORLD);
                 sendVertex(M, i, 0);
                 sendVertex(A[0], i, 1);
-                sendVertex(A[dimension - world_size + i ], i, 2);
-                sendVertex(A[dimension - world_size + i+ 1], i, 3);
+                sendVertex(A[dimension - world_size + i], i, 2);
+                sendVertex(A[dimension - world_size + i + 1], i, 3);
 
             } // sending M,A0,Aj_1,Aj
 
@@ -86,7 +87,7 @@ Result SimplexParallel::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
             for (int i = 1; i < world_size; i++) {
                 int check;
                 MPI_Recv(&(check), 1, MPI_INT, i, i + 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-               
+
                 sumcheck += check;
             }
             if (sumcheck == 0) {
@@ -110,23 +111,25 @@ Result SimplexParallel::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
                 }
 
             ofstream dataFile2;
-            dataFile.open("z_SimplexParallel" + getFunctionName()+std::to_string(world_size), std::ios::app);
-	     dataFile<<currentIteration<<std::endl;
-	     for(int i=0;i<=dimension;i++){
-            	dataFile << "Iteration= " << currentIteration << "	f(A"<<i<<")= " << A[i].second << "	";
-            	for (std::map<string, double>::iterator it = A[i].first.begin(); it != A[i].first.end();
-                 ++it)
-                dataFile << it->first << " = " << it->second << "	";
-            	dataFile << "\n";
-	    }
+            dataFile.open("z_SimplexParallel" + getFunctionName() + std::to_string(world_size),
+                          std::ios::app);
+            dataFile << currentIteration << std::endl;
+            for (int i = 0; i <= dimension; i++) {
+                dataFile << "Iteration= " << currentIteration << "	f(A" << i
+                         << ")= " << A[i].second << "	";
+                for (std::map<string, double>::iterator it = A[i].first.begin();
+                     it != A[i].first.end(); ++it)
+                    dataFile << it->first << " = " << it->second << "	";
+                dataFile << "\n";
+            }
             dataFile2.close();
-	dataFile2.open("z_dataParallel"+std::to_string(world_size), std::ios::app);
-		dataFile2 << "Iteration= " << currentIteration << "	f(A0)= " << A[0].second << "	";
-            	for (std::map<string, double>::iterator it = A[0].first.begin(); it != A[0].first.end();
+            dataFile2.open("z_dataParallel" + std::to_string(world_size), std::ios::app);
+            dataFile2 << "Iteration= " << currentIteration << "	f(A0)= " << A[0].second << "	";
+            for (std::map<string, double>::iterator it = A[0].first.begin(); it != A[0].first.end();
                  ++it)
                 dataFile2 << it->first << " = " << it->second << "	";
-            	dataFile2 << "\n";
-       dataFile2.close();
+            dataFile2 << "\n";
+            dataFile2.close();
             // save();
         }
 
