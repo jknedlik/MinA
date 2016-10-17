@@ -20,10 +20,12 @@ class FunctionToBeOptimized {
     FunctionToBeOptimized() : handle(MinA_ETHROW)
     {
     }
+
     void setHandle(handle_arith ha)
     {
         handle = ha;
     }
+
     double evaluate(std::map<std::string, double> para)
     {
         double result;
@@ -33,7 +35,7 @@ class FunctionToBeOptimized {
                 throw Arithmetical_Exception(result);
         }
         catch (Arithmetical_Exception& ae) {
-          std::stringstream err;
+            std::stringstream err;
             switch (handle) {
                 case MinA_EHIGH:
                     err << "Exception caught:" << ae.what()
@@ -54,13 +56,15 @@ class FunctionToBeOptimized {
         }
         return result;
     }
+    
     virtual double getEvaluation(std::map<std::string, double> para) = 0;
+
     int getParameterSize()
     {
         return parameters.size();
     }
-    std::set<Parameter> parameters;
 
+    std::set<Parameter> parameters;
 };
 
 #endif

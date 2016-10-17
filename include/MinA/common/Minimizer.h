@@ -14,5 +14,4 @@ class Minimizer {
                     std::shared_ptr<OptimizationAlgorithm> sim);
     Result operator()(std::shared_ptr<FunctionToBeOptimized> start,
                       std::shared_ptr<OptimizationAlgorithm> sim);
-
 };

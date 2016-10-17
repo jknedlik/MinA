@@ -12,7 +12,6 @@
 #include <boost/archive/text_iarchive.hpp>
 #include "MinA/algorithm/Simplex.h"
 
-
 typedef std::pair<std::map<std::string, double>, double> vertex;
 typedef std::vector<std::pair<std::map<std::string, double>, double>> vertexVector;
 
@@ -24,7 +23,6 @@ class SimplexParallel : public Simplex {
     void sendVertex(vertex& A, int receiver, int tag);
     vertex receiveVertex(int sender, int tag);
     void calculateAc(vertex& Ac, vertex& M, vertex& Ajp);
-
 };
 
 #endif

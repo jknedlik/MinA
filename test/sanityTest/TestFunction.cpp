@@ -16,7 +16,7 @@ class SquareFunction : public FunctionToBeOptimized {
             Parameter par;
             par.setName("x" + to_string(i));
             par.setStartingPoint(8);
-	    par.setBoundaryLeft(-10);
+            par.setBoundaryLeft(-10);
             par.setBoundaryRight(10);
             parameters.insert(par);
         }
@@ -101,14 +101,14 @@ class Matthias_function : public FunctionToBeOptimized {
   public:
     Matthias_function(int dimension)
     {
-        alpha = 6;
-        beta = 3;
-        gramma = 1;
-        eata = 1;
+        double alpha = 6;
+        double beta = 3;
+        double gamma = 1;
+        double eta = 1;
         for (int i = 0; i < dimension; i++) {
             Parameter par;
             par.setName("x" + to_string(i));
-            par.setStartingPoint(i*0.5);
+            par.setStartingPoint(i * 0.5);
             par.setBoundaryLeft(-5);
             par.setBoundaryRight(5);
             parameters.insert(par);
@@ -120,10 +120,9 @@ class Matthias_function : public FunctionToBeOptimized {
         double sum_xs = 0;
         for (auto it : parameters)
             sum_xs += pow(para[it.getName()], 2);
-        double fz = alpha * pow(sin(beta * sum_xs), 2) +  sum_xs*gramma * exp(eata * sum_xs);
+        double fz = alpha * pow(sin(beta * sum_xs), 2) + sum_xs * gamma * exp(eta * sum_xs);
         return fz;
     }
-    double alpha, beta, gramma, eata;
 };
 
 class McCormick_function : public FunctionToBeOptimized {
@@ -197,24 +196,26 @@ class Gaussian_function : public FunctionToBeOptimized {
     {
         double sum_xsin = 0;
         for (auto it : parameters)
-            sum_xsin += pow((para[it.getName()]+1),2);
+            sum_xsin += pow((para[it.getName()] + 1), 2);
         double fz = -exp(-sum_xsin);
         return fz;
     }
     double d;
 };
+
 class Modify_Matthias_function : public FunctionToBeOptimized {
   public:
     Modify_Matthias_function(int dimension)
     {
-        alpha = 6;
-        beta = 3;
-        gramma = 1;
-        eata = 1;
+        double alpha = 6;
+        double beta = 3;
+        double gamma = 1;
+        double eta = 1;
+
         for (int i = 0; i < dimension; i++) {
             Parameter par;
             par.setName("x" + to_string(i));
-            par.setStartingPoint(i*0.5);
+            par.setStartingPoint(i * 0.5);
             par.setBoundaryLeft(-5);
             par.setBoundaryRight(5);
             parameters.insert(par);
@@ -226,9 +227,8 @@ class Modify_Matthias_function : public FunctionToBeOptimized {
         double sum_xs = 0;
         for (auto it : parameters)
             sum_xs += pow(para[it.getName()], 2);
-        double fz = alpha * pow(cos(beta * sum_xs), 2) +  gramma * exp(eata * sum_xs);
+        double fz = alpha * pow(cos(beta * sum_xs), 2) + gamma * exp(eta * sum_xs);
         return fz;
     }
-    double alpha, beta, gramma, eata;
 };
 #endif
