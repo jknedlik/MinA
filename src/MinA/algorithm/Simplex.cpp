@@ -12,9 +12,7 @@ Simplex::Simplex(int stop)
     currentIteration = 0;
 }
 
-Simplex::~Simplex()
-{
-}
+Simplex::~Simplex() {}
 
 Result Simplex::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
 {
@@ -111,59 +109,20 @@ void Simplex::setStepSize()
     if (stepSize.empty()) {
         stepSize.resize(dimension);
         int i = 0;
-        for (auto it : function->parameters) {
-            double lengthLeft, step, lengthRight;
-            if (it.getBoundaryRight()) {
-                lengthRight = (*it.getBoundaryRight()) - (*it.getStartingPoint());
-            }
-            else {
-                lengthRight = 0;
-            }
-
-            if (it.getBoundaryLeft()) {
-                lengthLeft = (*it.getStartingPoint()) - (*it.getBoundaryLeft());
-            }
-            else {
-                lengthLeft = 0;
-            }
-
-            if (lengthLeft < lengthRight)
-                step = -lengthLeft;
-            else
-                step = lengthRight;
-
-            if (it.getBoundaryRight() || it.getBoundaryLeft()) {
-                stepSize[i] = step / 2.;
-            }
-            else {
-                stepSize[i] = 0.5;
-            }
-            i++;
-        }
+        for (auto iPar : function->parameters)
+            stepSize[i++] = min(iPar.getStartingPoint() - iPar.getBoundaryLeft(),
+                                iPar.getBoundaryRight() - iPar.getStartingPoint()) /
+                            2.;
     }
 }
 
-void Simplex::setStepSize(vector<double> s)
-{
+void Simplex::setStepSize(vector<double> s) { stepSize = s; }
 
-    stepSize = s;
-}
+void Simplex::setFunctionName(string name) { FunctionName = name; }
 
-void Simplex::setFunctionName(string name)
-{
-    FunctionName = name;
-}
+string Simplex::getFunctionName() { return FunctionName; }
 
-string Simplex::getFunctionName()
-{
-    return FunctionName;
-}
-
-void Simplex::setStoppingIteration(int n)
-{
-
-    stoppingIteration = n;
-}
+void Simplex::setStoppingIteration(int n) { stoppingIteration = n; }
 
 bool Simplex::checkStoppingCondition()
 {
@@ -183,16 +142,14 @@ bool Simplex::checkStoppingCondition()
 
 void Simplex::checkBoundaryCondition(vertex& A)
 {
-    int check = 0;
+    // int check = 0;
 
     for (auto it : function->parameters) {
-        if (it.getBoundaryLeft() != nullptr)
-            if (A.first[it.getName()] < *it.getBoundaryLeft())
-                A.first[it.getName()] = *it.getBoundaryLeft();
+        if (A.first[it.getName()] < it.getBoundaryLeft())
+            A.first[it.getName()] = it.getBoundaryLeft();
 
-        if (it.getBoundaryRight() != nullptr)
-            if (A.first[it.getName()] > *it.getBoundaryRight())
-                A.first[it.getName()] = *it.getBoundaryRight();
+        if (A.first[it.getName()] > it.getBoundaryRight())
+            A.first[it.getName()] = it.getBoundaryRight();
     }
     //	if(check!=0){setAdditionalInformation("checkboundary","out of boundary");}
 }
@@ -234,7 +191,7 @@ void Simplex::pushResult(Result& rs, vertex& A)
 void Simplex::createInitialVertex(vertexVector& A)
 {
     for (auto it : function->parameters)
-        A[0].first[it.getName()] = *(it.getStartingPoint());
+        A[0].first[it.getName()] = it.getStartingPoint();
 
     for (int i = 1; i <= dimension; i++) {
         for (std::set<Parameter>::iterator it = function->parameters.begin();
@@ -342,7 +299,8 @@ double Simplex::getSimplexSize(vertexVector& para)
     for (int i = 0; i <= dimension; i++) { // loop over vertices
         double vertexCentroidDistance = 0.;
         for (auto itx : function->parameters) { // loop over vertex' parameters
-            vertexCentroidDistance += pow((M.first[itx.getName()] - para[i].first[itx.getName()]), 2);
+            vertexCentroidDistance +=
+              pow((M.first[itx.getName()] - para[i].first[itx.getName()]), 2);
         }
         simplexSize += sqrt(vertexCentroidDistance);
     }

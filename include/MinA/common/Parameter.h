@@ -1,29 +1,28 @@
 #ifndef PARAMETER_H
 #define PARAMETER_H
-#include <map>
 #include <iostream>
-#include <cstring>
-#include <memory>
+#include <limits>
 
 class Parameter {
   public:
-    Parameter();
+    // setters
     bool operator<(const Parameter& e) const;
-    void setName(std::string na);
-    std::string getName() const;
-    void setStartingPoint(double sp);
-    void setBoundaryLeft(double bl);
-    void setBoundaryRight(double br);
-    std::shared_ptr<double> getStartingPoint() const;
-    std::shared_ptr<double> getBoundaryLeft() const;
-    std::shared_ptr<double> getBoundaryRight() const;
+    void setName(std::string name) { mName = name; }
+    void setStartingPoint(double sp) { mStartingPoint = sp; }
+    void setBoundaryLeft(double bl) { mBoundaryLeft = bl; }
+    void setBoundaryRight(double br) { mBoundaryLeft = br; }
+
+    // getters
+    std::string getName() const { return mName; }
+    double getStartingPoint() const { return mStartingPoint; }
+    double getBoundaryLeft() const { return mBoundaryLeft; }
+    double getBoundaryRight() const { return mBoundaryRight; }
 
   private:
-    std::string name;
-    std::shared_ptr<double> startingPoint;
-    std::shared_ptr<double> boundaryLeft;
-    std::shared_ptr<double> boundaryRight;
-    std::allocator<double> alloc;
+    std::string mName;
+    double mStartingPoint = 0.;
+    double mBoundaryLeft = -std::numeric_limits<double>::max();
+    double mBoundaryRight = std::numeric_limits<double>::max();
 };
 
 #endif
