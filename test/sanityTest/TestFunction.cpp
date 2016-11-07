@@ -99,12 +99,20 @@ class Michalewicz_function : public FunctionToBeOptimized {
 
 class Matthias_function : public FunctionToBeOptimized {
   public:
-    Matthias_function(int dimension)
+    Matthias_function() = delete;
+
+    // function's internal parameters
+    double mAlpha;
+    double mBeta;
+    double mGamma;
+    double mEta;
+    
+    Matthias_function(unsigned int dimension, double alpha=6., double beta=3., double gamma=1., double eta=1.) :
+        mAlpha(alpha),
+        mBeta(beta),
+        mGamma(gamma), 
+        mEta(eta)
     {
-        double alpha = 6;
-        double beta = 3;
-        double gamma = 1;
-        double eta = 1;
         for (int i = 0; i < dimension; i++) {
             Parameter par;
             par.setName("x" + to_string(i));
@@ -115,12 +123,13 @@ class Matthias_function : public FunctionToBeOptimized {
         }
     };
 
+
     double getEvaluation(map<string, double> para)
     {
         double sum_xs = 0;
         for (auto it : parameters)
             sum_xs += pow(para[it.getName()], 2);
-        double fz = alpha * pow(sin(beta * sum_xs), 2) + sum_xs * gamma * exp(eta * sum_xs);
+        double fz = mAlpha * pow(sin(mBeta * sum_xs), 2) + sum_xs * mGamma * exp(mEta * sum_xs);
         return fz;
     }
 };
@@ -205,13 +214,19 @@ class Gaussian_function : public FunctionToBeOptimized {
 
 class Modify_Matthias_function : public FunctionToBeOptimized {
   public:
-    Modify_Matthias_function(int dimension)
-    {
-        double alpha = 6;
-        double beta = 3;
-        double gamma = 1;
-        double eta = 1;
+    // function's internal parameters
+    double mAlpha;
+    double mBeta;
+    double mGamma;
+    double mEta;
 
+    Modify_Matthias_function(unsigned int dimension, double alpha=6., double beta=3., double gamma=1., double eta=1.) :
+        mAlpha(alpha),
+        mBeta(beta),
+        mGamma(gamma), 
+        mEta(eta)
+    {
+        if (dimension < 0)
         for (int i = 0; i < dimension; i++) {
             Parameter par;
             par.setName("x" + to_string(i));
@@ -227,7 +242,7 @@ class Modify_Matthias_function : public FunctionToBeOptimized {
         double sum_xs = 0;
         for (auto it : parameters)
             sum_xs += pow(para[it.getName()], 2);
-        double fz = alpha * pow(cos(beta * sum_xs), 2) + gamma * exp(eta * sum_xs);
+        double fz = mAlpha * pow(cos(mBeta * sum_xs), 2) + mGamma * exp(mEta * sum_xs);
         return fz;
     }
 };
