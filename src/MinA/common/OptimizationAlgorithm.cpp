@@ -1,9 +1,6 @@
 #include "MinA/common/OptimizationAlgorithm.h"
 
-OptimizationAlgorithm::~OptimizationAlgorithm()
-{
-    ;
-}
+OptimizationAlgorithm::~OptimizationAlgorithm() { ; }
 
 void OptimizationAlgorithm::setOptimizationAlgorithmParameter(string nam, double nu)
 {

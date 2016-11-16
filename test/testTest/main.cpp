@@ -26,9 +26,9 @@ int main(void)
     // test5.reDimension(5);
 
     vector<double> stepSize;
-    // stepSize.resize(test1->getParameterSize());
-    //	std::cout<<"parametersize="<<test1.getParameterSize();
-    // for(int i=0;i<test1.getParameterSize();i++)stepSize[i]=1.5;
+    // stepSize.resize(test1->getParSpaceDim());
+    //	std::cout<<"parametersize="<<test1.getParSpaceDim();
+    // for(int i=0;i<test1.getParSpaceDim();i++)stepSize[i]=1.5;
     // std::cout<<stepSize.size();
     // altest1->setStepSize(stepSize);
     //	altest2->setStepSize(stepSize);

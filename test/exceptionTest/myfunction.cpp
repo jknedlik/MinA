@@ -9,30 +9,28 @@
 using namespace std;
 
 class BadTen : public FunctionToBeOptimized {
-    int i;
+    int mCounter;
 
   public:
-    BadTen() : i(0)
-    {
-        Parameter first, second, third;
+    // BadTen() = delete;
 
-        first.setName("x");
-        first.setStartingPoint(3);
-        second.setName("y");
-        second.setStartingPoint(4);
-        third.setName("z");
-        third.setStartingPoint(5);
-        parameters.insert(second);
-        parameters.insert(first);
-        parameters.insert(third);
+    BadTen(int dim = 3) : FunctionToBeOptimized(dim), mCounter(0)
+    {
+        Parameter first("x", 3);
+        Parameter second("y", 4);
+        Parameter third("z", 5);
+
+        mParameters.push_back(first);
+        mParameters.push_back(second);
+        mParameters.push_back(third);
     };
 
-    double getEvaluation(map<string, double> para)
+    double getEvaluation(vector<double> params)
     {
-        i++;
-        if (!(i % 10))
+        mCounter++;
+        if (!(mCounter % 10))
             return (1.0 / 0.0);
-        return pow(para["x"], 2) + pow(para["y"], 2) + pow(para["z"], 2);
+        return pow(params[0], 2) + pow(params[1], 2) + pow(params[2], 2);
     }
 };
 

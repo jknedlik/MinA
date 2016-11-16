@@ -6,9 +6,7 @@ class Arithmetical_Exception : public std::exception {
     const double value;
 
   public:
-    Arithmetical_Exception(double doubleValue) : value(doubleValue)
-    {
-    }
+    Arithmetical_Exception(double doubleValue) : value(doubleValue) {}
 
     virtual const char* what() const throw()
     {
@@ -17,10 +15,7 @@ class Arithmetical_Exception : public std::exception {
           .c_str();
     }
 
-    const double getDoubleValue() const
-    {
-        return value;
-    }
+    const double getDoubleValue() const { return value; }
 
     const char* show_classification(double x) const
     {

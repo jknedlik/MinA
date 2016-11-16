@@ -11,15 +11,9 @@
 class Log {
   public:
     void pushMessage(std::string msg);
-    void operator<<(std::string msg)
-    {
-        pushMessage(msg);
-    }
+    void operator<<(std::string msg) { pushMessage(msg); }
     void setLogOutput(std::string filename);
-    static Log& getLog()
-    {
-        return MinALog;
-    }
+    static Log& getLog() { return MinALog; }
     void flushLog();
     ~Log();
 

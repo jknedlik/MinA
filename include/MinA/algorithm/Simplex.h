@@ -38,7 +38,7 @@ class Simplex : public OptimizationAlgorithm {
     bool checkStoppingCondition();
     void push(vertex& a, vertex& b);
     void pushResult(Result& rs, vertex& A);
-    void createInitialVertex(vertexVector& A);
+    void initializeVertices(vertexVector& A);
     void calculateM(vertexVector& A, vertex& M, int world_size);
     void calculateAr(vertex& Ar, vertex& M, vertex& Aj);
     void calculateAe(vertex& Ae, vertex& M, vertex& Ar);

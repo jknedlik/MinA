@@ -4,95 +4,69 @@
 #include <cmath>
 #define PI 3.14159265358979323846
 #include "MinA/common/FunctionToBeOptimized.h"
+#include <vector>
 #include <string>
+#include <stdexcept>
 #define MYFUNCTION_CPP
 using namespace std;
 
 class SquareFunction : public FunctionToBeOptimized {
   public:
-    SquareFunction(int dimension)
-    {
-        for (int i = 0; i < dimension; i++) {
-            Parameter par;
-            par.setName("x" + to_string(i));
-            par.setStartingPoint(8);
-            par.setBoundaryLeft(-10);
-            par.setBoundaryRight(10);
-            parameters.insert(par);
-        }
-    };
+    SquareFunction(int dimension) : FunctionToBeOptimized(dimension) {}
+    SquareFunction(vector<string> parNames, double startingValue, double leftBoundary, double rightBoundary) : FunctionToBeOptimized(parNames, startingValue, leftBoundary, rightBoundary) {}
 
-    double getEvaluation(map<string, double> para)
+    double getEvaluation(vector<double> params)
     {
-        double sum_square = 0;
-        for (auto it : parameters)
-            sum_square += para[it.getName()] * para[it.getName()];
+        double sum_square = 0.;
+        for (int iPar = 0; iPar < getParSpaceDim(); ++iPar)
+            sum_square += pow(params[iPar], 2);
         return sum_square;
     }
 };
 
 class Himmelblaufunction : public FunctionToBeOptimized {
   public:
-    Himmelblaufunction()
-    {
-        Parameter first, second;
-        first.setName("x");
-        first.setStartingPoint(3);
-        second.setName("y");
-        second.setStartingPoint(4);
-        parameters.insert(first);
-        parameters.insert(second);
-    };
+    Himmelblaufunction(vector<string> parNames, std::vector<double> startingValues, std::vector<double> leftBoundaries, std::vector<double> rightBoundaries) : FunctionToBeOptimized(parNames, startingValues, leftBoundaries, rightBoundaries) {}
 
-    double getEvaluation(map<string, double> para)
+    double getEvaluation(vector<double> params)
     {
-
-        return (para["x"] * para["x"] + para["y"] - 11) * (para["x"] * para["x"] + para["y"] - 11) +
-               (para["x"] + para["y"] * para["y"] - 7) * (para["x"] + para["y"] * para["y"] - 7);
+        return (params[0] * params[0] + params[1] - 11) * (params[0] * params[0] + params[1] - 11) +
+               (params[0] + params[1] * params[1] - 7) * (params[0] + params[1] * params[1] - 7);
     }
 };
 
 class Boot_s_function : public FunctionToBeOptimized {
   public:
-    Boot_s_function()
-    {
-        Parameter first, second;
-        first.setName("x");
-        first.setStartingPoint(3);
-        second.setName("y");
-        second.setStartingPoint(4);
-        parameters.insert(first);
-        parameters.insert(second);
-    };
+    Boot_s_function() : FunctionToBeOptimized(2) {}
+    Boot_s_function(int dim) : FunctionToBeOptimized(2) {
+        if (dim !=2)
+            throw std::logic_error("Argument vector sizes differ.");
+    }
+    Boot_s_function(vector<string> parNames, std::vector<double> startingValues, std::vector<double> leftBoundaries, std::vector<double> rightBoundaries) : FunctionToBeOptimized(parNames, startingValues, leftBoundaries, rightBoundaries) {}
 
-    double getEvaluation(map<string, double> para)
+    double getEvaluation(vector<double> params)
     {
-
-        return pow((para["x"] + 2 * para["y"] - 7), 2) + pow((2 * para["x"] + para["y"] - 5), 2);
+        return pow((params[0] + 2 * params[1] - 7), 2) + pow((2 * params[0] + params[1] - 5), 2);
     }
 };
 
 class Michalewicz_function : public FunctionToBeOptimized {
   public:
-    Michalewicz_function()
-    {
-        Parameter first, second, third;
-        first.setName("x");
-        first.setStartingPoint(3);
-        second.setName("y");
-        second.setStartingPoint(4);
-        parameters.insert(first);
-        parameters.insert(second);
-    };
+    Michalewicz_function() : FunctionToBeOptimized(2) {}
+    Michalewicz_function(int dim) : FunctionToBeOptimized(2) {
+        if (dim !=2)
+            throw std::logic_error("Argument vector sizes differ.");
+    }
+    Michalewicz_function(vector<string> parNames, std::vector<double> startingValues, std::vector<double> leftBoundaries, std::vector<double> rightBoundaries) : FunctionToBeOptimized(parNames, startingValues, leftBoundaries, rightBoundaries) {}
 
-    double getEvaluation(map<string, double> para)
+    double getEvaluation(vector<double> params)
     {
-        double sum_xs = 0;
-        double fz = 0;
-        for (auto it : parameters)
-            sum_xs += pow(para[it.getName()], 2);
-        fz = -sin(para["x"]) * pow(sin(pow(para["x"], 2) / PI), 2) -
-             sin(para["x"]) * pow(sin(2 * pow(para["y"], 2) / PI), 2);
+        double sum_xs = 0.;
+        double fz = 0.;
+        for (auto iPar: params)
+            sum_xs += pow(iPar, 2);
+        fz = -sin(params[0]) * pow(sin(pow(params[0], 2) / PI), 2) -
+             sin(params[0]) * pow(sin(2 * pow(params[1], 2) / PI), 2);
         return fz;
     }
 };
@@ -101,34 +75,32 @@ class Matthias_function : public FunctionToBeOptimized {
   public:
     Matthias_function() = delete;
 
-    // function's internal parameters
+    // function's internal mParameters
     double mAlpha;
     double mBeta;
     double mGamma;
     double mEta;
-    
-    Matthias_function(unsigned int dimension, double alpha=6., double beta=3., double gamma=1., double eta=1.) :
-        mAlpha(alpha),
-        mBeta(beta),
-        mGamma(gamma), 
-        mEta(eta)
+
+    Matthias_function(unsigned int dimension, double alpha = 6., double beta = 3.,
+                      double gamma = 1., double eta = 1.)
+      : FunctionToBeOptimized(dimension), mAlpha(alpha), mBeta(beta), mGamma(gamma), mEta(eta)
     {
         for (int i = 0; i < dimension; i++) {
             Parameter par;
             par.setName("x" + to_string(i));
-            par.setStartingPoint(i * 0.5);
-            par.setBoundaryLeft(-5);
-            par.setBoundaryRight(5);
-            parameters.insert(par);
+            par.setStartingValue(i * 0.5);
+            par.setLeftBoundary(-5);
+            par.setRightBoundary(5);
+            mParameters.push_back(par);
         }
     };
 
-
-    double getEvaluation(map<string, double> para)
+    //double getEvaluation(map<string, double> para)
+    double getEvaluation(vector<double> params)
     {
         double sum_xs = 0;
-        for (auto it : parameters)
-            sum_xs += pow(para[it.getName()], 2);
+        for (auto iPar : params)
+            sum_xs += pow(iPar, 2);
         double fz = mAlpha * pow(sin(mBeta * sum_xs), 2) + sum_xs * mGamma * exp(mEta * sum_xs);
         return fz;
     }
@@ -136,50 +108,33 @@ class Matthias_function : public FunctionToBeOptimized {
 
 class McCormick_function : public FunctionToBeOptimized {
   public:
-    McCormick_function()
-    {
-        Parameter first, second, third;
-        first.setName("x");
-        first.setStartingPoint(0);
-        first.setBoundaryLeft(-1.5);
-        first.setBoundaryRight(4);
-        second.setName("y");
-        second.setStartingPoint(0);
-        second.setBoundaryLeft(-3);
-        second.setBoundaryRight(4);
-        parameters.insert(first);
-        parameters.insert(second);
-    };
+    McCormick_function() : FunctionToBeOptimized(2) {}
+    McCormick_function(int dim) : FunctionToBeOptimized(2) {
+        if (dim !=2)
+            throw std::logic_error("Argument vector sizes differ.");
+    }
+    McCormick_function(vector<Parameter> pars) : FunctionToBeOptimized(pars) {}
+    McCormick_function(vector<string> parNames, std::vector<double> startingValues, std::vector<double> leftBoundaries, std::vector<double> rightBoundaries) : FunctionToBeOptimized(parNames, startingValues, leftBoundaries, rightBoundaries) {}
 
-    double getEvaluation(map<string, double> para)
+    double getEvaluation(vector<double> params)
     {
         double fz;
-        fz = sin(para["x"] + para["y"]) + pow(para["x"] - para["y"], 2) - 1.5 * para["x"] +
-             2.5 * para["y"] + 1;
+        fz = sin(params[0] + params[1]) + pow(params[0] - params[1], 2) - 1.5 * params[0] +
+             2.5 * params[1] + 1;
         return fz;
     };
 };
 
 class Schwefel_function : public FunctionToBeOptimized {
   public:
-    Schwefel_function(int dimension)
-    {
-        d = dimension;
-        for (int i = 0; i < dimension; i++) {
-            Parameter par;
-            par.setName("x" + to_string(i));
-            par.setStartingPoint(50);
-            par.setBoundaryLeft(-500);
-            par.setBoundaryRight(500);
-            parameters.insert(par);
-        }
-    };
+    Schwefel_function(int dimension) : FunctionToBeOptimized(dimension) {}
+    Schwefel_function(vector<string> parNames, double startingValue, double leftBoundary, double rightBoundary) : FunctionToBeOptimized(parNames, startingValue, leftBoundary, rightBoundary) {}
 
-    double getEvaluation(map<string, double> para)
+    double getEvaluation(vector<double> params)
     {
         double sum_xsin = 0;
-        for (auto it : parameters)
-            sum_xsin += para[it.getName()] * sin(sqrt(abs(para[it.getName()])));
+        for (auto iPar : params)
+            sum_xsin += iPar * sin(sqrt(abs(iPar)));
         double fz = 418.9829 * d - sum_xsin;
         return fz;
     }
@@ -188,60 +143,47 @@ class Schwefel_function : public FunctionToBeOptimized {
 
 class Gaussian_function : public FunctionToBeOptimized {
   public:
-    Gaussian_function(int dimension)
-    {
-        d = dimension;
-        for (int i = 0; i < dimension; i++) {
-            Parameter par;
-            par.setName("x" + to_string(i));
-            par.setStartingPoint(5);
-            par.setBoundaryLeft(-10);
-            par.setBoundaryRight(10);
-            parameters.insert(par);
-        }
-    };
+    Gaussian_function(int dimension) : FunctionToBeOptimized(dimension) {}
+    Gaussian_function(vector<string> parNames, double startingValue, double leftBoundary, double rightBoundary) : FunctionToBeOptimized(parNames, startingValue, leftBoundary, rightBoundary) {}
 
-    double getEvaluation(map<string, double> para)
+    double getEvaluation(vector<double> params)
     {
         double sum_xsin = 0;
-        for (auto it : parameters)
-            sum_xsin += pow((para[it.getName()] + 1), 2);
+        for (auto iPar : params)
+            sum_xsin += pow(iPar + 1, 2);
         double fz = -exp(-sum_xsin);
         return fz;
     }
-    double d;
 };
 
-class Modify_Matthias_function : public FunctionToBeOptimized {
+class Modified_Matthias_function : public FunctionToBeOptimized {
   public:
-    // function's internal parameters
+    // function's internal mParameters
     double mAlpha;
     double mBeta;
     double mGamma;
     double mEta;
 
-    Modify_Matthias_function(unsigned int dimension, double alpha=6., double beta=3., double gamma=1., double eta=1.) :
-        mAlpha(alpha),
-        mBeta(beta),
-        mGamma(gamma), 
-        mEta(eta)
+    Modified_Matthias_function(unsigned int dimension, double alpha = 6., double beta = 3.,
+                             double gamma = 1., double eta = 1.)
+      : FunctionToBeOptimized(dimension), mAlpha(alpha), mBeta(beta), mGamma(gamma), mEta(eta)
     {
         if (dimension < 0)
-        for (int i = 0; i < dimension; i++) {
-            Parameter par;
-            par.setName("x" + to_string(i));
-            par.setStartingPoint(i * 0.5);
-            par.setBoundaryLeft(-5);
-            par.setBoundaryRight(5);
-            parameters.insert(par);
-        }
+            for (int i = 0; i < dimension; i++) {
+                Parameter par;
+                par.setName("x" + to_string(i));
+                par.setStartingValue(i * 0.5);
+                par.setLeftBoundary(-5);
+                par.setRightBoundary(5);
+                mParameters.push_back(par);
+            }
     };
 
-    double getEvaluation(map<string, double> para)
+    double getEvaluation(vector<double> params)
     {
         double sum_xs = 0;
-        for (auto it : parameters)
-            sum_xs += pow(para[it.getName()], 2);
+        for (auto iPar : params)
+            sum_xs += pow(iPar, 2);
         double fz = mAlpha * pow(cos(mBeta * sum_xs), 2) + mGamma * exp(mEta * sum_xs);
         return fz;
     }

@@ -6,15 +6,13 @@ SimplexParallel::SimplexParallel(int stop) : Simplex(stop)
         throw std::runtime_error("MPI_INIT must be used beforehand");
 }
 
-SimplexParallel::~SimplexParallel()
-{
-}
+SimplexParallel::~SimplexParallel() {}
 
 Result SimplexParallel::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
 {
 
     function = start;
-    dimension = function->getParameterSize();
+    dimension = function->getParSpaceDim();
     vertexVector A;
 
     // restore();
@@ -22,7 +20,7 @@ Result SimplexParallel::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
     setStepSize();
     if (Acopy.empty()) {
         A.resize(dimension + 1);
-        createInitialVertex(A); // Initial
+        initializeVertices(A); // Initial
     }
     else {
         A = Acopy;
@@ -38,7 +36,11 @@ Result SimplexParallel::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
         while (checkStoppingCondition()) {
 
             for (int i = 0; i <= dimension; i++) {
-                A[i].second = function->evaluate(A[i].first);
+                //A[i].second = function->evaluate(A[i].first);
+                vector<double> pars;
+                for (auto iPar: A[i].first)
+                    pars.push_back(iPar.second);
+                    A[i].second = function->evaluate(pars);
             } // Evaluate(A)
             std::sort(A.begin(), A.end(),
                       [](vertex& a, vertex& b) -> bool { return a.second < b.second; });
@@ -62,7 +64,11 @@ Result SimplexParallel::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
             vertex M;
 
             calculateM(A, M, world_size); // Mean
-            M.second = function->evaluate(M.first);
+            //M.second = function->evaluate(M.first);
+            vector<double> pars;
+            for (auto iPar: M.first)
+                pars.push_back(iPar.second);
+            M.second = function->evaluate(pars);
             ofstream dataMean;
             dataMean.open("z_mean" + std::to_string(world_size), std::ios::app);
             dataMean << "Iteration= " << currentIteration << "	Mean= " << M.second
@@ -106,7 +112,11 @@ Result SimplexParallel::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
             else
                 for (int i = 1; i < world_size; i++) {
                     vertex b = receiveVertex(i, i);
-                    b.second = function->evaluate(b.first);
+                    //b.second = function->evaluate(b.first);
+                    vector<double> pars;
+                    for (auto iPar: b.first)
+                        pars.push_back(iPar.second);
+                    b.second = function->evaluate(pars);
                     push(A[dimension - world_size + i + 1], b);
                 }
 
@@ -151,9 +161,21 @@ Result SimplexParallel::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
                 A0 = receiveVertex(0, 1);
                 Aj_1 = receiveVertex(0, 2);
                 Aj = receiveVertex(0, 3); // receiving M,A0,Aj,Aj_1
-                A0.second = function->evaluate(A0.first);
-                Aj_1.second = function->evaluate(Aj_1.first);
-                Aj.second = function->evaluate(Aj.first);
+                //A0.second = function->evaluate(A0.first);
+                vector<double> pars;
+                for (auto iPar: A0.first)
+                    pars.push_back(iPar.second);
+                A0.second = function->evaluate(pars);
+                //Aj_1.second = function->evaluate(Aj_1.first);
+                vector<double> pars1;
+                for (auto iPar: Aj_1.first)
+                    pars1.push_back(iPar.second);
+                Aj_1.second = function->evaluate(pars1);
+                //Aj.second = function->evaluate(Aj.first);
+                vector<double> pars2;
+                for (auto iPar: Aj.first)
+                    pars2.push_back(iPar.second);
+                Aj.second = function->evaluate(pars2);
                 int check = 0;
 
                 // Update vertex step3
@@ -216,7 +238,7 @@ void SimplexParallel::sendVertex(vertex& An, int receiver, int tag)
 {
     double Ad[dimension];
     int run = 0;
-    for (auto it : function->parameters) {
+    for (auto it : function->mParameters) {
         Ad[run] = An.first[it.getName()];
         run++;
     }
@@ -231,7 +253,7 @@ vertex SimplexParallel::receiveVertex(int sender, int tag)
     MPI_Recv(&(Ad[0]), dimension, MPI_DOUBLE, sender, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     int run = 0;
-    for (auto it : function->parameters) {
+    for (auto it : function->mParameters) {
         An.first[it.getName()] = Ad[run];
         run++;
     }
@@ -240,8 +262,12 @@ vertex SimplexParallel::receiveVertex(int sender, int tag)
 
 void SimplexParallel::calculateAc(vertex& Ac, vertex& M, vertex& Ajp)
 {
-    for (auto it : function->parameters)
+    for (auto it : function->mParameters)
         Ac.first[it.getName()] = getOptimizationAlgorithmParameter("beta") *
                                  (Ajp.first[it.getName()] + M.first[it.getName()]);
-    Ac.second = function->evaluate(Ac.first);
+    //Ac.second = function->evaluate(Ac.first);
+    vector<double> pars;
+    for (auto iPar: Ac.first)
+        pars.push_back(iPar.second);
+    Ac.second = function->evaluate(pars);
 }

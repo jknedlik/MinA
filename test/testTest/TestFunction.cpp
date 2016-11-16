@@ -14,11 +14,11 @@ class Myfunction : public FunctionToBeOptimized {
         Parameter first, second, third;
 
         first.setName("x");
-        first.setStartingPoint(3);
+        first.setStartingValue(3);
         second.setName("y");
-        second.setStartingPoint(4);
+        second.setStartingValue(4);
         third.setName("z");
-        third.setStartingPoint(5);
+        third.setStartingValue(5);
         // first.setBoundaryLeft(-100);
         //	first.setBoundaryRight(100);
         // third.setBoundaryLeft(-100);
@@ -42,9 +42,9 @@ class Himmelblaufunction : public FunctionToBeOptimized {
     {
         Parameter first, second;
         first.setName("x");
-        first.setStartingPoint(3);
+        first.setStartingValue(3);
         second.setName("y");
-        second.setStartingPoint(4);
+        second.setStartingValue(4);
         parameters.insert(first);
         parameters.insert(second);
     };
@@ -63,9 +63,9 @@ class Boot_s_function : public FunctionToBeOptimized {
     {
         Parameter first, second;
         first.setName("x");
-        first.setStartingPoint(3);
+        first.setStartingValue(3);
         second.setName("y");
-        second.setStartingPoint(4);
+        second.setStartingValue(4);
         parameters.insert(first);
         parameters.insert(second);
     };
@@ -83,9 +83,9 @@ class Michalewicz_function : public FunctionToBeOptimized {
     {
         Parameter first, second, third;
         first.setName("x");
-        first.setStartingPoint(3);
+        first.setStartingValue(3);
         second.setName("y");
-        second.setStartingPoint(4);
+        second.setStartingValue(4);
         parameters.insert(first);
         parameters.insert(second);
     };
@@ -110,7 +110,7 @@ class Matthias_function : public FunctionToBeOptimized {
         for (int i = 0; i < dimension; i++) {
             Parameter par;
             par.setName("x" + std::to_string(i));
-            par.setStartingPoint(-0.3);
+            par.setStartingValue(-0.3);
             par.setBoundaryLeft(-100);
             par.setBoundaryRight(100);
             parameters.insert(par);
@@ -121,7 +121,7 @@ class Matthias_function : public FunctionToBeOptimized {
         for (int i = 0; i < dimension; i++) {
             Parameter par;
             par.setName("x" + std::to_string(i));
-            par.setStartingPoint(3);
+            par.setStartingValue(3);
             par.setBoundaryLeft(-9.5);
             par.setBoundaryRight(9.5);
             parameters.insert(par);

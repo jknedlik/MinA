@@ -2,7 +2,9 @@
 #define FUNCTIONTOBEOPTIMIZED_H
 #include <map>
 #include <iostream>
-#include <set>
+#include <vector>
+#include <string>
+#include <stdexcept>
 #include "MinA/common/Parameter.h"
 #include <algorithm>
 #include <iterator>
@@ -15,18 +17,55 @@ enum handle_arith { MinA_EHIGH, MinA_ETHROW, MinA_EWARN };
 class FunctionToBeOptimized {
   private:
     handle_arith handle;
+    long unsigned int mDimensions;
 
   public:
-    FunctionToBeOptimized() : handle(MinA_ETHROW)
+    FunctionToBeOptimized() = delete;
+
+    FunctionToBeOptimized(unsigned int dim) : handle{ MinA_ETHROW }, mDimensions{ dim } {}
+
+    FunctionToBeOptimized(std::vector<Parameter> pars)
+      : handle{ MinA_ETHROW }, mDimensions{ pars.size() }, mParameters{ pars }
     {
     }
 
-    void setHandle(handle_arith ha)
+    FunctionToBeOptimized(std::vector<std::string> parNames,
+                          std::vector<double> startingValues, std::vector<double> leftBoundaries,
+                          std::vector<double> rightBoundaries)
+      : FunctionToBeOptimized(parNames.size())
     {
-        handle = ha;
+        if (leftBoundaries.size() != mDimensions || rightBoundaries.size() != mDimensions ||
+            startingValues.size() != mDimensions) {
+            throw std::logic_error("Argument vector sizes differ.");
+        }
+
+        Parameter par;
+        for (int i = 0; i < mDimensions; ++i) {
+            par.setName(parNames[i]);
+            par.setStartingValue(startingValues[i]);
+            par.setLeftBoundary(leftBoundaries[i]);
+            par.setRightBoundary(rightBoundaries[i]);
+            mParameters.push_back(par);
+        }
     }
 
-    double evaluate(std::map<std::string, double> para)
+    FunctionToBeOptimized(std::vector<std::string> parNames, double startingValue,
+                          double leftBoundary, double rightBoundary)
+      : FunctionToBeOptimized(parNames.size())
+    {
+        Parameter par;
+        for (int i = 0; i < mDimensions; ++i) {
+            par.setName(parNames[i]);
+            par.setStartingValue(startingValue);
+            par.setLeftBoundary(leftBoundary);
+            par.setRightBoundary(rightBoundary);
+            mParameters.push_back(par);
+        }
+    }
+
+    void setHandle(handle_arith ha) { handle = ha; }
+
+    double evaluate(std::vector<double> para)
     {
         double result;
         try {
@@ -56,15 +95,17 @@ class FunctionToBeOptimized {
         }
         return result;
     }
-    
-    virtual double getEvaluation(std::map<std::string, double> para) = 0;
 
-    int getParameterSize()
+    //virtual double getEvaluation(std::map<std::string, double> para) = 0;
+    virtual double getEvaluation(std::vector<double> params) = 0;
+
+    int getParSpaceDim()
     {
-        return parameters.size();
+        // return parameters.size();
+        return mDimensions;
     }
 
-    std::set<Parameter> parameters;
+    std::vector<Parameter> mParameters;
 };
 
 #endif
