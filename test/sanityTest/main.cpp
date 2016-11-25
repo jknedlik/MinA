@@ -22,8 +22,8 @@ int main(int argc, char** argv)
     nmSimplex->setFunctionName("Square");
     shared_ptr<SimplexParallel> parallelSimplex(new SimplexParallel(1000));
     parallelSimplex->setFunctionName("Square");
-    parallelSimplex->setOptimizationAlgorithmParameter("beta", 0.2);
-    parallelSimplex->setOptimizationAlgorithmParameter("tau", 0.2);
+    parallelSimplex->setMetaParameter("beta", 0.2);
+    parallelSimplex->setMetaParameter("tau", 0.2);
 
     vector<string> parNames;
     for (int i=0; i < 10; ++i)

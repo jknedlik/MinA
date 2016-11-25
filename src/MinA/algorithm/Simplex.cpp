@@ -3,10 +3,10 @@
 Simplex::Simplex(int stop)
 {
     stoppingIteration = stop;
-    setOptimizationAlgorithmParameter("alpha", 1);
-    setOptimizationAlgorithmParameter("beta", 0.5);
-    setOptimizationAlgorithmParameter("gramma", 1);
-    setOptimizationAlgorithmParameter("tau", 0.5);
+    setMetaParameter("alpha", 1);
+    setMetaParameter("beta", 0.5);
+    setMetaParameter("gamma", 1);
+    setMetaParameter("tau", 0.5);
     setAdditionalInformation("checkboundary", "");
 
     currentIteration = 0;
@@ -226,7 +226,7 @@ void Simplex::calculateAr(vertex& Ar, vertex& M, vertex& Aj)
 {
     for (auto it : function->mParameters)
         Ar.first[it.getName()] = M.first[it.getName()] +
-                                 getOptimizationAlgorithmParameter("alpha") *
+                                 getMetaParameter("alpha") *
                                    (M.first[it.getName()] - Aj.first[it.getName()]);
     //Ar.second = function->evaluate(Ar.first);
     vector<double> pars;
@@ -239,7 +239,7 @@ void Simplex::calculateAe(vertex& Ae, vertex& M, vertex& Ar)
 {
     for (auto it : function->mParameters)
         Ae.first[it.getName()] = Ar.first[it.getName()] +
-                                 getOptimizationAlgorithmParameter("gramma") *
+                                 getMetaParameter("gamma") *
                                    (Ar.first[it.getName()] - M.first[it.getName()]);
     //Ae.second = function->evaluate(Ae.first);
     vector<double> pars;
@@ -252,7 +252,7 @@ void Simplex::calculateAc(vertex& Ac, vertex& M, vertex& Ajp)
 {
     for (auto it : function->mParameters)
         Ac.first[it.getName()] = M.first[it.getName()] +
-                                 getOptimizationAlgorithmParameter("beta") *
+                                 getMetaParameter("beta") *
                                    (Ajp.first[it.getName()] - M.first[it.getName()]);
     //Ac.second = function->evaluate(Ac.first);
     vector<double> pars;
@@ -265,19 +265,19 @@ void Simplex::calculateNewPoint(vertex& Anew, vertex& Ap, vertex& A0)
 {
     for (auto it : function->mParameters)
         Anew.first[it.getName()] =
-          getOptimizationAlgorithmParameter("tau") * A0.first[it.getName()] +
-          (1 - getOptimizationAlgorithmParameter("tau")) * Ap.first[it.getName()];
+          getMetaParameter("tau") * A0.first[it.getName()] +
+          (1 - getMetaParameter("tau")) * Ap.first[it.getName()];
 }
 
 void Simplex::createNewVertex(vertexVector& A)
 {
     for (int i = 1; i <= dimension; i++) {
-        cout << i << "before----->" << getOptimizationAlgorithmParameter("tau");
+        cout << i << "before----->" << getMetaParameter("tau");
         showVertex(A[i]);
         for (auto it : function->mParameters)
             A[i].first[it.getName()] =
-              getOptimizationAlgorithmParameter("tau") * A[0].first[it.getName()] +
-              (1 - getOptimizationAlgorithmParameter("tau")) * A[i].first[it.getName()];
+              getMetaParameter("tau") * A[0].first[it.getName()] +
+              (1 - getMetaParameter("tau")) * A[i].first[it.getName()];
 
         cout << endl;
         cout << i << "After----->";

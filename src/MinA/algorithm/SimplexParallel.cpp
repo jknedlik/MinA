@@ -263,7 +263,7 @@ vertex SimplexParallel::receiveVertex(int sender, int tag)
 void SimplexParallel::calculateAc(vertex& Ac, vertex& M, vertex& Ajp)
 {
     for (auto it : function->mParameters)
-        Ac.first[it.getName()] = getOptimizationAlgorithmParameter("beta") *
+        Ac.first[it.getName()] = getMetaParameter("beta") *
                                  (Ajp.first[it.getName()] + M.first[it.getName()]);
     //Ac.second = function->evaluate(Ac.first);
     vector<double> pars;

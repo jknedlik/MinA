@@ -8,7 +8,7 @@
 class Result {
   public:
     std::map<std::string, double> optimizationParameter;
-    std::map<std::string, std::string> additionalInformation;
+    std::map<std::string, std::string> mAdditionalInformation;
     double result;
 };
 #endif

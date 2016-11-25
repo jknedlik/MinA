@@ -1,29 +1,30 @@
 #include "MinA/common/OptimizationAlgorithm.h"
+using namespace std;
 
-OptimizationAlgorithm::~OptimizationAlgorithm() { ; }
+OptimizationAlgorithm::~OptimizationAlgorithm() {}
 
-void OptimizationAlgorithm::setOptimizationAlgorithmParameter(string nam, double nu)
+void OptimizationAlgorithm::setMetaParameter(string parName, double parValue)
 {
-    optimizationAlgorithmParameter[nam] = nu;
+    mMetaParameters[parName] = parValue;
 }
 
-double OptimizationAlgorithm::getOptimizationAlgorithmParameter(string nam)
+double OptimizationAlgorithm::getMetaParameter(string parName)
 {
-    return optimizationAlgorithmParameter[nam];
+    return mMetaParameters[parName];
 }
 
-std::map<string, string> OptimizationAlgorithm::getAdditionalInformation() const
+map<string, string> OptimizationAlgorithm::getAdditionalInformation() const
 {
-    return additionalInformation;
+    return mAdditionalInformation;
 }
 
 void OptimizationAlgorithm::setAdditionalInformation(
-  std::map<string, string> additionalInformation_re)
+  map<string, string> additionalInformation)
 {
-    additionalInformation = additionalInformation_re;
+    mAdditionalInformation = additionalInformation;
 }
 
 void OptimizationAlgorithm::setAdditionalInformation(string s1, string s2)
 {
-    additionalInformation[s1] = s2;
+    mAdditionalInformation[s1] = s2;
 }

@@ -105,8 +105,8 @@ class Matthias_function : public FunctionToBeOptimized {
     {
         alpha = 6;
         beta = 3;
-        gramma = 1;
-        eata = 1;
+        gamma = 1;
+        eta = 1;
         for (int i = 0; i < dimension; i++) {
             Parameter par;
             par.setName("x" + std::to_string(i));
@@ -133,10 +133,10 @@ class Matthias_function : public FunctionToBeOptimized {
         double sum_xs = 0;
         for (auto it : parameters)
             sum_xs += pow(para[it.getName()], 2);
-        double fz = alpha * pow(cos(beta * sum_xs), 2) + gramma * exp(eata * sum_xs);
+        double fz = alpha * pow(cos(beta * sum_xs), 2) + gamma * exp(eta * sum_xs);
         return fz;
     }
-    double alpha, beta, gramma, eata;
+    double alpha, beta, gamma, eta;
 };
 
 #endif
