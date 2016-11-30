@@ -12,8 +12,8 @@
 #include <boost/archive/text_iarchive.hpp>
 #include "MinA/algorithm/Simplex.h"
 
-typedef std::pair<std::map<std::string, double>, double> vertex;
-typedef std::vector<std::pair<std::map<std::string, double>, double>> vertexVector;
+// typedef std::pair<std::map<std::string, double>, double> vertex;
+// typedef std::vector<std::pair<std::map<std::string, double>, double>> verticesVector;
 
 class SimplexParallel : public Simplex {
   public:
@@ -22,7 +22,7 @@ class SimplexParallel : public Simplex {
     Result algorithm(std::shared_ptr<FunctionToBeOptimized> start);
     void sendVertex(vertex& A, int receiver, int tag);
     vertex receiveVertex(int sender, int tag);
-    void calculateAc(vertex& Ac, vertex& M, vertex& Ajp);
+    vertex getContractedPoint(vertex& M, vertex& Ajp);
 };
 
 #endif

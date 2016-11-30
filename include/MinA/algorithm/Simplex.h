@@ -14,44 +14,49 @@
 #include <fstream>
 #include <cstdio>
 
-typedef std::pair<std::map<std::string, double>, double> vertex;
-typedef std::vector<std::pair<std::map<std::string, double>, double>> vertexVector;
+// typedef std::pair<std::map<std::string, double>, double> vertex;
+typedef std::pair<std::vector<double>, double> vertex;
+typedef std::vector<vertex> verticesVector;
 class Simplex : public OptimizationAlgorithm {
   public:
     Simplex(int stop = 100);
     ~Simplex();
     virtual Result algorithm(std::shared_ptr<FunctionToBeOptimized> start);
-    void showVertex(vertexVector& para);
-    void showVertex(vertex& para);
+    void printOutVertices(verticesVector& simplexVertices, std::ostream& outStream = std::cout);
+    void printOutVertex(vertex& simplexVertex, std::string vertexName,
+                        std::ostream& outStream = std::cout);
     void checkBoundaryCondition(vertex& A);
-    void setStepSize(vector<double> s);
+    void setStepSize(std::vector<double> s);
     void setStepSize();
     void setStoppingIteration(int n);
-    void setFunctionName(string name);
-    string getFunctionName();
-    double getSimplexSize(vertexVector& para);
+    void setFunctionName(std::string name);
+    std::string getFunctionName();
+    double getSimplexSize(verticesVector& para);
 
   protected:
-    int dimension;
-    std::shared_ptr<FunctionToBeOptimized> function;
+    int mDimension;
+    std::shared_ptr<FunctionToBeOptimized> mFunction;
     std::vector<double> stepSize;
     bool checkStoppingCondition();
     void push(vertex& a, vertex& b);
     void pushResult(Result& rs, vertex& A);
-    void initializeVertices(vertexVector& A);
-    void calculateM(vertexVector& A, vertex& M, int world_size);
-    void calculateAr(vertex& Ar, vertex& M, vertex& Aj);
-    void calculateAe(vertex& Ae, vertex& M, vertex& Ar);
-    virtual void calculateAc(vertex& Ac, vertex& M, vertex& Ajp);
-    void createNewVertex(vertexVector& A);
-    void calculateNewPoint(vertex& Anew, vertex& Ap, vertex& A0);
+    void initializeVertices(verticesVector& A);
+    // void getCentroid(verticesVector& A, vertex& M, int world_size);
+    vertex getCentroid(verticesVector& A, int world_size);
+    vertex getReflectedPoint(vertex& M, vertex& Aj);
+    vertex getExtendedPoint(vertex& M, vertex& Ar);
+    virtual vertex getContractedPoint(vertex& M, vertex& Ajp);
+    /* ever used?
+    void createNewVertex(verticesVector& A);
+    */
+    vertex getShrinkedPoint(vertex& Ap, vertex& A0);
     void save() const;
     void restore();
-    vertexVector Acopy;
+    verticesVector Acopy;
     int currentIteration;
     double difference;
     int stoppingIteration;
-    string FunctionName;
+    std::string FunctionName;
 };
 
 #endif

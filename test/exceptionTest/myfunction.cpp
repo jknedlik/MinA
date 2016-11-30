@@ -1,10 +1,6 @@
 #ifndef MYFUNCTION_CPP
-#include <iostream>
-#include <map>
 #include <cmath>
 #include "MinA/common/FunctionToBeOptimized.h"
-
-#define PI 3.14159265358979323846
 #define MYFUNCTION_CPP
 using namespace std;
 
@@ -12,18 +8,8 @@ class BadTen : public FunctionToBeOptimized {
     int mCounter;
 
   public:
-    // BadTen() = delete;
-
-    BadTen(int dim = 3) : FunctionToBeOptimized(dim), mCounter(0)
-    {
-        Parameter first("x", 3);
-        Parameter second("y", 4);
-        Parameter third("z", 5);
-
-        mParameters.push_back(first);
-        mParameters.push_back(second);
-        mParameters.push_back(third);
-    };
+    BadTen(vector<Parameter> pars) : FunctionToBeOptimized(pars) {}
+    // if (pars.size() != 3) throw
 
     double getEvaluation(vector<double> params)
     {

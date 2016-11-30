@@ -5,22 +5,38 @@
 #include "myfunction.cpp"
 #include "MinA/algorithm/Simplex.h"
 #include <utility>
+using namespace std;
 
 int main(void)
 {
-    // bt.setHandle(KILL);
-    std::shared_ptr<BadTen> bt(new BadTen);
-    std::shared_ptr<Simplex> altest(new Simplex);
+    // badFunction.setHandle(KILL);
+    vector<Parameter> params;
+    params.push_back({ "x", 3 });
+    params.push_back({ "y", 4 });
+    params.push_back({ "z", 5 });
+    shared_ptr<BadTen> badFunction(new BadTen(params));
+
+    shared_ptr<Simplex> serialSimplex(new Simplex);
     Minimizer mina;
     int count = 0;
     for (int i = 0; i < 10; i++) {
         try {
-            mina.minimize(bt, altest);
+            mina.minimize(badFunction, serialSimplex);
         }
         catch (Arithmetical_Exception& ae) {
             count++;
         }
     }
-    std::cout << count << std::endl;
+    cout << "counter = " << count << endl;
     return !(count == 10);
+    /*
+    cout << "counter before = " << count << endl;
+    try {
+        mina.minimize(badFunction, serialSimplex);
+    } catch (Arithmetical_Exception& ae) {
+        count++;
+    }
+    cout << "counter after = " << count << endl;
+    return 0;
+    */
 }

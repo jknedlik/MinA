@@ -1,4 +1,5 @@
 #include "MinA/algorithm/Simplex.h"
+using namespace std;
 
 Simplex::Simplex(int stop)
 {
@@ -14,47 +15,42 @@ Simplex::Simplex(int stop)
 
 Simplex::~Simplex() {}
 
-Result Simplex::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
+Result Simplex::algorithm(shared_ptr<FunctionToBeOptimized> start)
 {
 
-    function = start;
-    dimension = start->getParSpaceDim();
+    mFunction = start;
+    mDimension = start->getParSpaceDim();
     setStepSize();
 
-    vertexVector A;
+    verticesVector A;
     // restore();
     if (Acopy.empty()) {
-        A.resize(dimension + 1);
+        A.resize(mDimension + 1);
         initializeVertices(A); // Initial
     }
     else {
         A = Acopy;
     }
     cout << "Start with current loop= " << currentIteration << endl;
-    for (int i = 0; i <= dimension; i++)
+    for (int i = 0; i <= mDimension; i++)
         checkBoundaryCondition(A[i]);
     while (checkStoppingCondition()) {
 
-        vertex Ar, Ac, Ae, Anew, Ap;
-        for (int i = 0; i <= dimension; i++) {
-            vector<double> pars;
-            for (auto iPar: A[i].first)
-                pars.push_back(iPar.second);
-            //A[i].second = start->getEvaluation(A[i].first);
-            A[i].second = start->getEvaluation(pars);
-        }
+        vertex Ar, Ac, Ae, Anew, Ap; // reflection, contraction, extension, shrinked point
+        for (int iVertex = 0; iVertex <= mDimension; ++iVertex)
+            A[iVertex].second = start->getEvaluation(A[iVertex].first);
 
-        std::sort(A.begin(), A.end(),
-                  [](vertex& a, vertex& b) -> bool { return a.second < b.second; }); // Sort
+        sort(A.begin(), A.end(),
+             [](vertex& a, vertex& b) -> bool { return a.second < b.second; }); // Sort
         cout << "loop= " << currentIteration << endl;
-        showVertex(A);
-        vertex M;
-        calculateM(A, M, 2); // Mean
+        printOutVertices(A);
+        int world_size = 2;
+        vertex M = getCentroid(A, world_size); // Mean
 
         int check = 0;
-        calculateAr(Ar, M, A[dimension]); // Ar
+        Ar = getReflectedPoint(M, A[mDimension]); // Ar
         if (Ar.second < A[0].second) {
-            calculateAe(Ae, M, Ar); // Ae
+            Ae = getExtendedPoint(M, Ar); // Ae
             if (Ae.second < A[0].second) {
                 Anew = Ae;
                 check = 1;
@@ -64,40 +60,40 @@ Result Simplex::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
                 check = 2;
             }
         } // case 1
-        else if (Ar.second < A[dimension - 1].second) {
+        else if (Ar.second < A[mDimension - 1].second) {
             Anew = Ar;
             check = 3;
         } // case 2
         else {
-            if (Ar.second < A[dimension].second) {
+            if (Ar.second < A[mDimension].second) {
                 Ap = Ar;
             }
             else {
-                Ap = A[dimension];
+                Ap = A[mDimension];
             } // Ac
-            calculateAc(Ac, M, Ap);
-            if (Ac.second < A[dimension].second) {
+            Ac = getContractedPoint(M, Ap);
+            if (Ac.second < A[mDimension].second) {
                 Anew = Ac;
                 check = 4;
             }
         } // case 3
         if (check == 0) {
-            for (int i = 1; i <= dimension; i++)
-                calculateNewPoint(Anew, Ap, A[0]);
+            for (int i = 1; i <= mDimension; i++)
+                Anew = getShrinkedPoint(Ap, A[0]);
         }
 
         cout << "check=" << check << endl;
-        push(A[dimension], Anew);
-        checkBoundaryCondition(A[dimension]);
+        push(A[mDimension], Anew);
+        checkBoundaryCondition(A[mDimension]);
         Acopy = A;
         // save();
 
         ofstream dataFile;
-        dataFile.open("Simplex" + getFunctionName(), std::ios::app);
+        dataFile.open("Simplex" + getFunctionName(), ios::app);
         dataFile << "Iteration= " << currentIteration << "	f(A0)= " << A[0].second << "	";
-        for (std::map<string, double>::iterator it = A[0].first.begin(); it != A[0].first.end();
-             ++it)
-            dataFile << it->first << " = " << it->second << "	";
+        for (int iPar = 0; iPar < mDimension; ++iPar)
+            dataFile << mFunction->mParameters[iPar].getName() << " = " << A[0].first[iPar]
+                     << "	";
         dataFile << "\n";
         dataFile.close();
     }
@@ -108,15 +104,18 @@ Result Simplex::algorithm(std::shared_ptr<FunctionToBeOptimized> start)
     return rs;
 }
 
+// *********************************************************************************************fin
+// qua tuto ben **************************************
 void Simplex::setStepSize()
 {
     if (stepSize.empty()) {
-        stepSize.resize(dimension);
-        int i = 0;
-        for (auto iPar : function->mParameters)
-            stepSize[i++] = min(iPar.getStartingValue() - iPar.getLeftBoundary(),
-                                iPar.getRightBoundary() - iPar.getStartingValue()) /
-                            2.;
+        stepSize.resize(mDimension);
+        for (int iPar = 0; iPar < mDimension; ++iPar)
+            stepSize[iPar] = min(mFunction->mParameters[iPar].getStartingValue() -
+                                   mFunction->mParameters[iPar].getLeftBoundary(),
+                                 mFunction->mParameters[iPar].getRightBoundary() -
+                                   mFunction->mParameters[iPar].getStartingValue()) /
+                             2.;
     }
 }
 
@@ -136,7 +135,7 @@ bool Simplex::checkStoppingCondition()
     }
 
     if (getAdditionalInformation()["checkboundary"] != "") {
-        std::cout << getAdditionalInformation()["checkboundary"] << "\n";
+        cout << getAdditionalInformation()["checkboundary"] << "\n";
         return false;
     }
 
@@ -146,152 +145,173 @@ bool Simplex::checkStoppingCondition()
 
 void Simplex::checkBoundaryCondition(vertex& A)
 {
-    // int check = 0;
+    // Check that vertex A is within the corresponding declared boundaries
+    // If not, put it on the boundary
 
-    for (auto it : function->mParameters) {
-        if (A.first[it.getName()] < it.getLeftBoundary())
-            A.first[it.getName()] = it.getLeftBoundary();
+    for (int iPar = 0; iPar < mDimension; ++iPar) {
+        if (A.first[iPar] < mFunction->mParameters[iPar].getLeftBoundary())
+            A.first[iPar] = mFunction->mParameters[iPar].getLeftBoundary();
 
-        if (A.first[it.getName()] > it.getRightBoundary())
-            A.first[it.getName()] = it.getRightBoundary();
+        if (A.first[iPar] > mFunction->mParameters[iPar].getRightBoundary())
+            A.first[iPar] = mFunction->mParameters[iPar].getRightBoundary();
     }
     //	if(check!=0){setAdditionalInformation("checkboundary","out of boundary");}
 }
 
-void Simplex::showVertex(vertexVector& para)
+void Simplex::printOutVertices(verticesVector& simplexVertices, ostream& outStream)
 {
-    int ii = 0;
-    for (auto it : para) {
-        for (auto itx : it.first) {
-            std::cout << itx.first << "=" << itx.second << " ";
-        }
-        cout << "f(A" << ii << ")=" << it.second << "\n";
-        ii++;
+    // Print out parameter values and function value at each vertex
+    for (int iVertex = 0; iVertex <= mDimension; ++iVertex) {
+        string vertexName{ "A[" };
+        vertexName += to_string(iVertex);
+        vertexName += "]";
+        printOutVertex(simplexVertices[iVertex], vertexName, outStream);
     }
 }
 
-void Simplex::showVertex(vertex& para)
+void Simplex::printOutVertex(vertex& simplexVertex, string vertexName, ostream& outStream)
 {
 
-    for (std::map<string, double>::iterator it = para.first.begin(); it != para.first.end(); ++it)
-        std::cout << it->first << "=" << it->second << " ";
-    cout << "f()=" << para.second << endl;
+    for (int iPar = 0; iPar < mDimension; ++iPar) {
+        cout << mFunction->mParameters[iPar].getName() << "=" << simplexVertex.first[iPar] << " ";
+    }
+    outStream << "f(" << vertexName << ")=" << simplexVertex.second << endl;
 }
 
 void Simplex::push(vertex& a, vertex& b)
 {
-    for (auto it : function->mParameters)
-        a.first[it.getName()] = b.first[it.getName()];
-    a.second = b.second;
+    // ********************************** just replace all Simplex::push(a, b) calls with a=b
+    a = b;
 }
 
 void Simplex::pushResult(Result& rs, vertex& A)
 {
-    for (auto it : function->mParameters)
-        rs.optimizationParameter["it.getName()"] = A.first[it.getName()];
+    for (int iPar = 0; iPar < mDimension; ++iPar) {
+        rs.optimizationParameter.insert({ mFunction->mParameters[iPar].getName(), A.first[iPar] });
+    }
     rs.result = A.second;
 }
 
-void Simplex::initializeVertices(vertexVector& A)
+void Simplex::initializeVertices(verticesVector& A)
 {
     // Initialize the first vertex to the starting parameters
-    for (auto iPar : function->mParameters)
-        A[0].first[iPar.getName()] = iPar.getStartingValue();
+    A[0].first.resize(mDimension);
+    for (int iPar = 0; iPar < mDimension; ++iPar) {
+        A[0].first[iPar] = mFunction->mParameters[iPar].getStartingValue();
+    }
 
-    // Initialize the remaining dim vertices by stepSize
-    for (int iVertex = 1; iVertex <= dimension; iVertex++) {
-        for (int iPar = 0; iPar < dimension; ++iPar) {
+    // Initialize the remaining mDimension vertices
+    // by adding i-th stepSize in i-th direction to A[0]
+    for (int iVertex = 1; iVertex <= mDimension; ++iVertex) {
+        A[iVertex].first.resize(mDimension);
+        for (int iPar = 0; iPar < mDimension; ++iPar) {
             if (iPar == iVertex - 1)
-                A[iVertex].first[function->mParameters[iPar].getName()] =
-                  A[0].first[function->mParameters[iPar].getName()] + stepSize[iVertex - 1];
+                A[iVertex].first[iPar] = A[0].first[iPar] + stepSize[iVertex - 1];
             else
-                A[iVertex].first[function->mParameters[iPar].getName()] =
-                  A[0].first[function->mParameters[iPar].getName()];
+                A[iVertex].first[iPar] = A[0].first[iPar];
         }
     }
 }
 
-void Simplex::calculateM(vertexVector& A, vertex& M, int world_size)
+vertex Simplex::getCentroid(verticesVector& A, int world_size)
 {
-    for (auto it : function->mParameters) {
-        double mZero = 0;
-        for (int i = 0; i < dimension - world_size + 2; i++) { // loop over best vertices
-            mZero += A[i].first[it.getName()];
+    // Return centroid M of the best mDimension-world_size vertices of the vector of vertices A
+    // Ar = M + alpha * (M - Aj)
+    // The vertices of A are supposed to be already ordered by function value, from best to worst
+    //
+    vertex M;
+    M.first.resize(mDimension);
+    for (int iPar = 0; iPar < mDimension; ++iPar) {
+        for (int iVertex = 0; iVertex < mDimension - world_size + 2; ++iVertex) {
+            M.first[iPar] += A[iVertex].first[iPar];
         }
-        M.first[it.getName()] = mZero / (dimension - world_size + 2);
+        M.first[iPar] /= (mDimension - world_size + 2);
     }
+    M.second = mFunction->evaluate(M.first);
+    return M;
 }
 
-void Simplex::calculateAr(vertex& Ar, vertex& M, vertex& Aj)
+vertex Simplex::getReflectedPoint(vertex& M, vertex& Aj)
 {
-    for (auto it : function->mParameters)
-        Ar.first[it.getName()] = M.first[it.getName()] +
-                                 getMetaParameter("alpha") *
-                                   (M.first[it.getName()] - Aj.first[it.getName()]);
-    //Ar.second = function->evaluate(Ar.first);
-    vector<double> pars;
-    for (auto iPar: Ar.first)
-        pars.push_back(iPar.second);
-    Ar.second = function->evaluate(pars);
+    // Return reflection point Ar of initial point Aj w.r.t. centroid M of remaining points
+    // Ar = M + alpha * (M - Aj)
+    //
+    vertex Ar;
+    Ar.first.resize(mDimension);
+    for (int iPar = 0; iPar < mDimension; ++iPar)
+        Ar.first[iPar] =
+          M.first[iPar] + getMetaParameter("alpha") * (M.first[iPar] - Aj.first[iPar]);
+    Ar.second = mFunction->evaluate(Ar.first);
+    return Ar;
 }
 
-void Simplex::calculateAe(vertex& Ae, vertex& M, vertex& Ar)
+vertex Simplex::getExtendedPoint(vertex& M, vertex& Ar)
 {
-    for (auto it : function->mParameters)
-        Ae.first[it.getName()] = Ar.first[it.getName()] +
-                                 getMetaParameter("gamma") *
-                                   (Ar.first[it.getName()] - M.first[it.getName()]);
-    //Ae.second = function->evaluate(Ae.first);
-    vector<double> pars;
-    for (auto iPar: Ae.first)
-        pars.push_back(iPar.second);
-    Ae.second = function->evaluate(pars);
+    // Return extension point Ae of initial point Ar w.r.t. centroid M
+    // Ae = Ar + gamma * (Ar - M)
+    //
+    vertex Ae;
+    Ae.first.resize(mDimension);
+    for (int iPar = 0; iPar < mDimension; ++iPar)
+        Ae.first[iPar] =
+          Ar.first[iPar] + getMetaParameter("gamma") * (Ar.first[iPar] - M.first[iPar]);
+    Ae.second = mFunction->evaluate(Ae.first);
+    return Ae;
 }
 
-void Simplex::calculateAc(vertex& Ac, vertex& M, vertex& Ajp)
+vertex Simplex::getContractedPoint(vertex& M, vertex& Ajp)
 {
-    for (auto it : function->mParameters)
-        Ac.first[it.getName()] = M.first[it.getName()] +
-                                 getMetaParameter("beta") *
-                                   (Ajp.first[it.getName()] - M.first[it.getName()]);
-    //Ac.second = function->evaluate(Ac.first);
-    vector<double> pars;
-    for (auto iPar: Ac.first)
-        pars.push_back(iPar.second);
-    Ac.second = function->evaluate(pars);
+    // Return contraction point Ac of initial point Ajp w.r.t. centroid M
+    // Ac = M + beta * (Ajp - M)
+    //
+    vertex Ac;
+    Ac.first.resize(mDimension);
+    for (int iPar = 0; iPar < mDimension; ++iPar)
+        Ac.first[iPar] =
+          M.first[iPar] + getMetaParameter("beta") * (Ajp.first[iPar] - M.first[iPar]);
+    Ac.second = mFunction->evaluate(Ac.first);
+    return Ac;
 }
 
-void Simplex::calculateNewPoint(vertex& Anew, vertex& Ap, vertex& A0)
+vertex Simplex::getShrinkedPoint(vertex& Ap, vertex& A0)
 {
-    for (auto it : function->mParameters)
-        Anew.first[it.getName()] =
-          getMetaParameter("tau") * A0.first[it.getName()] +
-          (1 - getMetaParameter("tau")) * Ap.first[it.getName()];
+    // Return shrinked point Anew of initial point Ap w.r.t. fixed (best) point A0
+    // Anew = tau * A0 + (1-tau) * Ap
+    //
+    vertex Anew;
+    Anew.first.resize(mDimension);
+    for (int iPar = 0; iPar < mDimension; ++iPar)
+        Anew.first[iPar] =
+          getMetaParameter("tau") * A0.first[iPar] + (1 - getMetaParameter("tau")) * Ap.first[iPar];
+    Anew.second = mFunction->evaluate(Anew.first);
+    return Anew;
 }
 
-void Simplex::createNewVertex(vertexVector& A)
+/* *** ever used?
+void Simplex::createNewVertex(verticesVector& A)
 {
-    for (int i = 1; i <= dimension; i++) {
+    for (int i = 1; i <= mDimension; i++) {
         cout << i << "before----->" << getMetaParameter("tau");
-        showVertex(A[i]);
-        for (auto it : function->mParameters)
+        printOutVertex(A[i]);
+        for (auto it : mFunction->mParameters)
             A[i].first[it.getName()] =
               getMetaParameter("tau") * A[0].first[it.getName()] +
               (1 - getMetaParameter("tau")) * A[i].first[it.getName()];
 
         cout << endl;
         cout << i << "After----->";
-        showVertex(A[i]);
+        printOutVertex(A[i]);
     }
 }
+*/
 
 void Simplex::restore()
 {
-    std::ifstream f(".Simplex.save");
+    ifstream f(".Simplex.save");
     if (f.good()) {
         Log::getLog() << "Loading from file .Simplex.save\n";
         Log::getLog().flushLog();
-        std::ifstream infile(".Simplex.save");
+        ifstream infile(".Simplex.save");
         boost::archive::text_iarchive ia(infile);
         ia >> Acopy;
         ia >> currentIteration;
@@ -301,28 +321,26 @@ void Simplex::restore()
 void Simplex::save() const
 {
     if (!Acopy.empty()) {
-        std::ofstream outfile(".Simplex.save");
+        ofstream outfile(".Simplex.save");
         boost::archive::text_oarchive oa(outfile);
         oa << Acopy;
         oa << currentIteration;
     }
 }
 
-double Simplex::getSimplexSize(vertexVector& para)
+double Simplex::getSimplexSize(verticesVector& simplexVertices)
 {
-    vertex M; // the centroid
     // calculate the simplex size as the average vertex-centroid distance
     double simplexSize = 0.;
-    calculateM(para, M, 1);
+    vertex M = getCentroid(simplexVertices, 1); // the centroid
 
-    for (int i = 0; i <= dimension; i++) { // loop over vertices
+    for (int iVertex = 0; iVertex <= mDimension; ++iVertex) { // loop over vertices
         double vertexCentroidDistance = 0.;
-        for (auto itx : function->mParameters) { // loop over vertex' parameters
-            vertexCentroidDistance +=
-              pow((M.first[itx.getName()] - para[i].first[itx.getName()]), 2);
+        for (int iPar = 0; iPar < mDimension; ++iPar) { // loop over vertex' parameters
+            vertexCentroidDistance += pow(M.first[iPar] - simplexVertices[iVertex].first[iPar], 2);
         }
         simplexSize += sqrt(vertexCentroidDistance);
     }
-    simplexSize /= (dimension + 1);
+    simplexSize /= (mDimension + 1);
     return simplexSize;
 }

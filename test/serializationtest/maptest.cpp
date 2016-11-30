@@ -17,7 +17,7 @@ class Coolmap {
     {
         ar& nicemap;
     }
-    vertexVector Acopy;
+    verticesVector Acopy;
     save() const
     {
         std::ofstream outfile(".Simplex.save");

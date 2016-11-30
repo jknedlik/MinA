@@ -29,9 +29,8 @@ class FunctionToBeOptimized {
     {
     }
 
-    FunctionToBeOptimized(std::vector<std::string> parNames,
-                          std::vector<double> startingValues, std::vector<double> leftBoundaries,
-                          std::vector<double> rightBoundaries)
+    FunctionToBeOptimized(std::vector<std::string> parNames, std::vector<double> startingValues,
+                          std::vector<double> leftBoundaries, std::vector<double> rightBoundaries)
       : FunctionToBeOptimized(parNames.size())
     {
         if (leftBoundaries.size() != mDimensions || rightBoundaries.size() != mDimensions ||
@@ -96,7 +95,7 @@ class FunctionToBeOptimized {
         return result;
     }
 
-    //virtual double getEvaluation(std::map<std::string, double> para) = 0;
+    // virtual double getEvaluation(std::map<std::string, double> para) = 0;
     virtual double getEvaluation(std::vector<double> params) = 0;
 
     int getParSpaceDim()
