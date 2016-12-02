@@ -45,12 +45,12 @@ Result Simplex::algorithm(shared_ptr<FunctionToBeOptimized> start)
         cout << "loop= " << currentIteration << endl;
         printOutVertices(A);
         int world_size = 2;
-        vertex M = getCentroid(A, world_size); // Mean
+        vertex M = getCentroid(A, world_size);
 
         int check = 0;
-        Ar = getReflectedPoint(M, A[mDimension]); // Ar
+        Ar = getReflectedPoint(M, A[mDimension]);
         if (Ar.second < A[0].second) {
-            Ae = getExtendedPoint(M, Ar); // Ae
+            Ae = getExtendedPoint(M, Ar);
             if (Ae.second < A[0].second) {
                 Anew = Ae;
                 check = 1;
@@ -83,7 +83,7 @@ Result Simplex::algorithm(shared_ptr<FunctionToBeOptimized> start)
         }
 
         cout << "check=" << check << endl;
-        push(A[mDimension], Anew);
+        A[mDimension] = Anew;
         checkBoundaryCondition(A[mDimension]);
         Acopy = A;
         // save();
@@ -104,8 +104,6 @@ Result Simplex::algorithm(shared_ptr<FunctionToBeOptimized> start)
     return rs;
 }
 
-// *********************************************************************************************fin
-// qua tuto ben **************************************
 void Simplex::setStepSize()
 {
     if (stepSize.empty()) {
@@ -171,17 +169,11 @@ void Simplex::printOutVertices(verticesVector& simplexVertices, ostream& outStre
 
 void Simplex::printOutVertex(vertex& simplexVertex, string vertexName, ostream& outStream)
 {
-
+    // Print out parameters and function value at vertex
     for (int iPar = 0; iPar < mDimension; ++iPar) {
         cout << mFunction->mParameters[iPar].getName() << "=" << simplexVertex.first[iPar] << " ";
     }
     outStream << "f(" << vertexName << ")=" << simplexVertex.second << endl;
-}
-
-void Simplex::push(vertex& a, vertex& b)
-{
-    // ********************************** just replace all Simplex::push(a, b) calls with a=b
-    a = b;
 }
 
 void Simplex::pushResult(Result& rs, vertex& A)
@@ -286,24 +278,6 @@ vertex Simplex::getShrinkedPoint(vertex& Ap, vertex& A0)
     Anew.second = mFunction->evaluate(Anew.first);
     return Anew;
 }
-
-/* *** ever used?
-void Simplex::createNewVertex(verticesVector& A)
-{
-    for (int i = 1; i <= mDimension; i++) {
-        cout << i << "before----->" << getMetaParameter("tau");
-        printOutVertex(A[i]);
-        for (auto it : mFunction->mParameters)
-            A[i].first[it.getName()] =
-              getMetaParameter("tau") * A[0].first[it.getName()] +
-              (1 - getMetaParameter("tau")) * A[i].first[it.getName()];
-
-        cout << endl;
-        cout << i << "After----->";
-        printOutVertex(A[i]);
-    }
-}
-*/
 
 void Simplex::restore()
 {

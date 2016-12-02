@@ -38,10 +38,6 @@ Result SimplexParallel::algorithm(shared_ptr<FunctionToBeOptimized> start)
 
             for (int i = 0; i <= mDimension; i++) {
                 A[i].second = mFunction->evaluate(A[i].first);
-                // vector<double> pars;
-                // for (auto iPar: A[i].first)
-                //     pars.push_back(iPar.second);
-                // A[i].second = mFunction->evaluate(pars);
             } // Evaluate(A)
             sort(A.begin(), A.end(),
                  [](vertex& a, vertex& b) -> bool { return a.second < b.second; });
@@ -52,30 +48,15 @@ Result SimplexParallel::algorithm(shared_ptr<FunctionToBeOptimized> start)
             dataFile.open("z_SimplexParallel" + getFunctionName() + to_string(world_size),
                           ios::app);
             dataFile << currentIteration << endl;
-            // for (int i = 0; i <= mDimension; i++) {
-            //     dataFile << "Iteration= " << currentIteration << "	f(A" << i
-            //              << ")= " << A[i].second << "	";
-            //     for (map<string, double>::iterator it = A[i].first.begin();
-            //          it != A[i].first.end(); ++it)
-            //         dataFile << it->first << " = " << it->second << "	";
-            //     dataFile << "\n";
-            // }
             printOutVertices(A, dataFile);
             dataFile.close();
 
             vertex M = getCentroid(A, world_size); // Centroid
             M.second = mFunction->evaluate(M.first);
-            // vector<double> pars;
-            // for (auto iPar: M.first)
-            //     pars.push_back(iPar.second);
-            // M.second = mFunction->evaluate(pars);
             ofstream dataMean;
             dataMean.open("z_mean" + to_string(world_size), ios::app);
             dataMean << "Iteration= " << currentIteration << "	Mean= " << M.second
                      << "	SimplexSize =	" << getSimplexSize(A) << "	";
-            /*for (map<string, double>::iterator it = M.first.begin(); it != M.first.end();
-                 ++it)
-                dataMean << it->first << " = " << it->second << "	\n";*/
             dataMean << endl;
             dataMean.close();
             mode = 1;
@@ -99,23 +80,19 @@ Result SimplexParallel::algorithm(shared_ptr<FunctionToBeOptimized> start)
             if (sumcheck == 0) {
                 for (int i = 1; i < mDimension - world_size + 1; i++) {
                     vertex Anew = getShrinkedPoint(A[i], A[0]);
-                    push(A[i], Anew);
+                    A[i] = Anew;
                 }
                 for (int i = 1; i < world_size; i++) {
                     vertex b = receiveVertex(i, i);
                     vertex Anew = getShrinkedPoint(b, A[0]);
-                    push(A[mDimension - world_size + i + 1], Anew);
+                    A[mDimension - world_size + i + 1] = Anew;
                 }
             } // case 4
             else
                 for (int i = 1; i < world_size; i++) {
                     vertex b = receiveVertex(i, i);
                     b.second = mFunction->evaluate(b.first);
-                    // vector<double> pars;
-                    // for (auto iPar: b.first)
-                    //     pars.push_back(iPar.second);
-                    // b.second = mFunction->evaluate(pars);
-                    push(A[mDimension - world_size + i + 1], b);
+                    A[mDimension - world_size + i + 1] = b;
                 }
 
             dataFile.open("z_SimplexParallel" + getFunctionName() + to_string(world_size),
@@ -146,25 +123,14 @@ Result SimplexParallel::algorithm(shared_ptr<FunctionToBeOptimized> start)
 
             if (mode == 1) {
                 vertex M, Aj, Aj_1, A0, Ar, Ac, Ae, Ap;
+                // receiving M,A0,Aj,Aj_1
                 M = receiveVertex(0, 0);
                 A0 = receiveVertex(0, 1);
                 Aj_1 = receiveVertex(0, 2);
-                Aj = receiveVertex(0, 3); // receiving M,A0,Aj,Aj_1
+                Aj = receiveVertex(0, 3);
                 A0.second = mFunction->evaluate(A0.first);
-                // vector<double> pars;
-                // for (auto iPar: A0.first)
-                //     pars.push_back(iPar.second);
-                // A0.second = mFunction->evaluate(pars);
                 Aj_1.second = mFunction->evaluate(Aj_1.first);
-                // vector<double> pars1;
-                // for (auto iPar: Aj_1.first)
-                //     pars1.push_back(iPar.second);
-                // Aj_1.second = mFunction->evaluate(pars1);
                 Aj.second = mFunction->evaluate(Aj.first);
-                // vector<double> pars2;
-                // for (auto iPar: Aj.first)
-                //     pars2.push_back(iPar.second);
-                // Aj.second = mFunction->evaluate(pars2);
                 int check = 0;
 
                 // Update vertex step3
@@ -172,18 +138,15 @@ Result SimplexParallel::algorithm(shared_ptr<FunctionToBeOptimized> start)
                 if (Ar.second < A0.second) {
                     Ae = getExtendedPoint(M, Ar);
                     if (Ae.second < A0.second) {
-                        // push(Aj, Ae);
                         Aj = Ae;
                         check = 1;
                     }
                     else {
-                        // push(Aj, Ar);
                         Aj = Ar;
                         check = 2;
                     }
                 } // case 1
                 else if (Ar.second < Aj_1.second) {
-                    // push(Aj, Ar);
                     Aj = Ar;
                     check = 3;
                 } // case 2
@@ -199,12 +162,10 @@ Result SimplexParallel::algorithm(shared_ptr<FunctionToBeOptimized> start)
                     if (Ac.second < Ap.second) {
                         // if(Ac.second<Aj.second)cout<<"Ac="<<Ac.second<<endl;
                         // else 	cout<<"Aj="<<Aj.second<<endl;
-                        // push(Aj, Ac);
                         Aj = Ac;
                         check = 4;
                     } // case 3
                     else
-                        // push(Aj, Ap);
                         Aj = Ap;
                 }
 

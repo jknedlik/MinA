@@ -14,7 +14,6 @@
 #include <fstream>
 #include <cstdio>
 
-// typedef std::pair<std::map<std::string, double>, double> vertex;
 typedef std::pair<std::vector<double>, double> vertex;
 typedef std::vector<vertex> verticesVector;
 class Simplex : public OptimizationAlgorithm {
@@ -38,17 +37,12 @@ class Simplex : public OptimizationAlgorithm {
     std::shared_ptr<FunctionToBeOptimized> mFunction;
     std::vector<double> stepSize;
     bool checkStoppingCondition();
-    void push(vertex& a, vertex& b);
     void pushResult(Result& rs, vertex& A);
     void initializeVertices(verticesVector& A);
-    // void getCentroid(verticesVector& A, vertex& M, int world_size);
     vertex getCentroid(verticesVector& A, int world_size);
     vertex getReflectedPoint(vertex& M, vertex& Aj);
     vertex getExtendedPoint(vertex& M, vertex& Ar);
     virtual vertex getContractedPoint(vertex& M, vertex& Ajp);
-    /* ever used?
-    void createNewVertex(verticesVector& A);
-    */
     vertex getShrinkedPoint(vertex& Ap, vertex& A0);
     void save() const;
     void restore();
