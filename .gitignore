@@ -3,10 +3,11 @@ lib
 *.exe
 *.txt
 .ycm*
+*.gch
 CMakeCache.txt
 CMakeFiles
 cmake_install.cmake
-CTestTestfile.cmake 
+CTestTestfile.cmake
 Testing
 Makefile
 *.o
