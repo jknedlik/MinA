@@ -96,7 +96,7 @@ void for_each_impl_i(TupleA&& tuplea, F&& f, std::index_sequence<Indices...>)
                        int{})... };
 }
 
-template <typename TupleA, typename TupleB, typename F>
+template <typename TupleA, typename F>
 void for_each_i(TupleA&& tuplea, F&& f)
 {
     constexpr std::size_t N = std::tuple_size<std::remove_reference_t<TupleA>>::value;

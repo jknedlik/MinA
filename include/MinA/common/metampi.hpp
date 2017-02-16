@@ -1,4 +1,4 @@
-#include "commonT.hpp"
+#include "MinA/common/commonT.hpp"
 #include <algorithm>
 #include <assert.h>
 #include <complex>
@@ -9,6 +9,8 @@
 #include <tuple>
 #include <type_traits>
 #include <vector>
+#ifndef MINA_METAMPI
+#define MINA_METAMPI
 // MPITYPES : A Metaprogramming list of coresponding MPI_Datatypes for c++ types
 template <typename... Ts>
 struct MPITYPE;
@@ -129,3 +131,4 @@ Tuple mpi_message(Tuple& tup, int source, int destination, auto comm = MPI_COMM_
     }
     return tup;
 }
+#endif

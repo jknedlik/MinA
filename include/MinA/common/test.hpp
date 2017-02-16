@@ -54,9 +54,7 @@ struct less {
 template <typename Tuple, typename TVector, typename F, size_t index>
 void constructTuple(Tuple tup, TVector vec, F&& f, std::true_type::type)
 {
-    // for_each(tup, [](auto x) { std::cout << x << " "; });
     f(tup);
-    std::cout << std::endl;
 }
 template <typename Tuple, typename TVector, typename F, size_t index>
 void constructTuple(Tuple tup, TVector vec, F&& f, std::false_type::type)
@@ -126,7 +124,7 @@ template <typename... Ts>
 class Function {
   private:
   public:
-    Function(){};
+    Function() : mpi_procs(1){};
     typename Boundarytuple<Ts...>::type bounds;
     size_t mpi_procs;
     using parametertype = std::tuple<Ts...>;
@@ -171,4 +169,14 @@ template <typename T>
 struct TArray<T, 1> {
     using type = std::tuple<T>;
 };
+
+template <size_t num, typename T>
+typename TArray<T, num>::type vectorToTuple(std::vector<T>& v)
+{
+    typename TArray<T, num>::type tup;
+    assert(v.size() == num);
+    for_each_i(tup, [v](auto& TE, size_t index) { TE = v.at(index); });
+    return tup;
+}
+
 #endif
