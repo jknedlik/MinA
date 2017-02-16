@@ -127,6 +127,7 @@ class Function {
     Function() : mpi_procs(1){};
     typename Boundarytuple<Ts...>::type bounds;
     size_t mpi_procs;
+    std::string fn;
     using parametertype = std::tuple<Ts...>;
     std::tuple<Ts...> startvalues;
 

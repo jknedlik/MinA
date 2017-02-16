@@ -9,6 +9,7 @@
 #include <limits>
 #include <map>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -47,7 +48,12 @@ class Multi
             if (all) {
                 // divide context in same sized pieces by "dividing" the all-context
                 Communicator<MPIContext> fEvaluator = all.divide(all.getSize() / this->f.mpi_procs);
+                // set a nice name for all the files
+                this->f.fn =
+                  "multi." + std::to_string(all.getIdent() / this->f.mpi_procs) + this->f.fn;
+
                 r = this->f.evaluate(vec[all.getIdent() / this->f.mpi_procs].second);
+
                 if (all == 0) { // means i am rank 0
                     vec[0].first = r;
                     for (int i = 1; i < vec.size(); i++) {
