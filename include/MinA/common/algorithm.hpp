@@ -22,9 +22,11 @@ class Algorithm {
   protected:
     bool restored;
 
+  public:
+    size_t mpi_procs;
+
   protected:
     Algorithm() : restored(false), mpi_procs(1), filename(".algo.save"){};
-    size_t mpi_procs;
     virtual void save() const
     {
         std::ofstream out(filename);

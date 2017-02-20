@@ -64,13 +64,12 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
         for (size_t i = 1; i < mDimension + 1; i++) {
             // iterate over tuples and step sizes,
             // Change ith vertex's by adding i-th stepSize in i-th direction to A[0]
-            for_each2_i(A[i].first,
-                              std::get<SIMPLEX_AI_STEPSIZES>(this->mAlgorithmInformations),
-                              [&i](auto& vex, auto step, size_t index) {
-                                  if (i - 1 == index) {
-                                      vex = vex + step;
-                                  }
-                              });
+            for_each2_i(A[i].first, std::get<SIMPLEX_AI_STEPSIZES>(this->mAlgorithmInformations),
+                        [&i](auto& vex, auto step, size_t index) {
+                            if (i - 1 == index) {
+                                vex = vex + step;
+                            }
+                        });
         }
     }
     void setMaxIterations(size_t i)
@@ -160,7 +159,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
                    (1 - std::get<SIMPLEXT_TAU>(this->mMetaParameters)) * ap;
         });
         this->checkBoundaryCondition(Anew.first);
-        Anew.second = this->f.evaluate(Anew.first);
+        // Anew.second = this->f.evaluate(Anew.first);
         return Anew;
     }
 
@@ -299,6 +298,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
             if (check == 0) {
                 for (int i = 1; i <= mDimension; i++)
                     Anew = getShrinkedPoint(Ap, A[0]);
+                Anew.second = this->f.evaluate(Anew.first);
             }
 
             // cout << "check=" << check << endl;

@@ -21,8 +21,8 @@ class ParallelSimplex : public Simplex<Function> {
 
         simplext<Function> A;
         this->setStepSize();
-
         this->restore();
+        bool initialized = this->restored;
         if (!this->restored) {
             this->initializeVertices(A); // Initialze A
         }
@@ -30,20 +30,18 @@ class ParallelSimplex : public Simplex<Function> {
             A = std::get<SIMPLEX_AI_CURR_A>(this->mAlgorithmInformations);
         }
 
+        std::cout << "not created all context " << std::endl;
         MinA::Communicator<MinA::MPIContext> all(this->mpi_procs * this->f.mpi_procs);
+        std::cout << "created all context " << all.getIdent() << std::endl;
         if (all) {
             if (all == 0) {
                 int mode;
 
                 while (this->checkStoppingCondition()) {
                     // Initial evaluation
-                    for (auto a : A) {
-                        a.second = this->f.evaluate(a.first);
+                    if (!initialized) {
+                        evalSimplex(A, all);
                     }
-                    sort(A.begin(), A.end(), [](vertex<Function>& a, vertex<Function>& b) -> bool {
-                        return a.second < b.second;
-                    });
-
                     ofstream verticesFile;
                     string outFile_vertices(this->filename + "parallelSimplex_" +
                                             std::to_string(all.getIdent()) +
@@ -58,10 +56,10 @@ class ParallelSimplex : public Simplex<Function> {
 
                     // Centroid of the simplex, excluding world_size vertices
                     vertex<Function> M = this->getCentroid(A);
-                    M.second = this->f.evaluate(M.first);
 
                     ofstream meanFile;
-                    string outFile_mean("parallelSimplex_" + to_string(all.getSize()) + "_Size");
+                    string outFile_mean(this->filename + "parallelSimplex_" +
+                                        to_string(all.getSize()) + "_Size");
                     meanFile.open(outFile_mean, ios::app);
                     meanFile << "Iteration= "
                              << std::get<SIMPLEX_CURR_ITERATIONS>(this->mAlgorithmInformations)
@@ -71,43 +69,46 @@ class ParallelSimplex : public Simplex<Function> {
                     meanFile.close();
                     mode = 1;
                     for (int i = 1; i < all.getSize(); i++) {
-                        all.send(i, std::tie(mode));
-                        all.send(i, M.first);
-                        all.send(i, A[0].first);
-                        all.send(i, A[mDimension - all.getSize() + i].first);
-                        all.send(i, A[mDimension - all.getSize() + i + 1].first);
+                        sendMode(1, all, i);
+                        sendVertex(M, i, all);
+                        sendVertex(A[0], i, all);
+                        sendVertex(A[mDimension - all.getSize() + i], i, all);
+                        sendVertex(A[mDimension - all.getSize() + i + 1], i, all);
+
                     } // sending M,A0,Aj_1,Aj
 
                     int sumcheck = 0;
 
                     for (int i = 1; i < all.getSize(); i++) {
-                        int check = std::get<0>(all.receive<std::tuple<int>>(i));
+
                         // MPI_Recv(&(check), 1, MPI_INT, i, i + 1, MPI_COMM_WORLD,
                         // MPI_STATUS_IGNORE);
 
-                        sumcheck += check;
+                        sumcheck += receiveMode(i, all);
                     }
                     if (sumcheck == 0) {
                         for (int i = 1; i < mDimension - all.getSize() + 1; i++) {
                             A[i] = this->getShrinkedPoint(A[i], A[0]);
+                            //  sendMode(2, all, i);
+                            //  sendVertex(A[i], i, all);
+                            //  sendVertex(A[0], i, all);
                         }
                         for (int i = 1; i < all.getSize(); i++) {
                             vertex<Function> b;
-                            b.first = all.receive<decltype(b.first)>(i);
-                            A[mDimension - all.getSize() + i + 1] = this->getShrinkedPoint(b, A[0]);
+                            b = receiveVertex(i, all);
+                            A[mDimension - all.getSize() + i + 1] = this->getShrinkedPoint(
+                              b, A[0]); // this part needs to be done in parallel
                         }
+                        evalSimplex(A, all);
                     } // case 4
                     else
                         for (int i = 1; i < all.getSize(); i++) {
-                            vertex<Function> b;
-                            b.first = all.receive<decltype(b.first)>(i);
-                            b.second = this->f.evaluate(b.first);
-                            A[mDimension - all.getSize() + i + 1] = b;
+                            A[mDimension - all.getSize() + i + 1] = receiveVertex(i, all);
                         }
 
                     ofstream fValueFile;
-                    string outFile_fValue("parallelSimplex_" + to_string(all.getSize()) +
-                                          "_fValue");
+                    string outFile_fValue(this->filename + "parallelSimplex_" +
+                                          to_string(all.getSize()) + "_fValue");
                     fValueFile.open(outFile_fValue, ios::app);
                     fValueFile << "Iteration= "
                                << std::get<SIMPLEX_CURR_ITERATIONS>(this->mAlgorithmInformations)
@@ -118,29 +119,34 @@ class ParallelSimplex : public Simplex<Function> {
                 }
 
                 mode = 0;
-                for (int i = 1; i < all.getIdent(); i++) {
-                    //  MPI_Send(&mode, 1, MPI_INT, i, all.getIdent, MPI_COMM_WORLD);
-                    all.send(i, std::tie(mode));
+
+                MinA::Result<typename Function::parametertype> r;
+                r.parameters = A[0].first;
+                r.value = A[0].second;
+                for (int i = 1; i < all.getSize(); i++) {
+                    sendMode(0, all, i);
+                    sendVertex(A[0], i, all);
                 }
+                // Result
+                return r;
             }
 
             else {
 
                 while (1) {
-                    int mode;
+
                     // MPI_Recv(&mode, 1, MPI_INT, 0, all.getIdent(), MPI_COMM_WORLD,
                     //         MPI_STATUS_IGNORE);
-                    mode = std::get<0>(all.receive<std::tuple<int>>(0));
+
+                    int mode = receiveMode(0, all);
                     if (mode == 1) {
+
                         vertex<Function> M, Aj, Aj_1, A0, Ar, Ac, Ae, Ap;
-                        // receiving M,A0,Aj,Aj_1,should rather use scatter/broadcast
-                        M.first = all.receive<decltype(M.first)>(0);
-                        A0.first = all.receive<decltype(A0.first)>(0);
-                        Aj_1.first = all.receive<decltype(Aj_1.first)>(0);
-                        Aj.first = all.receive<decltype(Aj.first)>(0);
-                        A0.second = this->f.evaluate(A0.first);
-                        Aj_1.second = this->f.evaluate(Aj_1.first);
-                        Aj.second = this->f.evaluate(Aj.first);
+                        M = receiveVertex(0, all);
+                        A0 = receiveVertex(0, all);
+                        Aj_1 = receiveVertex(0, all);
+                        Aj = receiveVertex(0, all);
+
                         int check = 0;
 
                         // Update vertex step3
@@ -170,34 +176,34 @@ class ParallelSimplex : public Simplex<Function> {
                             Ac = this->getContractedPoint(M, Ap);
 
                             if (Ac.second < Ap.second) {
-                                // if(Ac.second<Aj.second)cout<<"Ac="<<Ac.second<<endl;
-                                // else 	cout<<"Aj="<<Aj.second<<endl;
                                 Aj = Ac;
                                 check = 4;
                             } // case 3
                             else
                                 Aj = Ap;
                         }
-
-                        // sendVertex(Aj, 0, all.getIdent());
-                        all.send(0, Aj.first);
-                        all.send(0, std::tie(check));
+                        sendMode(check, all, 0);
+                        sendVertex(Aj, 0, all);
                     }
-                    else if (mode == 0) {
+
+                    if (mode == 0) {
+
                         MinA::Result<typename Function::parametertype> r;
+                        vertex<Function> v = receiveVertex(0, all);
+                        r.parameters = v.first;
+                        r.value = v.second;
                         return r;
+                    }
+                    if (mode == 2) {
+                        vertex<Function> v = receiveVertex(0, all);
+                        v.second = this->f.evaluate(v.first);
+                        sendVertex(v, 0, all);
                     }
                 }
             }
         }
         // real ugly leftover from v1, needs to be refactored
-        if (all.getIdent() == 0) {
-            MinA::Result<typename Function::parametertype> r;
-            r.parameters = A[0].first;
-            r.value = A[0].second;
-            // Result
-            return r;
-        }
+
         MinA::Result<typename Function::parametertype> r;
         return r;
     }
@@ -215,6 +221,48 @@ class ParallelSimplex : public Simplex<Function> {
 
         Ac.second = this->f.evaluate(Ac.first);
         return Ac;
+    }
+    void sendVertex(vertex<Function>& v, int u_id, MinA::Communicator<MinA::MPIContext>& all)
+    {
+        all.send(u_id, v.first);
+        all.send(u_id, std::make_tuple(v.second));
+    }
+    vertex<Function> receiveVertex(int u_id, MinA::Communicator<MinA::MPIContext>& all)
+    {
+        vertex<Function> v;
+        v.first = all.receive<decltype(v.first)>(u_id);
+        auto x = all.receive<std::tuple<double>>(u_id);
+        v.second = std::get<0>(x);
+        return v;
+    }
+    void sendMode(int i, MinA::Communicator<MinA::MPIContext>& all, int u_id)
+    {
+        std::cout << all.getIdent() << " sent mode:" << i << std::endl;
+        all.send(u_id, std::make_tuple(i));
+    }
+    int receiveMode(int u_id, MinA::Communicator<MinA::MPIContext>& all)
+    {
+
+        std::tuple<int> x = all.receive<std::tuple<int>>(u_id);
+
+        return std::get<0>(x);
+    }
+    void evalSimplex(simplext<Function>& A, MinA::Communicator<MinA::MPIContext>& all)
+    {
+        for (int i = A.size(); i > 0; i--) {
+            if (i % all.getSize() == 0)
+                A[i - 1].second = this->f.evaluate(A[i - 1].first);
+            else {
+                sendMode(2, all, i % all.getSize());
+                sendVertex(A[i - 1], i % all.getSize(), all);
+            }
+        }
+        for (int i = A.size(); i > 0; i--) {
+            if (i % all.getSize() != 0)
+                A[i - 1] = receiveVertex(i % all.getSize(), all);
+        }
+        sort(A.begin(), A.end(),
+             [](vertex<Function>& a, vertex<Function>& b) -> bool { return a.second < b.second; });
     }
 };
 }
