@@ -12,8 +12,33 @@
 #ifndef MINA_METAMPI
 #define MINA_METAMPI
 // MPITYPES : A Metaprogramming list of coresponding MPI_Datatypes for c++ types
+
 template <typename... Ts>
 struct MPITYPE;
+template <typename... Ts>
+struct MPITYPE<std::tuple<Ts...>> {
+    constexpr static MPI_Datatype value = []() {
+        std::tuple<Ts...> t;
+        constexpr size_t size = std::tuple_size<std::tuple<Ts...>>::value;
+        std::array<MPI_Datatype, size> mpi_elements{ MPITYPE<Ts>::value... };
+        std::array<MPI_Aint, size> indices{ sizeof(Ts)... };
+        int i = 0;
+        for (auto it : indices) {
+            it = i;
+            i += it;
+        };
+        constexpr std::array<int, size> block{ 1 };
+
+        std::reverse(mpi_elements.begin(), mpi_elements.end());
+        std::reverse(indices.begin(), indices.end());
+        constexpr MPI_Datatype new_type;
+        MPI_Type_create_struct(size, block.data(), indices.data(), mpi_elements.data(), &new_type);
+        constexpr MPI_Datatype resized_type;
+        MPI_Type_create_resized(new_type, indices[0], (MPI_Aint)sizeof(t), &resized_type);
+        MPI_Type_free(&new_type);
+        return resized_type;
+    };
+};
 
 template <>
 struct MPITYPE<double> {
