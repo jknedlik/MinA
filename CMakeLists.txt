@@ -4,6 +4,7 @@ PROJECT(MinA)
 #disable in source builds
 SET(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 #Set needed dirs
+find_package(Boost REQUIRED COMPONENTS serialization)
 SET(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR})
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 SET(RUNTIME_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
@@ -11,7 +12,7 @@ SET(CMAKE_BUILD_TYPE Release)
 #Depend on MPI
 find_package(MPI REQUIRED)
 #Set include and source -dirs
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include ${Boost_INCLUDE_DIRS})
 #FILE(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/MinA/*/*.cpp)
 #MESSAGE(STATUS "added sources:" ${SOURCES})
 #set compiler and linker flags
@@ -31,7 +32,7 @@ FOREACH( IT ${TESTS})
     FILE(GLOB TESTSOURCES ${CMAKE_CURRENT_SOURCE_DIR}/test/${IT}/*.cpp)
     MESSAGE(STATUS "added sources:" ${TESTSOURCES})
     ADD_EXECUTABLE(${IT}.exe ${TESTSOURCES})
-    TARGET_LINK_LIBRARIES(${IT}.exe  pthread boost_serialization)
+    TARGET_LINK_LIBRARIES(${IT}.exe  pthread ${Boost_SERIALIZATION_LIBRARY})
     FILE(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/test/${IT}/test.conf TESTCONF)
     ADD_TEST(${IT} ${MPIEXEC} -n ${TESTCONF} ${CMAKE_CURRENT_BINARY_DIR}/${IT}.exe)
 ENDFOREACH()
