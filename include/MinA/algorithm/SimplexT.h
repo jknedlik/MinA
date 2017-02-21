@@ -92,9 +92,10 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
         // worst
         //
         vertex<Function> M;
-        constexpr size_t msize = std::tuple_size<typename Function::parametertype>::value;
+        constexpr size_t msize = std::tuple_size<typename Function::parametertype>::value + 1;
 
         for (int iVertex = 0; iVertex < msize + 1 - this->mpi_procs; ++iVertex) {
+
             for_each_tuple(M.first, A[iVertex].first, [](auto& l, auto r) { l += r; });
         }
         // for_each_tuple_i(M.first, [this](auto l, size_t num) { l /= (msize + 1 -

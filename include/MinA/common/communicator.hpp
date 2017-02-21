@@ -1,6 +1,7 @@
 #include "MinA/common/metampi.hpp"
 #include "MinA/common/test.hpp"
 #include "mpi.h"
+#include <utility>
 #ifndef MINA_COMM
 #define MINA_COMM
 namespace MinA {
@@ -24,7 +25,7 @@ class Communicator {
     Communicator(COMTYPE com)
     {
         myelement = cvec.size();
-        cvec.push_back(move(com));
+        cvec.push_back(std::move(com));
     }
     ~Communicator() { cvec.pop_back(); }
     bool operator<(decltype(COMTYPE::ident) ident) const { return cvec[myelement].ident < ident; }
@@ -75,10 +76,21 @@ class MPIContext {
         }
         getRankSize();
     }
+    MPIContext(MPIContext&& ref)
+      : comm(std::move(ref.comm)),
+        insplit(ref.insplit),
+        size(std::move(ref.size)),
+        ident(std::move(ref.ident)){};
     MPIContext(const MPIContext& ref)
     {
+        std::cout << "copyconstructor old i am is:" << ref.ident << "of size" << ref.size
+                  << std::endl;
         MPI_Comm_dup(ref.comm, &comm);
+        insplit = ref.insplit;
         getRankSize();
+    }
+    ~MPIContext()
+    { // MPI_Comm_free(&comm);
     }
     MPI_Comm comm;
     int size;

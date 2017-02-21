@@ -49,8 +49,8 @@ class Multi
                 // divide context in same sized pieces by "dividing" the all-context
                 Communicator<MPIContext> fEvaluator = all.divide(all.getSize() / this->f.mpi_procs);
                 // set a nice name for all the files
-                this->f.fn =
-                  "multi." + std::to_string(all.getIdent() / this->f.mpi_procs) + this->f.fn;
+                this->f.fn = this->filename + "multi." +
+                             std::to_string(all.getIdent() / this->f.mpi_procs) + this->f.fn;
 
                 r = this->f.evaluate(vec[all.getIdent() / this->f.mpi_procs].second);
 
