@@ -30,9 +30,7 @@ class ParallelSimplex : public Simplex<Function> {
             A = std::get<SIMPLEX_AI_CURR_A>(this->mAlgorithmInformations);
         }
 
-        std::cout << "not created all context " << std::endl;
         MinA::Communicator<MinA::MPIContext> all(this->mpi_procs * this->f.mpi_procs);
-        std::cout << "created all context " << all.getIdent() << std::endl;
         if (all) {
             if (all == 0) {
                 int mode;

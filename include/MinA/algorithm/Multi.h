@@ -47,7 +47,7 @@ class Multi
             double r;
             if (all) {
                 // divide context in same sized pieces by "dividing" the all-context
-                Communicator<MPIContext> fEvaluator = all.divide(all.getSize() / this->f.mpi_procs);
+                Communicator<MPIContext> fEvaluator = all.divide(this->f.mpi_procs);
                 // set a nice name for all the files
                 this->f.fn = this->filename + "multi." +
                              std::to_string(all.getIdent() / this->f.mpi_procs) + this->f.fn;
@@ -56,9 +56,11 @@ class Multi
 
                 if (all == 0) { // means i am rank 0
                     vec[0].first = r;
+                    std::cout << vec.size() << std::endl;
                     for (int i = 1; i < vec.size(); i++) {
-                        vec[i].first =
-                          std::get<0>(all.receive<std::tuple<double>>(i * this->f.mpi_procs));
+                        std::tuple<double> tmp =
+                          all.receive<std::tuple<double>>(i * this->f.mpi_procs);
+                        vec[i].first = std::get<0>(tmp);
                     }
                     sort(vec.begin(), vec.end(),
                          [](auto& a, auto& b) -> bool { return a.first < b.first; });

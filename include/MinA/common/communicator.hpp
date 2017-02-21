@@ -76,15 +76,15 @@ class MPIContext {
         }
         getRankSize();
     }
-    MPIContext(MPIContext&& ref)
+    /*MPIContext(MPIContext&& ref)
       : comm(std::move(ref.comm)),
         insplit(ref.insplit),
         size(std::move(ref.size)),
         ident(std::move(ref.ident)){};
+*/
+    MPIContext(MPIContext&&) = default;
     MPIContext(const MPIContext& ref)
     {
-        std::cout << "copyconstructor old i am is:" << ref.ident << "of size" << ref.size
-                  << std::endl;
         MPI_Comm_dup(ref.comm, &comm);
         insplit = ref.insplit;
         getRankSize();
@@ -122,9 +122,9 @@ class MPIContext {
     {
         MPIContext newcon;
         // if slice is negative,take the whole communicator
-        newcon.insplit = (ident % divide);
+        newcon.insplit = true;
         // slice = size;
-        MPI_Comm_split(comm, ident % divide, 0, &newcon.comm);
+        MPI_Comm_split(comm, ident / divide, 0, &newcon.comm);
         newcon.getRankSize();
         return newcon;
     }
