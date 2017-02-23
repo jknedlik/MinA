@@ -15,18 +15,15 @@
 #include <utility>
 #define MULTI_NUMBER = 0;
 namespace MinA {
+template <typename Function>
+using Algoinfo =
+  typename TArray<size_t, std::tuple_size<typename Function::parametertype>::value>::type;
 
 template <typename Function>
-class Multi
-  : public MinA::Algorithm<
-      int, typename TArray<size_t, std::tuple_size<typename Function::parametertype>::value>::type,
-      Function> {
+
+class Multi : public MinA::Algorithm<int, Algoinfo<Function>, Function> {
   public:
-    Multi()
-      : MinA::Algorithm<
-          int,
-          typename TArray<size_t, std::tuple_size<typename Function::parametertype>::value>::type,
-          Function>::Algorithm()
+    Multi() : MinA::Algorithm<int, Algoinfo<Function>, Function>::Algorithm()
     {
         for_each_tuple(this->mMetaParameters, [](auto& p) { p = 1; });
     }
@@ -66,7 +63,8 @@ class Multi
                          [](auto& a, auto& b) -> bool { return a.first < b.first; });
                 }
                 else {
-                    // only rank zero of one evaluator context returns the result back to the head
+                    // only rank zero of one evaluator context returns the result back to the
+                    // head
                     // of the multi context  (rank 0 of all)
                     if (fEvaluator.getIdent() == 0)
                         all.send(0, std::tuple<double>(r));
