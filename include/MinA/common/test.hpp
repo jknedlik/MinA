@@ -176,7 +176,7 @@ typename TArray<T, num>::type vectorToTuple(std::vector<T>& v)
 {
     typename TArray<T, num>::type tup;
     assert(v.size() == num);
-    for_each_i(tup, [v](auto& TE, size_t index) { TE = v.at(index); });
+    for_each_tuple_i(tup, [v](size_t index, auto& TE) { TE = v.at(index); });
     return tup;
 }
 

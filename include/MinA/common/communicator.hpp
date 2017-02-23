@@ -76,12 +76,6 @@ class MPIContext {
         }
         getRankSize();
     }
-    /*MPIContext(MPIContext&& ref)
-      : comm(std::move(ref.comm)),
-        insplit(ref.insplit),
-        size(std::move(ref.size)),
-        ident(std::move(ref.ident)){};
-*/
     MPIContext(MPIContext&&) = default;
     MPIContext(const MPIContext& ref)
     {
@@ -121,9 +115,7 @@ class MPIContext {
     MPIContext divide(int divide)
     {
         MPIContext newcon;
-        // if slice is negative,take the whole communicator
         newcon.insplit = true;
-        // slice = size;
         MPI_Comm_split(comm, ident / divide, 0, &newcon.comm);
         newcon.getRankSize();
         return newcon;
@@ -139,41 +131,5 @@ class MPIContext {
     }
     operator bool() const { return insplit; }
 };
-// copy MPI_COMM_WORLD context to the first static element, so all following
-// context can be derived from it
-
-/*
-class MPIContextV {
-private:
-  std::vector<MPIContext> vec;
-  void getRankSize(MPIContext &ctx) {
-    MPI_Comm_rank(ctx.comm, &ctx.ident);
-    MPI_Comm_size(ctx.comm, &ctx.size);
-  }
-
-public:
-  MPIContextV() {
-    MPIContext newcon;
-    MPI_Comm_dup(MPI_COMM_WORLD, &newcon.comm);
-    getRankSize(newcon);
-    vec.push_back(newcon);
-  }
-  MPIContextV(MPIContext &copycon) {
-    MPIContext newcon;
-    MPI_Comm_dup(copycon.comm, &newcon.comm);
-    getRankSize(newcon);
-    vec.push_back(newcon);
-  }
-  void split(size_t slice) {
-    MPIContext newcon;
-    MPI_Comm_split(vec.rbegin()->comm, vec.rbegin()->ident < (int)slice, 0,
-                   &newcon.comm);
-    getRankSize(newcon);
-    vec.push_back(newcon);
-  }
-};
-*/
-
-// sttaic
 }
 #endif

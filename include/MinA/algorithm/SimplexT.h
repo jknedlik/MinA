@@ -64,12 +64,13 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
         for (size_t i = 1; i < mDimension + 1; i++) {
             // iterate over tuples and step sizes,
             // Change ith vertex's by adding i-th stepSize in i-th direction to A[0]
-            for_each2_i(A[i].first, std::get<SIMPLEX_AI_STEPSIZES>(this->mAlgorithmInformations),
-                        [&i](auto& vex, auto step, size_t index) {
-                            if (i - 1 == index) {
-                                vex = vex + step;
-                            }
-                        });
+            for_each_tuple_i(A[i].first,
+                             std::get<SIMPLEX_AI_STEPSIZES>(this->mAlgorithmInformations),
+                             [&i](size_t index, auto& vex, auto step) {
+                                 if (i - 1 == index) {
+                                     vex = vex + step;
+                                 }
+                             });
         }
     }
     void setMaxIterations(size_t i)

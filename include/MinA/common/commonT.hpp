@@ -1,5 +1,6 @@
 #ifndef MINA_COMMONT
 #define MINA_COMMONT
+#include <iostream>
 #include <tuple>
 #include <type_traits>
 
@@ -23,86 +24,6 @@ constexpr auto tuple_slice(Cont&& t)
 template <typename, typename>
 struct concat_tuple {
 };
-/*
-template <typename Tuple, typename F, std::size_t... Indices>
-void for_each_impl(Tuple&& tuple, F&& f, std::index_sequence<Indices...>)
-{
-    using swallow = int[];
-    (void)swallow{ 1, (f(std::get<Indices>(std::forward<Tuple>(tuple))), void(), int{})... };
-}
-
-template <typename Tuple, typename F>
-void for_each(Tuple&& tuple, F&& f)
-{
-    constexpr std::size_t N = std::tuple_size<std::remove_reference_t<Tuple>>::value;
-    for_each_impl(std::forward<Tuple>(tuple), std::forward<F>(f), std::make_index_sequence<N>{});
-}
-
-template <typename TupleA, typename TupleB, typename F, std::size_t... Indices>
-void for_each2_impl(TupleA&& tuplea, TupleB&& tupleb, F&& f, std::index_sequence<Indices...>)
-{
-    using swallow = int[];
-    (void)swallow{ 1, (f(std::get<Indices>(std::forward<TupleA>(tuplea)),
-                         std::get<Indices>(std::forward<TupleB>(tupleb))),
-                       void(), int{})... };
-}
-
-template <typename TupleA, typename TupleB, typename TupleC, typename F, std::size_t... Indices>
-void for_each3_impl(TupleA&& tuplea, TupleB&& tupleb, TupleC&& tuplec, F&& f,
-                    std::index_sequence<Indices...>)
-{
-    using swallow = int[];
-    (void)swallow{ 1, (f(std::get<Indices>(std::forward<TupleA>(tuplea)),
-                         std::get<Indices>(std::forward<TupleB>(tupleb)),
-                         std::get<Indices>(std::forward<TupleC>(tuplec))),
-                       void(), int{})... };
-}
-template <typename TupleA, typename TupleB, typename TupleC, typename F>
-void for_each3(TupleA&& tuplea, TupleB&& tupleb, TupleC&& tuplec, F&& f)
-{
-    constexpr std::size_t N = std::tuple_size<std::remove_reference_t<TupleA>>::value;
-    for_each3_impl(std::forward<TupleA>(tuplea), std::forward<TupleB>(tupleb),
-                   std::forward<TupleC>(tuplec), std::forward<F>(f), std::make_index_sequence<N>{});
-}
-template <typename TupleA, typename TupleB, typename F>
-void for_each2(TupleA&& tuplea, TupleB&& tupleb, F&& f)
-{
-    constexpr std::size_t N = std::tuple_size<std::remove_reference_t<TupleA>>::value;
-    for_each2_impl(std::forward<TupleA>(tuplea), std::forward<TupleB>(tupleb), std::forward<F>(f),
-                   std::make_index_sequence<N>{});
-}
-*/
-template <typename TupleA, typename TupleB, typename F, std::size_t... Indices>
-void for_each2_impl_i(TupleA&& tuplea, TupleB&& tupleb, F&& f, std::index_sequence<Indices...>)
-{
-    using swallow = int[];
-    (void)swallow{ 1, (f(std::get<Indices>(std::forward<TupleA>(tuplea)),
-                         std::get<Indices>(std::forward<TupleB>(tupleb)), Indices),
-                       void(), int{})... };
-}
-
-template <typename TupleA, typename TupleB, typename F>
-void for_each2_i(TupleA&& tuplea, TupleB&& tupleb, F&& f)
-{
-    constexpr std::size_t N = std::tuple_size<std::remove_reference_t<TupleA>>::value;
-    for_each2_impl_i(std::forward<TupleA>(tuplea), std::forward<TupleB>(tupleb), std::forward<F>(f),
-                     std::make_index_sequence<N>{});
-}
-template <typename TupleA, typename F, std::size_t... Indices>
-void for_each_impl_i(TupleA&& tuplea, F&& f, std::index_sequence<Indices...>)
-{
-    using swallow = int[];
-    (void)swallow{ 1, (f(std::get<Indices>(std::forward<TupleA>(tuplea)), Indices), void(),
-                       int{})... };
-}
-
-template <typename TupleA, typename F>
-void for_each_i(TupleA&& tuplea, F&& f)
-{
-    constexpr std::size_t N = std::tuple_size<std::remove_reference_t<TupleA>>::value;
-    for_each_impl_i(std::forward<TupleA>(tuplea), std::forward<F>(f),
-                    std::make_index_sequence<N>{});
-}
 
 template <size_t index, typename F, typename Tupletuple, std::size_t... Indices>
 void for_eachn_impl_impl_impl(F&& f, Tupletuple&& t, std::index_sequence<Indices...>)
@@ -134,13 +55,6 @@ void for_eachn(Tupletuple&& t, F&& f)
     for_eachn_impl(std::forward<F>(f), std::forward<Tupletuple>(t), std::make_index_sequence<N>{});
 }
 
-// template <typename F, typename... Tuples>
-// void for_eachn(F&& f, Tuples&&... arg)
-//{
-//    for_eachn(std::forward_as_tuple(arg...), std::forward<F>(f));
-//}
-
-// need pop_back of a parameter pack
 template <typename... Tuples>
 void for_each_tuple(Tuples&&... arg)
 {
@@ -152,5 +66,26 @@ void for_each_tuple(Tuples&&... arg)
       // std::forward<decltype(f)>(f),
       std::forward<decltype(slice)>(slice), std::forward<decltype(f)>(f));
 };
+
+template <size_t... I>
+constexpr auto indexTuple(std::index_sequence<I...> ix)
+{
+
+    return std::make_tuple(I...);
+}
+template <size_t size>
+constexpr auto indexTuple()
+{
+    return indexTuple(std::make_index_sequence<size>());
+}
+
+template <typename... Tuples>
+void for_each_tuple_i(Tuples&&... arg)
+{
+    using firstT = typename std::tuple_element<0, typename std::tuple<Tuples...>>::type;
+    constexpr size_t tuplesize = std::tuple_size<std::remove_reference_t<firstT>>::value;
+    constexpr auto x = indexTuple<tuplesize>();
+    for_each_tuple(x, std::forward<Tuples>(arg)...);
+}
 
 #endif
