@@ -116,18 +116,13 @@ Tuple mpi_message(Tuple& tup, int source, int destination, auto comm = MPI_COMM_
     MPI_Comm_rank(comm, &rank);
 
     if (rank == source) {
-        std::cout << " source send:";
         for_each_tuple(tup, [](auto x) { std::cout << x << " "; });
-        std::cout << std::endl;
         int err = MPI_Send((&tup), 1, type, destination, tag, comm);
     }
     if (rank == destination) {
         MPI_Status a;
         int err = MPI_Recv(&tup, 1, type, source, tag, comm, &a);
-        std::cout << "destination got: count|cancelled: " << a._ucount << "|" << a._cancelled
-                  << std::endl;
         for_each_tuple(tup, [](auto x) { std::cout << x << " "; });
-        std::cout << std::endl;
     }
     return tup;
 }

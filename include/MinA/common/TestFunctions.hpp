@@ -87,7 +87,6 @@ class MLutz : public MinA::Function<typename TArray<double, N>::type> {
     {
         double sum_xs = 0;
         for_each_tuple(params, [&sum_xs](auto p) { sum_xs += pow(p, 2); });
-        std::cout << "sumyx" << sum_xs << std::endl;
         double fz = mAlpha * pow(sin(mBeta * sum_xs), 2) + sum_xs * mGamma * exp(mEta * sum_xs);
         return fz;
     }

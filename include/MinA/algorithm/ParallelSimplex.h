@@ -235,7 +235,6 @@ class ParallelSimplex : public Simplex<Function> {
     }
     void sendMode(int i, MinA::Communicator<MinA::MPIContext>& all, int u_id)
     {
-        // std::cout << all.getIdent() << " sent mode:" << i << std::endl;
         all.send(u_id, std::make_tuple(i));
     }
     int receiveMode(int u_id, MinA::Communicator<MinA::MPIContext>& all)

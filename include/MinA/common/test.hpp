@@ -124,14 +124,15 @@ template <typename... Ts>
 class Function {
   private:
   public:
-    Function() : mpi_procs(1){};
-    typename Boundarytuple<Ts...>::type bounds;
+    using parametertype = std::tuple<Ts...>;
+    using boundarytype = typename Boundarytuple<Ts...>::type;
+
+    boundarytype bounds;
     size_t mpi_procs;
     std::string fn;
-    using parametertype = std::tuple<Ts...>;
     std::tuple<Ts...> startvalues;
 
-    auto getDim() { return sizeof...(Ts); }
+    Function() : mpi_procs(1), fn(".Function"){};
     virtual double evaluate(std::tuple<Ts...> tup) = 0;
 };
 
@@ -147,11 +148,12 @@ struct Result {
     double value;
     std::tuple<T...> parameters;
     using type = std::tuple<T...>;
+
     void print()
     {
         std::cout << "Result value: " << value << "\nResult parameter: \n{";
         for_each_tuple(parameters, [](auto x) { std::cout << x << ", "; });
-        std::cout << "}" << std::endl;
+        std::cout << "}\n";
     }
 };
 template <typename... T>

@@ -303,7 +303,6 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
                 Anew.second = this->f.evaluate(Anew.first);
             }
 
-            // cout << "check=" << check << endl;
             A[mDimension] = Anew;
             this->checkBoundaryCondition(A[mDimension].first);
             std::get<SIMPLEX_AI_CURR_A>(this->mAlgorithmInformations) = A;

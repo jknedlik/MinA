@@ -53,7 +53,6 @@ class Multi : public MinA::Algorithm<int, Algoinfo<Function>, Function> {
 
                 if (all == 0) { // means i am rank 0
                     vec[0].first = r;
-                    std::cout << vec.size() << std::endl;
                     for (int i = 1; i < vec.size(); i++) {
                         std::tuple<double> tmp =
                           all.receive<std::tuple<double>>(i * this->f.mpi_procs);
