@@ -18,7 +18,11 @@ class ParallelSimplex : public Simplex<Function> {
     {
 
         constexpr size_t mDimension = std::tuple_size<typename Function::parametertype>::value;
-
+        if (this->mpi_procs > mDimension + 1) {
+            throw std::runtime_error(" simplex of size" + (std::to_string(mDimension + 1)) +
+                                     "cannot be calculated by " + std::to_string(this->mpi_procs) +
+                                     "cores");
+        }
         simplext<Function> A;
         this->setStepSize();
         this->restore();
