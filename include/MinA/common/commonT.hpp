@@ -73,18 +73,18 @@ constexpr auto indexTuple(std::index_sequence<I...> ix)
 
     return std::make_tuple(I...);
 }
-template <size_t size>
-constexpr auto indexTuple()
+// template <size_t size>
+/*constexpr auto indexTuple()
 {
     return indexTuple(std::make_index_sequence<size>());
 }
-
+*/
 template <typename... Tuples>
 void for_each_tuple_i(Tuples&&... arg)
 {
     using firstT = typename std::tuple_element<0, typename std::tuple<Tuples...>>::type;
     constexpr size_t tuplesize = std::tuple_size<std::remove_reference_t<firstT>>::value;
-    constexpr auto x = indexTuple<tuplesize>();
+    constexpr auto x = indexTuple(std::make_index_sequence<tuplesize>());
     for_each_tuple(x, std::forward<Tuples>(arg)...);
 }
 
