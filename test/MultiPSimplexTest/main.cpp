@@ -16,11 +16,11 @@ int main(int argc, char** argv)
     {
         MinA::Communicator<MinA::MPIContext> cx(8);
         if (cx) {
-            MinA::Multi<MinA::F<MinA::ParallelSimplex<McCormick>>> mc;
+            MinA::Multi<MinA::F<MinA::ParallelSimplex<Michalewicz<5>>>> mc;
             std::vector<size_t> v{ 1, 1, 2, 2 };
             mc.setMetaParameters(
               vectorToTuple<std::tuple_size<decltype(mc.mMetaParameters)>::value>(v));
-            mc.filename = ".multi";
+            mc.filename = ".MultiPSimplexTest";
             mc.f.alg.filename = ".psimplexmulti4.save.mccormick";
             mc.f.alg.mpi_procs = 2;
             mc.f.mpi_procs = 2;
