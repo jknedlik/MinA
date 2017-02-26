@@ -18,7 +18,7 @@ int main(int argc, char** argv)
     if (cx) {
         MinA::Simplex<McCormick> mc;
         mc.setMaxIterations(100);
-        mc.filename = ".simplex.save.mccormick";
+        mc.filename = ".PSimplex.mccormick";
 
         auto r = mc.run();
         if (cx == 0) {
@@ -30,7 +30,7 @@ int main(int argc, char** argv)
         MinA::ParallelSimplex<McCormick> mc;
         mc.mpi_procs = 2;
         mc.setMaxIterations(100);
-        mc.filename = ".psimplex.save.mccormick";
+        mc.filename = ".PSimplex.mccormick";
 
         auto r = mc.run();
         if (cx == 0) {

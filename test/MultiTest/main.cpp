@@ -20,7 +20,7 @@ int main(int argc, char** argv)
         std::vector<size_t> v{ 2, 2, 5, 4 };
         mc.setMetaParameters(
           vectorToTuple<std::tuple_size<decltype(mc.mMetaParameters)>::value>(v));
-        mc.filename = ".multi.save";
+        mc.filename = ".MultiTest";
 
         auto r = mc.run();
         if (cx == 0) {

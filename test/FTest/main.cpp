@@ -11,8 +11,8 @@ using namespace std;
 int main(int argc, char** argv)
 {
     MinA::Simplex<MinA::F<MinA::Simplex<McCormick>>> ss;
-    ss.filename = ".master.simplex";
-    ss.f.fn = "xx";
+    ss.filename = ".FTest";
+    ss.f.fn = ".Ftest.xx";
     ss.f.alg.setMaxIterations(100);
     ss.setMaxIterations(10);
     auto r = ss.run();
