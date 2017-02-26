@@ -25,6 +25,7 @@ class ParallelSimplex : public Simplex<Function> {
         }
         simplext<Function> A;
         this->setStepSize();
+        this->filename += ".psimplex";
         this->restore();
         bool initialized = this->restored;
         if (!this->restored) {
@@ -43,9 +44,10 @@ class ParallelSimplex : public Simplex<Function> {
                     // Initial evaluation
                     if (!initialized) {
                         evalSimplex(A, all);
+                        initialized = true;
                     }
                     ofstream verticesFile;
-                    string outFile_vertices(this->filename + "parallelSimplex_" +
+                    string outFile_vertices(this->filename + ".proc:" +
                                             std::to_string(all.getIdent()) +
                                             to_string(all.getSize()) + "_Vertices");
                     verticesFile.open(outFile_vertices, ios::app);
@@ -60,8 +62,8 @@ class ParallelSimplex : public Simplex<Function> {
                     vertex<Function> M = this->getCentroid(A);
 
                     ofstream meanFile;
-                    string outFile_mean(this->filename + "parallelSimplex_" +
-                                        to_string(all.getSize()) + "_Size");
+                    string outFile_mean(this->filename + ".proc:" + to_string(all.getSize()) +
+                                        "_SimplexSize");
                     meanFile.open(outFile_mean, ios::app);
                     meanFile << "Iteration= "
                              << std::get<SIMPLEX_CURR_ITERATIONS>(this->mAlgorithmInformations)
@@ -108,9 +110,12 @@ class ParallelSimplex : public Simplex<Function> {
                             A[mDimension - all.getSize() + i + 1] = receiveVertex(i, all);
                         }
 
+                    sort(A.begin(), A.end(), [](vertex<Function>& a, vertex<Function>& b) -> bool {
+                        return a.second < b.second;
+                    });
                     ofstream fValueFile;
-                    string outFile_fValue(this->filename + "parallelSimplex_" +
-                                          to_string(all.getSize()) + "_fValue");
+                    string outFile_fValue(this->filename + ".proc:" + to_string(all.getSize()) +
+                                          "_fValue");
                     fValueFile.open(outFile_fValue, ios::app);
                     fValueFile << "Iteration= "
                                << std::get<SIMPLEX_CURR_ITERATIONS>(this->mAlgorithmInformations)
@@ -250,7 +255,7 @@ class ParallelSimplex : public Simplex<Function> {
     }
     void evalSimplex(simplext<Function>& A, MinA::Communicator<MinA::MPIContext>& all)
     {
-        for (int i = A.size(); i > 0; i--) {
+        for (int i = A.size(); i >= 0; i--) {
             if (i % all.getSize() == 0)
                 A[i - 1].second = this->f.evaluate(A[i - 1].first);
             else {

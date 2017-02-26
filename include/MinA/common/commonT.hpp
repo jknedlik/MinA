@@ -58,27 +58,19 @@ void for_eachn(Tupletuple&& t, F&& f)
 template <typename... Tuples>
 void for_each_tuple(Tuples&&... arg)
 {
-
     auto tup = std::forward_as_tuple(arg...);
     auto slice = tuple_slice<0, sizeof...(Tuples) - 1>(std::forward<std::tuple<Tuples...>>(tup));
     auto f = std::get<sizeof...(Tuples) - 1>(std::forward<std::tuple<Tuples...>>(tup));
-    for_eachn<decltype(f), decltype(slice)>(
-      // std::forward<decltype(f)>(f),
-      std::forward<decltype(slice)>(slice), std::forward<decltype(f)>(f));
+    for_eachn<decltype(f), decltype(slice)>(std::forward<decltype(slice)>(slice),
+                                            std::forward<decltype(f)>(f));
 };
 
 template <size_t... I>
 constexpr auto indexTuple(std::index_sequence<I...> ix)
 {
-
     return std::make_tuple(I...);
 }
-// template <size_t size>
-/*constexpr auto indexTuple()
-{
-    return indexTuple(std::make_index_sequence<size>());
-}
-*/
+
 template <typename... Tuples>
 void for_each_tuple_i(Tuples&&... arg)
 {

@@ -229,6 +229,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
         setStepSize();
 
         simplext<Function> A;
+        this->filename = this->filename + ".simplex";
         this->restore();
         if (!this->restored) {
             initializeVertices(A); // Initial
@@ -236,7 +237,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
         else {
             A = std::get<SIMPLEX_AI_CURR_A>(this->mAlgorithmInformations);
         }
-        string outFile_fValue(this->filename + std::string("nm_value"));
+        string outFile_fValue(this->filename + "_fValue");
         ofstream fValueFile;
         fValueFile.open(outFile_fValue, ios::app);
         for_each_tuple(this->mMetaParameters, [&fValueFile](auto x) { fValueFile << x << "|"; });
@@ -256,7 +257,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
                 return a.second < b.second;
             }); // Sort
             ofstream verticesFile;
-            string outFile_vertices(this->filename + std::string("nm_vertices"));
+            string outFile_vertices(this->filename + "_Vertices");
             verticesFile.open(outFile_vertices, ios::app);
             verticesFile << "  Iteration: "
                          << std::get<SIMPLEX_CURR_ITERATIONS>(this->mAlgorithmInformations) << endl;
@@ -297,18 +298,22 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
                     check = 4;
                 }
             } // case 3
-            if (check == 0) {
-                for (int i = 1; i <= mDimension; i++)
+            if (check > 0) {
+                A[mDimension] = Anew;
+            }
+            else {
+                for (int i = 1; i <= mDimension; i++) {
                     Anew = getShrinkedPoint(Ap, A[0]);
-                Anew.second = this->f.evaluate(Anew.first);
+                    Anew.second = this->f.evaluate(Anew.first);
+                    A[i] = Anew;
+                }
             }
 
-            A[mDimension] = Anew;
             this->checkBoundaryCondition(A[mDimension].first);
             std::get<SIMPLEX_AI_CURR_A>(this->mAlgorithmInformations) = A;
             this->save();
 
-            string outFile_fValue(this->filename + std::string("nm_value"));
+            string outFile_fValue(this->filename + std::string("_fValue"));
             fValueFile.open(outFile_fValue, ios::app);
             fValueFile << "Iteration " << setw(5)
                        << std::get<SIMPLEX_CURR_ITERATIONS>(this->mAlgorithmInformations) << "   ";
