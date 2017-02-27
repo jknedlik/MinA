@@ -23,6 +23,43 @@ class Michalewicz : public MinA::Function<typename TArray<double, N>::type> {
         return -sum_xs;
     }
 };
+template <size_t N>
+class Schwefel7 : public MinA::Function<typename TArray<double, N>::type> {
+  public:
+    Schwefel7() : MinA::Function<typename TArray<double, N>::type>::Function()
+    {
+
+        for_each_tuple(this->startvalues, [](auto& s) { s = 0; });
+        for_each_tuple(this->bounds, [](auto& b) {
+            b.left = -500;
+            b.right = 500;
+        });
+    }
+    double evaluate(typename TArray<double, N>::type params)
+    {
+        double sum_xs = 0;
+        for_each_tuple(params, [&sum_xs](auto p) { sum_xs += p * sin(sqrt(abs(p))); });
+        return 418.9829 * N - sum_xs;
+    }
+};
+// https://www.sfu.ca/~ssurjano/camel6.html
+class Camel6 : public MinA::Function<double, double> {
+  public:
+    Camel6() : Function()
+    {
+        startvalues = decltype(startvalues){ -2.5, -1. };
+        bounds = decltype(bounds)({ { -3, 3 }, { -2, 2 } });
+    };
+    double evaluate(std::tuple<double, double> para)
+    {
+        double x1 = std::get<0>(para);
+        double x2 = std::get<1>(para);
+
+        return (4 - 2.1 * pow(x1, 2) + pow(x1, 4) / 3) * pow(x1, 2) + x1 * x2 +
+               (-4 + 4 * pow(x2, 2)) * pow(x2, 2);
+    }
+};
+
 class Himmelblau : public MinA::Function<double, double> {
   public:
     Himmelblau() : Function()
@@ -91,3 +128,4 @@ class MLutz : public MinA::Function<typename TArray<double, N>::type> {
         return fz;
     }
 };
+std::tuple<McCormick, Himmelblau, Michalewicz<5>, Michalewicz<10>> TFuncs;
