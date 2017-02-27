@@ -4,6 +4,7 @@ class Michalewicz : public MinA::Function<typename TArray<double, N>::type> {
   public:
     Michalewicz() : MinA::Function<typename TArray<double, N>::type>::Function()
     {
+        this->fn = "MichalewiczN=" + std::to_string(N);
 
         for_each_tuple(this->startvalues, [](auto& s) { s = 1; });
         for_each_tuple(this->bounds, [](auto& b) {
@@ -28,7 +29,7 @@ class Schwefel7 : public MinA::Function<typename TArray<double, N>::type> {
   public:
     Schwefel7() : MinA::Function<typename TArray<double, N>::type>::Function()
     {
-
+        this->fn = "Schwefel7N=" + std::to_string(N);
         for_each_tuple(this->startvalues, [](auto& s) { s = 0; });
         for_each_tuple(this->bounds, [](auto& b) {
             b.left = -500;
@@ -47,6 +48,7 @@ class Camel6 : public MinA::Function<double, double> {
   public:
     Camel6() : Function()
     {
+        this->fn = "Camel6";
         startvalues = decltype(startvalues){ -2.5, -1. };
         bounds = decltype(bounds)({ { -3, 3 }, { -2, 2 } });
     };
@@ -64,6 +66,7 @@ class Himmelblau : public MinA::Function<double, double> {
   public:
     Himmelblau() : Function()
     {
+        this->fn = "Himmelblau";
         startvalues = decltype(startvalues){ 3., 4. };
         bounds = decltype(bounds)({ { -10, 10 }, { -10, 10 } });
     };
@@ -83,6 +86,7 @@ class McCormick : public MinA::Function<double, double> {
   public:
     McCormick() : Function()
     {
+        this->fn = "McCormick";
         startvalues = decltype(startvalues)({ 0., 0. });
         bounds = decltype(bounds)({ { -1.5, 4. }, { -3., 4. } });
     };
@@ -128,4 +132,4 @@ class MLutz : public MinA::Function<typename TArray<double, N>::type> {
         return fz;
     }
 };
-std::tuple<McCormick, Himmelblau, Michalewicz<5>, Michalewicz<10>> TFuncs;
+std::tuple<McCormick, Himmelblau, Michalewicz<5>, Schwefel7<5>, Camel6> TFuncs;

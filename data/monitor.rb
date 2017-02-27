@@ -45,12 +45,16 @@ class Gnuplotter
 
                 set = []
                 mset=[]
+                i=1
                 filename.each do |name|
+                  puts"plotting:",name
                     filet = File.new(name, 'r')
                     dataX = []
                     dataY = []
                     filearr=filet.to_a
-                    myname=filearr.first
+                    #myname=filearr.first
+                    myname=i
+                  i=i+1
                     fvalue= filearr.last.split().last
 
                     filearr.drop(1).each do |line|

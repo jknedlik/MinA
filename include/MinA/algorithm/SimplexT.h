@@ -217,10 +217,11 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
     }
     bool checkStoppingCondition()
     {
-        bool t = (std::get<SIMPLEX_CURR_ITERATIONS>(this->mAlgorithmInformations) <
-                  std::get<SIMPLEX_MAX_ITERATIONS>(this->mAlgorithmInformations));
+        auto max = std::get<SIMPLEX_MAX_ITERATIONS>(this->mAlgorithmInformations);
+        auto cur = std::get<SIMPLEX_CURR_ITERATIONS>(this->mAlgorithmInformations);
+
         std::get<SIMPLEX_CURR_ITERATIONS>(this->mAlgorithmInformations) += 1;
-        return t;
+        return (cur < max);
     }
 
     virtual Result<typename Function::parametertype> run()
@@ -247,7 +248,6 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
         for (int i = 0; i <= mDimension; i++)
             this->checkBoundaryCondition(A[i].first);
         while (checkStoppingCondition()) {
-
             vertex<Function> Ar, Ac, Ae, Anew,
               Ap; // reflection, contraction, extension, shrinked point
             for (int iVertex = 0; iVertex <= mDimension; ++iVertex)
@@ -281,29 +281,31 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
                     check = 2;
                 }
             } // case 1
-            else if (Ar.second < A[mDimension - 1].second) {
-                Anew = Ar;
-                check = 3;
-            } // case 2
             else {
-                if (Ar.second < A[mDimension].second) {
-                    Ap = Ar;
-                }
+                if (Ar.second < A[mDimension - 1].second) {
+                    Anew = Ar;
+                    check = 3;
+                } // case 2
                 else {
-                    Ap = A[mDimension];
-                } // Ac
-                Ac = getContractedPoint(M, Ap);
-                if (Ac.second < A[mDimension].second) {
-                    Anew = Ac;
-                    check = 4;
-                }
-            } // case 3
+                    if (Ar.second < A[mDimension].second) {
+                        Ap = Ar;
+                    }
+                    else {
+                        Ap = A[mDimension];
+                    } // Ac
+                    Ac = getContractedPoint(M, Ap);
+                    if (Ac.second < A[mDimension].second) {
+                        Anew = Ac;
+                        check = 4;
+                    }
+                } // case 3
+            }
             if (check > 0) {
                 A[mDimension] = Anew;
             }
             else {
                 for (int i = 1; i <= mDimension; i++) {
-                    Anew = getShrinkedPoint(Ap, A[0]);
+                    Anew = getShrinkedPoint(A[i], A[0]);
                     Anew.second = this->f.evaluate(Anew.first);
                     A[i] = Anew;
                 }

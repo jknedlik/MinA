@@ -22,20 +22,41 @@ int main(int argc, char** argv)
         if (cx) {
             {
                 if (cx == 0) {
-                    MinA::Simplex<Michalewicz<5>> mc;
+                    MinA::Simplex<Schwefel7<5>> mc;
                     mc.mpi_procs = 1;
-                    mc.setMaxIterations(100);
-                    mc.setFileName(".PSimplexTest1.michael");
+                    mc.setMaxIterations(10000);
+                    mc.setFileName(".PSimplexTest1.simplex.schwefel7.tau0.5");
                     auto r = mc.run();
                     if (cx == 0) {
                         r.print();
                     }
                 }
-
-                MinA::ParallelSimplex<Michalewicz<5>> mc;
+                if (cx == 0) {
+                    MinA::Simplex<Schwefel7<5>> mc;
+                    mc.setTau(0.8);
+                    mc.mpi_procs = 1;
+                    mc.setMaxIterations(10000);
+                    mc.setFileName(".PSimplexTest1.simplex.schwefel7.tau0.8");
+                    auto r = mc.run();
+                    if (cx == 0) {
+                        r.print();
+                    }
+                }
+                if (cx == 0) {
+                    MinA::Simplex<Schwefel7<5>> mc;
+                    mc.setTau(0.015);
+                    mc.mpi_procs = 1;
+                    mc.setMaxIterations(10000);
+                    mc.setFileName(".PSimplexTest1.simplex.schwefel7.tau0.015");
+                    auto r = mc.run();
+                    if (cx == 0) {
+                        r.print();
+                    }
+                }
+                MinA::ParallelSimplex<Schwefel7<5>> mc;
                 mc.mpi_procs = 2;
-                mc.setMaxIterations(100);
-                mc.setFileName(".PSimplexTest1.michael");
+                mc.setMaxIterations(10000);
+                mc.setFileName(".PSimplexTest1.psimplex.schwefel7");
                 auto r = mc.run();
                 if (cx == 0) {
                     r.print();

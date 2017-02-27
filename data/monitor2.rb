@@ -44,7 +44,7 @@ def plot( filename)
                     plot.arbitrary_lines<<"set title font \",20\""
 #                    plot.style "data linespoints ls 1"
               filename.each{|name|
-
+                puts"plotting", name;
                 dataX=[];
                 dataY=[];
                 mygname=File.open(name).to_a.first.to_s;
