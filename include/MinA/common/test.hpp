@@ -152,7 +152,8 @@ struct Result {
     void print()
     {
         std::cout << "Result value: " << value << "\nResult parameter: \n{";
-        for_each_tuple(parameters, [](auto x) { std::cout << x << ", "; });
+        for_each_tuple_i(parameters,
+                         [](size_t index, auto x) { std::cout << ((index > 0) ? "," : "") << x; });
         std::cout << "}\n";
     }
 };
