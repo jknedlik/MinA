@@ -36,7 +36,7 @@ int main(int argc, char** argv)
             mc.setMetaParameters(
               vectorToTuple<std::tuple_size<decltype(mc.getMetaParameters())>::value>(v));
             mc.setFileName(".MultiPSimplexTest.schwefel7");
-            mc.f.alg.setFileName(".psimplexmulti4.save.schwefel7");
+            mc.f.alg.setFileName(std::to_string(cx.getIdent()) + ".psimplexmulti4.save.schwefel7");
             mc.f.alg.mpi_procs = 2;
             mc.f.mpi_procs = 2;
             mc.mpi_procs = 8;
@@ -50,8 +50,8 @@ int main(int argc, char** argv)
             std::vector<size_t> v{ 1, 1, 2, 2 };
             mc.setMetaParameters(
               vectorToTuple<std::tuple_size<decltype(mc.getMetaParameters())>::value>(v));
-            mc.setFileName(".MultiPSimplexTest.schwefel7");
-            mc.f.alg.setFileName(".psimplexmulti4.save.schwefel7");
+            mc.setFileName(".MultiPSimplexTest.camel6");
+            mc.f.alg.setFileName(".psimplexmulti4.save.camel6");
             mc.f.alg.mpi_procs = 2;
             mc.f.mpi_procs = 2;
             mc.mpi_procs = 8;
