@@ -28,14 +28,14 @@ int main(int argc, char** argv)
         MinA::Multi<MinA::F<MinA::Simplex<Michalewicz<2>>>> mc2;
         std::vector<size_t> v{ 2, 4, 4, 4 };
         mc5.setMetaParameters(
-          vectorToTuple<std::tuple_size<decltype(mc5.mMetaParameters)>::value>(v));
-        mc5.filename = ".MultiTest2.mc5";
+          vectorToTuple<std::tuple_size<decltype(mc5.getMetaParameters())>::value>(v));
+        mc5.setFileName(".MultiTest2.mc5");
         mc2.setMetaParameters(
-          vectorToTuple<std::tuple_size<decltype(mc2.mMetaParameters)>::value>(v));
-        mc2.filename = ".Multitest2.mc2";
+          vectorToTuple<std::tuple_size<decltype(mc2.getMetaParameters())>::value>(v));
+        mc2.setFileName(".Multitest2.mc2");
         mc10.setMetaParameters(
-          vectorToTuple<std::tuple_size<decltype(mc10.mMetaParameters)>::value>(v));
-        mc10.filename = ".Multitest2.mc10";
+          vectorToTuple<std::tuple_size<decltype(mc10.getMetaParameters())>::value>(v));
+        mc10.setFileName(".Multitest2.mc10");
 
         auto r10 = mc10.run();
         auto r5 = mc5.run();

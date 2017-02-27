@@ -53,15 +53,23 @@ class Algorithm {
         });
     }
 
-  public:
+  protected:
     std::string filename;
     AlgoInfo mAlgorithmInformations;
     MetaPara mMetaParameters;
     typename Boundarytuple<MetaPara>::type mMetaBoundaries;
+
+  public:
     Function f;
+
+    auto getAlgorithmInformations() { return mAlgorithmInformations; }
+    auto getMetaParameters() { return mMetaParameters; }
+    auto getFileName() { return filename; }
+    auto getMetaBoundaries() { return mMetaBoundaries; }
     void setAlgorithmInformations(AlgoInfo ai) { mAlgorithmInformations = ai; }
     void setMetaParameters(MetaPara mi) { mMetaParameters = mi; }
     void setFileName(std::string name) { filename = name; }
+    void setMetaBoundaries(typename Boundarytuple<MetaPara>::type mb) { mMetaBoundaries = mb; }
     virtual Result<typename Function::parametertype> run() = 0;
     virtual void reset() = 0;
 };

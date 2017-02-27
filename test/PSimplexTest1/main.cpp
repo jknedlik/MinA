@@ -25,7 +25,7 @@ int main(int argc, char** argv)
                     MinA::Simplex<Michalewicz<5>> mc;
                     mc.mpi_procs = 1;
                     mc.setMaxIterations(100);
-                    mc.filename = ".PSimplexTest1.michael";
+                    mc.setFileName(".PSimplexTest1.michael");
                     auto r = mc.run();
                     if (cx == 0) {
                         r.print();
@@ -35,7 +35,7 @@ int main(int argc, char** argv)
                 MinA::ParallelSimplex<Michalewicz<5>> mc;
                 mc.mpi_procs = 2;
                 mc.setMaxIterations(100);
-                mc.filename = ".PSimplexTest1.michael";
+                mc.setFileName(".PSimplexTest1.michael");
                 auto r = mc.run();
                 if (cx == 0) {
                     r.print();

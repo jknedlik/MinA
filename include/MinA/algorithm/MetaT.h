@@ -4,23 +4,26 @@
 // template <size_t numA, typename Algo, typename Func>
 namespace MinA {
 template <typename Algo>
-class F : public Function<decltype(Algo::mMetaParameters)> {
+
+using mptype = decltype(Algo().getMetaParameters());
+template <typename Algo>
+class F : public Function<mptype<Algo>> {
   public:
     Algo alg;
     size_t index;
     Result<typename decltype(Algo::f)::parametertype> rs;
-    F() : Function<decltype(Algo::mMetaParameters)>::Function(), alg()
+    F() : Function<mptype<Algo>>::Function(), alg()
     {
-        this->bounds = alg.mMetaBoundaries;
-        this->startvalues = alg.mMetaParameters;
+        this->bounds = alg.getMetaBoundaries();
+        this->startvalues = alg.getMetaParameters();
         index = 0;
-        this->fn = alg.filename;
+        this->fn = alg.getFileName();
     };
-    double evaluate(decltype(alg.mMetaParameters) mp)
+    double evaluate(mptype<Algo> mp)
     {
         alg.reset();
-        alg.filename = this->fn + std::to_string(index);
-        alg.mMetaParameters = mp;
+        alg.setFileName(this->fn + std::to_string(index));
+        alg.setMetaParameters(mp);
         index++;
         rs = alg.run();
         return rs.value;

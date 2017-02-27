@@ -19,9 +19,9 @@ int main(int argc, char** argv)
             MinA::Multi<MinA::F<MinA::ParallelSimplex<Michalewicz<5>>>> mc;
             std::vector<size_t> v{ 1, 1, 2, 2 };
             mc.setMetaParameters(
-              vectorToTuple<std::tuple_size<decltype(mc.mMetaParameters)>::value>(v));
-            mc.filename = ".MultiPSimplexTest";
-            mc.f.alg.filename = ".psimplexmulti4.save.mccormick";
+              vectorToTuple<std::tuple_size<decltype(mc.getMetaParameters())>::value>(v));
+            mc.setFileName(".MultiPSimplexTest");
+            mc.f.alg.setFileName("psimplexmulti4.save.mccormick");
             mc.f.alg.mpi_procs = 2;
             mc.f.mpi_procs = 2;
             mc.mpi_procs = 8;
@@ -34,9 +34,9 @@ int main(int argc, char** argv)
             MinA::Multi<MinA::F<MinA::ParallelSimplex<Schwefel7<5>>>> mc;
             std::vector<size_t> v{ 1, 1, 2, 2 };
             mc.setMetaParameters(
-              vectorToTuple<std::tuple_size<decltype(mc.mMetaParameters)>::value>(v));
-            mc.filename = ".MultiPSimplexTest.schwefel7";
-            mc.f.alg.filename = ".psimplexmulti4.save.schwefel7";
+              vectorToTuple<std::tuple_size<decltype(mc.getMetaParameters())>::value>(v));
+            mc.setFileName(".MultiPSimplexTest.schwefel7");
+            mc.f.alg.setFileName(".psimplexmulti4.save.schwefel7");
             mc.f.alg.mpi_procs = 2;
             mc.f.mpi_procs = 2;
             mc.mpi_procs = 8;
@@ -49,9 +49,9 @@ int main(int argc, char** argv)
             MinA::Multi<MinA::F<MinA::ParallelSimplex<Camel6>>> mc;
             std::vector<size_t> v{ 1, 1, 2, 2 };
             mc.setMetaParameters(
-              vectorToTuple<std::tuple_size<decltype(mc.mMetaParameters)>::value>(v));
-            mc.filename = ".MultiPSimplexTest.schwefel7";
-            mc.f.alg.filename = ".psimplexmulti4.save.schwefel7";
+              vectorToTuple<std::tuple_size<decltype(mc.getMetaParameters())>::value>(v));
+            mc.setFileName(".MultiPSimplexTest.schwefel7");
+            mc.f.alg.setFileName(".psimplexmulti4.save.schwefel7");
             mc.f.alg.mpi_procs = 2;
             mc.f.mpi_procs = 2;
             mc.mpi_procs = 8;

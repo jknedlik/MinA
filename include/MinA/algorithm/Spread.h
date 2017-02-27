@@ -52,8 +52,8 @@ class Spread : public MinA::Algorithm<int, ftype<Algo>, MFUNCTION<Algo>> {
 
                 for (int i = 0; i < vec.size(); i++) {
                     avector.at(i).f.startvalues = vec.at(i).second;
-                    avector.at(i).filename =
-                      this->filename + std::to_string(i) + avector.at(i).filename;
+                    avector.at(i).setFileName(this->filename + std::to_string(i) +
+                                              avector.at(i).getFileName());
                 }
                 // set a nice name for all the files
                 this->f.fn = this->filename + "spread." +

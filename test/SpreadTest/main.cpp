@@ -20,7 +20,7 @@ int main(int argc, char** argv)
         MinA::Spread<MinA::Simplex<Michalewicz<5>>> mc;
         mc.mpi_procs = 244;
         std::vector<size_t> v{ 3, 3, 3, 3, 3 };
-        auto b = vectorToTuple<std::tuple_size<decltype(mc.mMetaParameters)>::value>(v);
+        auto b = vectorToTuple<std::tuple_size<decltype(mc.getMetaParameters())>::value>(v);
         mc.setMetaParameters(b);
         mc.mpi_procs = 243; // 3^5
 
