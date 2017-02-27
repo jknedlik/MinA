@@ -1,8 +1,8 @@
 #ifndef MINA_ALGORITHM
 #define MINA_ALGORITHM
 
-#include "MinA/common/test.hpp"
 #include "MinA/common/tupleserialization.hpp"
+#include "MinA/common/utility.hpp"
 #include <assert.h>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>

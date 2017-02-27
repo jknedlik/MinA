@@ -1,6 +1,6 @@
 #include "MinA/common/algorithm.hpp"
 #include "MinA/common/metampi.hpp"
-#include "MinA/common/test.hpp"
+#include "MinA/common/utility.hpp"
 #include <cstddef>
 #include <experimental/tuple>
 #include <functional>

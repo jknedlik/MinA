@@ -29,7 +29,6 @@ typedef std::tuple<double, double, double, double> SimplexMeta;
 #define SIMPLEX_CURR_ITERATIONS 1
 #define SIMPLEX_AI_STEPSIZES 2
 #define SIMPLEX_AI_CURR_A 3
-#define SIMPLEX_AI_
 
 template <typename Function>
 using vertex = std::pair<typename Function::parametertype, double>;

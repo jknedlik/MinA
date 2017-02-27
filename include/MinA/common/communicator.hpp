@@ -1,5 +1,5 @@
 #include "MinA/common/metampi.hpp"
-#include "MinA/common/test.hpp"
+#include "MinA/common/utility.hpp"
 #include "mpi.h"
 #include <utility>
 #ifndef MINA_COMM

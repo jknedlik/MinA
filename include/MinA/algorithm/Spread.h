@@ -2,7 +2,7 @@
 #define SPREAD_H
 #include "MinA/common/algorithm.hpp"
 #include "MinA/common/communicator.hpp"
-#include "MinA/common/test.hpp"
+#include "MinA/common/utility.hpp"
 #include <cstdio>
 #include <fstream>
 #include <iostream>
