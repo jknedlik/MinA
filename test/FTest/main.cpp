@@ -10,13 +10,13 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    MinA::Simplex<MinA::F<MinA::Simplex<McCormick>>> ss;
-    ss.setFileName(".FTest");
-    ss.f.fn = ".Ftest.xx";
-    ss.f.alg.setMaxIterations(100);
-    ss.setMaxIterations(10);
-    auto r = ss.run();
-    r.print();
+ MinA::Simplex<MinA::F<MinA::Simplex<McCormick>>> ss;
+ ss.setFileName(".FTest");
+ ss.f.fn = ".Ftest.xx";
+ ss.f.alg.setMaxIterations(100);
+ ss.setMaxIterations(10);
+ auto r = ss.run();
+ r.print();
 
-    return (0);
+ return (0);
 }

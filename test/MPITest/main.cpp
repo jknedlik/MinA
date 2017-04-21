@@ -11,24 +11,24 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    std::vector<int> iv;
+ std::vector<int> iv;
 
-    MinA::Communicator<MinA::MPIContext> cx(300);
+ MinA::Communicator<MinA::MPIContext> cx(300);
 
-    if (cx) {
-        auto t = std::make_tuple(cx.getIdent());
-        for (int i = 0; i < 1000; i++) {
-            if (i % 300 == cx.getIdent()) {
-                // cx.broadcast(t);
-                for (int j = 0; j < cx.getSize(); j++)
-                    cx.send(j, t);
-            }
-            else {
-                auto y = cx.receive<decltype(t)>(i % 300);
-                std::cout << std::get<0>(y) << std::endl;
-            }
-        }
-    }
-    MPI::Finalize();
-    return (0);
+ if (cx) {
+  auto t = std::make_tuple(cx.getIdent());
+  for (int i = 0; i < 1000; i++) {
+   if (i % 300 == cx.getIdent()) {
+    // cx.broadcast(t);
+    for (int j = 0; j < cx.getSize(); j++)
+     cx.send(j, t);
+   }
+   else {
+    auto y = cx.receive<decltype(t)>(i % 300);
+    std::cout << std::get<0>(y) << std::endl;
+   }
+  }
+ }
+ MPI::Finalize();
+ return (0);
 }

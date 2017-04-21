@@ -16,23 +16,23 @@
 int main(int argc, char** argv)
 {
 
-    {
+ {
 
-        MinA::Communicator<MinA::MPIContext> cx(5);
-        if (cx) {
+  MinA::Communicator<MinA::MPIContext> cx(5);
+  if (cx) {
 
-            MinA::ParallelSimplex<Michalewicz<5>> mc;
-            mc.mpi_procs = 4;
-            mc.setMaxIterations(100);
-            mc.setFileName(".PSimplexTest2.psimplex.michael");
-            auto r = mc.run();
-            if (cx == 0) {
-                r.print();
-            }
-        }
-        else {
-        }
-    }
-    MPI::Finalize();
-    return (0);
+   MinA::ParallelSimplex<Michalewicz<5>> mc;
+   mc.mpi_procs = 4;
+   mc.setMaxIterations(100);
+   mc.setFileName(".PSimplexTest2.psimplex.michael");
+   auto r = mc.run();
+   if (cx == 0) {
+    r.print();
+   }
+  }
+  else {
+  }
+ }
+ MPI::Finalize();
+ return (0);
 }

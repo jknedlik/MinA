@@ -16,7 +16,7 @@ template <typename A template <typename... T>, typename B template <... X>>
 static_assert(std::is_base_of<std::tuple<>, X>>, "");
 std::static_assert(std::is_base_of<std::tuple<>, Y>>, "");
 struct tt {
-    X x Y y;
+ X x Y y;
 };
 ;
 int main(int argc, char** argv) { std::tuple<A, B, C> t{ 0, 1, 1.0 }; }

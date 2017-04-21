@@ -15,7 +15,7 @@ AlwaysBreakTemplateDeclarations: true
 BreakBeforeBinaryOperators: false
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializersBeforeComma: false
-ColumnLimit: 100
+ColumnLimit: 80
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 2
 DerivePointerBinding: false
@@ -35,8 +35,8 @@ PointerBindsToType: true
 SpacesBeforeTrailingComments: 1
 Cpp11BracedListStyle: false
 Standard:        Cpp11
-IndentWidth:     4
-TabWidth:        4
+IndentWidth:     1
+TabWidth:        1
 UseTab:          Never
 BreakBeforeBraces: Stroustrup
 #BreakBeforeBraces: Allman
