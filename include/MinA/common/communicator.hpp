@@ -112,6 +112,13 @@ class MPIContext {
         int err = MPI_Recv(&tup, 1, type, source, 0, comm, &a);
         return tup;
     }
+    template <typename Tuple>
+    void broadcast(Tuple tup)
+    {
+        auto type = createMPIType(tup);
+        MPI_Type_commit(&type);
+        int err = MPI_Bcast(&tup, 1, type, 0, comm);
+    }
     MPIContext divide(int divide)
     {
         MPIContext newcon;
