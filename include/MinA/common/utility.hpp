@@ -161,6 +161,7 @@ struct Result {
 template <typename... T>
 struct Result<std::tuple<T...>> : Result<T...> {
 };
+
 } // MinA
 
 template <typename T, size_t N>
@@ -183,5 +184,41 @@ typename TArray<T, num>::type vectorToTuple(std::vector<T>& v)
  for_each_tuple_i(tup, [v](size_t index, auto& TE) { TE = v.at(index); });
  return tup;
 }
+using namespace MinA;
+template <size_t N>
+using TA = typename TArray<double, N>::type;
+template <size_t N>
+TA<N> TranslateVal(TA<N> params, typename Boundarytuple<TA<N>>::type bounds,
+                   bool retransform)
+{
+ TA<N> newparams;
+ if (!retransform) {
+  for_each_tuple(params, newparams, bounds,
+                 [](auto& param, auto& newparam, auto& bound) {
+                  double a = bound.left;
+                  double b = bound.right;
+                  newparam = (a + b - 2.0 * param) / (a - b);
+                  if (newparam < 0)
+                   newparam = newparam / (1.0 - newparam);
+                  else
+                   newparam = newparam / (1.0 + newparam);
 
+                 });
+ }
+ else {
+  for_each_tuple(params, newparams, bounds,
+                 [](auto& param, auto& newparam, auto& bound) {
+                  double a = bound.left;
+                  double b = bound.right;
+
+                  if (param < 0)
+                   newparam = param / (1 + param);
+                  else
+                   newparam = param / (1 - param);
+                  newparam = a + (b - a) * (1 + newparam) / 2.0;
+
+                 });
+ }
+ return newparams;
+}
 #endif

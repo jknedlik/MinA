@@ -64,7 +64,8 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
  {
   // Initialize the all vertices to the starting parameters
   for (size_t i = 0; i < mDimension + 1; i++) {
-   A[i].first = this->f.startvalues;
+   A[i].first =
+     TranslateVal<mDimension>(this->f.startvalues, this->f.bounds, false);
   }
 
   for (size_t i = 1; i < mDimension + 1; i++) {
@@ -116,7 +117,9 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
   for_each_tuple(
     M.first, [this](auto& l) { l /= (mDimension + 1 - (this->mpi_procs)); });
   this->checkBoundaryCondition(M.first);
-  M.second = this->f.evaluate(M.first);
+
+  M.second =
+    this->f.evaluate(TranslateVal<mDimension>(M.first, this->f.bounds, true));
   return M;
  }
  vertex<Function> getReflectedPoint(vertex<Function>& M, vertex<Function>& Aj)
@@ -131,7 +134,8 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
    ar = m + std::get<SIMPLEXT_ALPHA>(this->mMetaParameters) * (m - aj);
   });
   this->checkBoundaryCondition(Ar.first);
-  Ar.second = this->f.evaluate(Ar.first);
+  Ar.second =
+    this->f.evaluate(TranslateVal<mDimension>(Ar.first, this->f.bounds, true));
   return Ar;
  }
 
@@ -145,7 +149,8 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
    ae = ar + std::get<SIMPLEXT_GAMMA>(this->mMetaParameters) * (ar - m);
   });
   this->checkBoundaryCondition(Ae.first);
-  Ae.second = this->f.evaluate(Ae.first);
+  Ae.second =
+    this->f.evaluate(TranslateVal<mDimension>(Ae.first, this->f.bounds, true));
   return Ae;
  }
  vertex<Function> getContractedPoint(vertex<Function>& M, vertex<Function>& Ajp)
@@ -159,7 +164,8 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
   });
 
   this->checkBoundaryCondition(Ac.first);
-  Ac.second = this->f.evaluate(Ac.first);
+  Ac.second =
+    this->f.evaluate(TranslateVal<mDimension>(Ac.first, this->f.bounds, true));
   return Ac;
  }
  vertex<Function> getShrinkedPoint(vertex<Function>& Ap, vertex<Function>& A0)
@@ -196,10 +202,13 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
 
  void setStepSize()
  {
+  auto tStart =
+    TranslateVal<mDimension>(this->f.startvalues, this->f.bounds, false);
   for_each_tuple(std::get<SIMPLEX_AI_STEPSIZES>(this->mAlgorithmInformations),
-                 this->f.startvalues, this->f.bounds,
-                 [](auto& step, auto start, auto bound) {
-                  step = std::min(start - bound.left, bound.right - start) / 2.;
+                 tStart, [](auto& step, auto& start) {
+                  //  step = std::min(start - bound.left, bound.right - start)
+                  //  / 2.;
+                  step = std::min(start - 1, 1 - start) / 2;
                  });
  };
  void setStepSize(typename Function::parametertype& s)
@@ -271,7 +280,8 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
    vertex<Function> Ar, Ac, Ae, Anew,
      Ap; // reflection, contraction, extension, shrinked point
    for (int iVertex = 0; iVertex <= mDimension; ++iVertex)
-    A[iVertex].second = this->f.evaluate(A[iVertex].first);
+    A[iVertex].second = this->f.evaluate(
+      TranslateVal<mDimension>(A[iVertex].first, this->f.bounds, true));
 
    sort(A.begin(), A.end(),
         [](vertex<Function>& a, vertex<Function>& b) -> bool {
@@ -329,7 +339,8 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
    else {
     for (int i = 1; i <= mDimension; i++) {
      Anew = getShrinkedPoint(A[i], A[0]);
-     Anew.second = this->f.evaluate(Anew.first);
+     Anew.second = this->f.evaluate(
+       TranslateVal<mDimension>(Anew.first, this->f.bounds, true));
      A[i] = Anew;
     }
    }
@@ -347,7 +358,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
    fValueFile.close();
   }
   MinA::Result<typename Function::parametertype> r;
-  r.parameters = A[0].first;
+  r.parameters = TranslateVal<mDimension>(A[0].first, this->f.bounds, true);
   r.value = A[0].second;
   return r;
  }

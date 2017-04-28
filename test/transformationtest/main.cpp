@@ -10,6 +10,7 @@
 #include <map>
 #include <utility>
 using namespace MinA;
+/*
 template <size_t N>
 using TA = typename TArray<double, N>::type;
 template <size_t N>
@@ -46,7 +47,7 @@ TA<N> TranslateVal(TA<N> params, typename Boundarytuple<TA<N>>::type bounds,
  }
  return newparams;
 }
-
+*/
 int main(int argc, char** argv)
 {
  TA<3> v{ 24, 5, 312 };

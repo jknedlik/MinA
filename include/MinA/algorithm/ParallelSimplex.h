@@ -2,6 +2,7 @@
 #define MINA_PSIMPLEX
 #include "MinA/algorithm/SimplexT.h"
 #include "MinA/common/communicator.hpp"
+#include "MinA/common/utility.hpp"
 namespace MinA {
 template <typename Function>
 using vertex = std::pair<typename Function::parametertype, double>;
@@ -15,6 +16,8 @@ using ai = std::tuple<size_t, size_t, typename Function::parametertype,
 template <typename Function>
 class ParallelSimplex : public Simplex<Function> {
  public:
+ static constexpr size_t mDimension =
+   std::tuple_size<typename Function::parametertype>::value;
  ParallelSimplex() : Simplex<Function>(){};
  Result<typename Function::parametertype> run()
  {
@@ -209,7 +212,9 @@ class ParallelSimplex : public Simplex<Function> {
      }
      if (mode == 2) {
       vertex<Function> v = receiveVertex(0, all);
-      v.second = this->f.evaluate(v.first);
+      v.second = this->f.evaluate(
+        TranslateVal<mDimension>(v.first, this->f.bounds, true));
+
       sendVertex(v, 0, all);
      }
     }
@@ -233,7 +238,8 @@ class ParallelSimplex : public Simplex<Function> {
      ac = std::get<SIMPLEXT_BETA>(this->mMetaParameters) * (ajp + m);
     });
 
-  Ac.second = this->f.evaluate(Ac.first);
+  Ac.second =
+    this->f.evaluate(TranslateVal<mDimension>(Ac.first, this->f.bounds, true));
   return Ac;
  }
  void sendVertex(vertex<Function>& v, int u_id,
@@ -267,7 +273,8 @@ class ParallelSimplex : public Simplex<Function> {
  {
   for (int i = A.size(); i >= 0; i--) {
    if (i % all.getSize() == 0)
-    A[i - 1].second = this->f.evaluate(A[i - 1].first);
+    A[i - 1].second = this->f.evaluate(
+      TranslateVal<mDimension>(A[i - 1].first, this->f.bounds, true));
    else {
     sendMode(2, all, i % all.getSize());
     sendVertex(A[i - 1], i % all.getSize(), all);
