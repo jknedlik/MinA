@@ -161,29 +161,31 @@ struct Result {
 template <typename... T>
 struct Result<std::tuple<T...>> : Result<T...> {
 };
-
 } // MinA
 
-template <typename T, size_t N>
-struct TArray : public TArray<T, N - 1> {
- std::tuple<T> t;
- typename TArray<T, N - 1>::type g;
- using type = decltype(std::tuple_cat(t, g));
-};
-
-template <typename T>
-struct TArray<T, 1> {
- using type = std::tuple<T>;
-};
-
-template <size_t num, typename T>
-typename TArray<T, num>::type vectorToTuple(std::vector<T>& v)
+template <template <size_t... Is> typename T, size_t... Is>
+typename T<Is...>::type indexer(std::index_sequence<Is...> a)
 {
- typename TArray<T, num>::type tup;
- assert(v.size() == num);
- for_each_tuple_i(tup, [v](size_t index, auto& TE) { TE = v.at(index); });
- return tup;
+ return typename T<Is...>::type();
 }
+template <template <typename U, size_t... Is> typename T, typename U,
+          size_t... Is>
+typename T<U, Is...>::type indexer(std::index_sequence<Is...> a)
+{
+ return typename T<U, Is...>::type();
+}
+template <typename T, size_t>
+struct WRAP {
+ using type = T;
+};
+template <typename T, size_t... Is>
+struct ITArray {
+ using type = std::tuple<typename WRAP<T, Is>::type...>;
+};
+template <typename T, size_t N>
+struct TArray {
+ using type = decltype(indexer<ITArray, T>(std::make_index_sequence<N>()));
+};
 using namespace MinA;
 template <size_t N>
 using TA = typename TArray<double, N>::type;
@@ -221,4 +223,14 @@ TA<N> TranslateVal(TA<N> params, typename Boundarytuple<TA<N>>::type bounds,
  }
  return newparams;
 }
+
+template <size_t num, typename T>
+typename TArray<T, num>::type vectorToTuple(std::vector<T>& v)
+{
+ typename TArray<T, num>::type tup;
+ assert(v.size() == num);
+ for_each_tuple_i(tup, [v](size_t index, auto& TE) { TE = v.at(index); });
+ return tup;
+}
+
 #endif

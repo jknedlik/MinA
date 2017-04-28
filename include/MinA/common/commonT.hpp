@@ -4,6 +4,31 @@
 #include <tuple>
 #include <type_traits>
 
+// This is the type which holds sequences
+template <int... Ns>
+struct sequence {
+};
+// First define the template signature
+template <int... Ns>
+struct seq_gen;
+// Recursion case
+template <int I, int... Ns>
+struct seq_gen<I, Ns...> {
+ // Take front most number of sequence,
+ // decrement it, and prepend it twice.
+ // First I - 1 goes into the counter,
+ // Second I - 1 goes into the sequence.
+ using type = typename seq_gen<I - 1, I - 1, Ns...>::type;
+};
+// Recursion abort
+template <int... Ns>
+struct seq_gen<0, Ns...> {
+ using type = sequence<Ns...>;
+};
+
+template <int N>
+using sequence_t = typename seq_gen<N>::type;
+
 namespace detail {
 template <std::size_t Ofst, typename Tuple, std::size_t... I>
 constexpr auto slice_impl(Tuple&& t, std::index_sequence<I...>)
