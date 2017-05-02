@@ -16,35 +16,16 @@
 #include <vector>
 
 namespace MinA {
-
 template <typename... Ts>
 struct TupleVector;
 
-template <typename T, typename... Ts>
-struct TupleVector<T, Ts...> {
- std::tuple<std::vector<T>> t;
- typename TupleVector<Ts...>::type tf;
- std::tuple<T> nt;
- typename TupleVector<Ts...>::normaltype ntf;
- // decltype NEVER evaluates functions, it just checks for the theoretical
- // return values type, so its fast and fine
- using type = decltype(std::tuple_cat(t, tf));
- using normaltype = decltype(std::tuple_cat(nt, ntf));
-};
-// base case
-template <typename T>
-struct TupleVector<T> {
- using type = std::tuple<std::vector<T>>;
- using normaltype = std::tuple<T>;
-};
-// specialization for tuples so that input <tuple<int,double>> will be converted
-// to
-// tuple<vector<int>,vector<double>> instead of being nested like
-// <tuple<vector<tuple<int,double>>>>
 template <typename... Ts>
-struct TupleVector<std::tuple<Ts...>> {
- using type = typename TupleVector<Ts...>::type;
+struct TupleVector {
+ using type = std::tuple<std::vector<Ts>...>;
  using normaltype = std::tuple<Ts...>;
+};
+template <typename... Ts>
+struct TupleVector<std::tuple<Ts...>> : TupleVector<Ts...> {
 };
 
 template <size_t a, size_t b>
@@ -101,25 +82,16 @@ struct Bound {
  void setleft(T& l) { left = l; }
  void setright(T& r) { right = r; }
 };
-
 template <typename... Ts>
 struct Boundarytuple;
-
-template <typename T, typename... Ts>
-struct Boundarytuple<T, Ts...> {
- std::tuple<Bound<T>> t;
- typename Boundarytuple<Ts...>::type ts;
- using type = decltype(std::tuple_cat(t, ts));
-};
-template <typename T>
-struct Boundarytuple<T> {
- using type = std::tuple<Bound<T>>;
+template <typename... Ts>
+struct Boundarytuple {
+ using type = std::tuple<Bound<Ts>...>;
 };
 template <typename... Ts>
 struct Boundarytuple<std::tuple<Ts...>> {
  using type = typename Boundarytuple<Ts...>::type;
 };
-
 template <typename... Ts>
 class Function {
  private:
