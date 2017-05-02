@@ -14,23 +14,36 @@ int main(int argc, char** argv)
 {
 
  MinA::Communicator<MinA::MPIContext> cx(2);
+ {
+  MinA::Communicator<MinA::MPIContext> mx(1);
+  if (mx) {
+   MinA::Simplex<McCormick> mc;
+   mc.setMaxIterations(100);
+   mc.setFileName(".Simplex.mccormick");
 
- if (cx) {
-  MinA::Simplex<McCormick> mc;
-  mc.setMaxIterations(100);
-  mc.setFileName(".PSimplex.mccormick");
+   auto r = mc.run();
+   if (mx == 0) {
+    r.print();
+   }
+  }
 
-  auto r = mc.run();
-  if (cx == 0) {
-   r.print();
+  if (mx) {
+   MinA::ParallelSimplex<McCormick> mc;
+   mc.mpi_procs = 1;
+   mc.setMaxIterations(100);
+   mc.setFileName(".PSimplex1.mccormick");
+
+   auto r = mc.run();
+   if (mx == 0) {
+    r.print();
+   }
   }
  }
-
  if (cx) {
   MinA::ParallelSimplex<McCormick> mc;
   mc.mpi_procs = 2;
   mc.setMaxIterations(100);
-  mc.setFileName(".PSimplex.mccormick");
+  mc.setFileName(".PSimplex2.mccormick");
 
   auto r = mc.run();
   if (cx == 0) {
