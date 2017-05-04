@@ -54,7 +54,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
   this->mMetaBoundaries = decltype(this->mMetaBoundaries){
    { 0.0, 2.0 }, { 0.0, 1.0 }, { 0.0, 2.0 }, { 0.0, 1.0 }
   };
-  this->mMetaParameters = decltype(this->mMetaParameters){ 1.0, 0.5, 1.0, 0.5 };
+  this->mMetaParameters = decltype(this->mMetaParameters){ 1.0, 0.5, 1.0, 0.1 };
   std::get<SIMPLEX_CURR_ITERATIONS>(this->mAlgorithmInformations) = 0;
   std::get<SIMPLEX_MAX_ITERATIONS>(this->mAlgorithmInformations) = 100;
  }
@@ -208,7 +208,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
                  tStart, [](auto& step, auto& start) {
                   //  step = std::min(start - bound.left, bound.right - start)
                   //  / 2.;
-                  step = std::min(start - 1, 1 - start) / 2;
+                  step = std::min(abs(start - 1), abs(1 - start)) / 2;
                  });
  };
  void setStepSize(typename Function::parametertype& s)
@@ -363,5 +363,5 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
   return r;
  }
 };
-}
+} // namespace MinA
 #endif
