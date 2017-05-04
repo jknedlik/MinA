@@ -1,5 +1,6 @@
 #ifndef MINA_COMMONT
 #define MINA_COMMONT
+#include <chrono>
 #include <iostream>
 #include <tuple>
 #include <type_traits>
@@ -35,7 +36,7 @@ constexpr auto slice_impl(Tuple&& t, std::index_sequence<I...>)
 {
  return std::forward_as_tuple(std::get<I + Ofst>(std::forward<Tuple>(t))...);
 }
-}
+} // namespace detail
 
 template <std::size_t I1, std::size_t I2, typename Cont>
 constexpr auto tuple_slice(Cont&& t)
@@ -114,5 +115,22 @@ void for_each_tuple_i(Tuples&&... arg)
  constexpr auto x = indexTuple(std::make_index_sequence<tuplesize>());
  for_each_tuple(x, std::forward<Tuples>(arg)...);
 }
+
+class ScopedTimer {
+ private:
+ std::chrono::high_resolution_clock::time_point t1;
+ std::chrono::high_resolution_clock::time_point t2;
+
+ public:
+ ScopedTimer() { t1 = std::chrono::high_resolution_clock::now(); }
+ ~ScopedTimer()
+ {
+  t2 = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> time_span =
+    std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+  std::cout << "ScopedTimer took: " << time_span.count() << "seconds"
+            << std::endl;
+ }
+};
 
 #endif

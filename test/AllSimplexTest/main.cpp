@@ -1,3 +1,4 @@
+#include "MinA/algorithm/GSLSimplex.h"
 #include "MinA/algorithm/MetaT.h"
 #include "MinA/algorithm/Multi.h"
 #include "MinA/algorithm/ParallelSimplex.h"
@@ -129,6 +130,17 @@ void alltestSpread(Func f)
   }
  }
 }
+template <typename Func>
+void alltestGSLSimplex(Func f)
+{
+ MinA::Communicator<MinA::MPIContext> cx(1);
+ if (cx) {
+  MinA::GSLSimplex<Func> gsl;
+  auto r = gsl.run();
+  std::cout << "GSLSimplex testing:" << f.fn << std::endl;
+  r.print();
+ }
+}
 
 int main(int argc, char** argv)
 {
@@ -138,6 +150,7 @@ int main(int argc, char** argv)
   alltestMultiPS(func);
   alltestMultiS(func);
   alltestSpread(func);
+  alltestGSLSimplex(func);
  });
  MPI::Finalize();
  return (0);

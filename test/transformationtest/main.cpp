@@ -50,16 +50,19 @@ TA<N> TranslateVal(TA<N> params, typename Boundarytuple<TA<N>>::type bounds,
 */
 int main(int argc, char** argv)
 {
- TA<3> v{ 24, 5, 312 };
- typename Boundarytuple<TA<3>>::type b{ { 10, 100 }, { 0, 10 }, { 300, 400 } };
+ Camel6 f;
+ auto v = f.startvalues;
+ auto b = f.bounds;
+ // typename Boundarytuple<TA<3>>::type b{ { 10, 100 }, { 0, 10 }, { 300, 400 }
+ // };
  std::cout << "\n"
            << "Pre Transform:" << std::endl;
  for_each_tuple(v, [](auto& p) { std::cout << p << ","; });
- v = TranslateVal<3>(v, b, false);
+ v = TranslateVal<2>(v, b, false);
  std::cout << "\n"
            << "Post Transform:" << std::endl;
  for_each_tuple(v, [](auto& p) { std::cout << p << ","; });
- v = TranslateVal<3>(v, b, true);
+ v = TranslateVal<2>(v, b, true);
 
  std::cout << "\n"
            << "Post ReTransform:" << std::endl;
