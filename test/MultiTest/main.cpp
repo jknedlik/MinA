@@ -11,23 +11,21 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    std::vector<int> iv;
+ std::vector<int> iv;
 
-    MinA::Communicator<MinA::MPIContext> cx(80);
+ MinA::Communicator<MinA::MPIContext> cx(256);
 
-    if (cx) {
-        MinA::Multi<MinA::F<MinA::Simplex<McCormick>>> mc;
-        std::vector<size_t> v{ 2, 2, 5, 4 };
-        mc.setMetaParameters(
-          vectorToTuple<std::tuple_size<decltype(mc.getMetaParameters())>::value>(v));
-        mc.setFileName(".MultiTest");
+ if (cx) {
+  MinA::Multi<MinA::F<MinA::Simplex<McCormick>>> mc;
+  mc.setMetaParameters({ 4, 4, 4, 4 });
+  mc.setFileName(".MultiTest");
 
-        auto r = mc.run();
-        if (cx == 0) {
-            r.print();
-        }
-    }
+  auto r = mc.run();
+  if (cx == 0) {
+   r.print();
+  }
+ }
 
-    MPI::Finalize();
-    return (0);
+ MPI::Finalize();
+ return (0);
 }
