@@ -54,7 +54,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
   this->mMetaBoundaries = decltype(this->mMetaBoundaries){
    { 0.0, 2.0 }, { 0.0, 1.0 }, { 0.0, 2.0 }, { 0.0, 1.0 }
   };
-  this->mMetaParameters = decltype(this->mMetaParameters){ 1.0, 0.5, 1.0, 0.1 };
+  this->mMetaParameters = decltype(this->mMetaParameters){ 1.0, 0.5, 1.0, 0.5 };
   std::get<SIMPLEX_CURR_ITERATIONS>(this->mAlgorithmInformations) = 0;
   std::get<SIMPLEX_MAX_ITERATIONS>(this->mAlgorithmInformations) = 100;
  }
@@ -208,7 +208,8 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
                  tStart, [](auto& step, auto& start) {
                   //  step = std::min(start - bound.left, bound.right - start)
                   //  / 2.;
-                  step = std::min(abs(start - 1), abs(1 - start)) / 2;
+                  step = 0.5;
+                  // step = std::min(start - 1, 1 - start) / 2.f;
                  });
  };
  void setStepSize(typename Function::parametertype& s)
@@ -235,9 +236,9 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
   // outStream << setw(columnWidth - 2) << vertexName << ":  ";
   outStream << setw(columnWidth) << vertexName;
   outStream << setprecision(7);
+  auto r = TranslateVal<mDimension>(simplexVertex.first, this->f.bounds, true);
   for_each_tuple(
-    TranslateVal<mDimension>(simplexVertex.first, this->f.bounds, true),
-    [&outStream](auto x) mutable { outStream << setw(columnWidth) << x; });
+    r, [&outStream](auto x) mutable { outStream << setw(columnWidth) << x; });
 
   outStream << "   f(" << vertexName << ")= " << setw(columnWidth)
             << simplexVertex.second << "\n";
@@ -256,8 +257,8 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
   constexpr size_t mDimension =
     std::tuple_size<typename Function::parametertype>::value;
   setStepSize();
-
   simplext<Function> A;
+
   this->filename = this->filename + ".simplex";
   this->restore();
   if (!this->restored) {
@@ -279,10 +280,10 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
   while (checkStoppingCondition()) {
    vertex<Function> Ar, Ac, Ae, Anew,
      Ap; // reflection, contraction, extension, shrinked point
-   for (int iVertex = 0; iVertex <= mDimension; ++iVertex)
-    A[iVertex].second = this->f.evaluate(
-      TranslateVal<mDimension>(A[iVertex].first, this->f.bounds, true));
-
+   for (int iVertex = 0; iVertex <= mDimension; ++iVertex) {
+    auto e = TranslateVal<mDimension>(A[iVertex].first, this->f.bounds, true);
+    A[iVertex].second = this->f.evaluate(e);
+   }
    sort(A.begin(), A.end(),
         [](vertex<Function>& a, vertex<Function>& b) -> bool {
          return a.second < b.second;
