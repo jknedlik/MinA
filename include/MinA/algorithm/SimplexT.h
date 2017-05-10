@@ -235,9 +235,9 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
   // outStream << setw(columnWidth - 2) << vertexName << ":  ";
   outStream << setw(columnWidth) << vertexName;
   outStream << setprecision(7);
-  for_each_tuple(simplexVertex.first, [&outStream](auto x) mutable {
-   outStream << setw(columnWidth) << x;
-  });
+  for_each_tuple(
+    TranslateVal<mDimension>(simplexVertex.first, this->f.bounds, true),
+    [&outStream](auto x) mutable { outStream << setw(columnWidth) << x; });
 
   outStream << "   f(" << vertexName << ")= " << setw(columnWidth)
             << simplexVertex.second << "\n";
