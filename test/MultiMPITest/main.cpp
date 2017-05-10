@@ -30,7 +30,7 @@ int main(int argc, char** argv)
   auto tup = create_mt<4>(te);
   MinA::Communicator<MinA::MPIContext> cx(mtup_mpi(tup));
   if (cx) {
-   MinA::Multi<MinA::F<MinA::Simplex<McCormick>>> mc;
+   MinA::Multi<MinA::F<MinA::Simplex<Michalewicz<10>>>> mc;
    mc.setMetaParameters(tup);
    mc.setFileName(".MultiTest" + std::to_string(index));
    auto r = mc.run();
