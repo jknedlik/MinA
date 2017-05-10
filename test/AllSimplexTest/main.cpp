@@ -68,11 +68,11 @@ void alltestPS(Func f)
 {
  {
   MinA::Communicator<MinA::MPIContext> cx(
-    std::tuple_size<typename Func::parametertype>::value - 1);
+    std::tuple_size<typename Func::parametertype>::value / 2);
   if (cx) {
    MinA::ParallelSimplex<Func> ps;
    ps.setFileName(".Psimplex." + ps.f.fn);
-   ps.mpi_procs = std::tuple_size<typename Func::parametertype>::value - 1;
+   ps.mpi_procs = std::tuple_size<typename Func::parametertype>::value / 2;
    ps.setMaxIterations(100);
    auto r = ps.run();
    if (cx == 0) {
