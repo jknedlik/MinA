@@ -133,7 +133,7 @@ struct Result {
 template <typename... T>
 struct Result<std::tuple<T...>> : Result<T...> {
 };
-} // MinA
+} // namespace MinA
 
 template <template <size_t... Is> typename T, size_t... Is>
 typename T<Is...>::type indexer(std::index_sequence<Is...> a)
@@ -166,29 +166,25 @@ TA<N> TranslateVal(TA<N> params, typename Boundarytuple<TA<N>>::type bounds,
                    bool retransform)
 {
  TA<N> newparams;
+ newparams = params;
+ return newparams;
+ // return params;
  if (!retransform) {
   for_each_tuple(params, newparams, bounds,
-                 [](auto& param, auto& newparam, auto& bound) {
+                 [](auto param, auto& newparam, auto& bound) {
                   double a = bound.left;
                   double b = bound.right;
                   newparam = (a + b - 2.0 * param) / (a - b);
-                  if (newparam < 0)
-                   newparam = newparam / (1.0 - newparam);
-                  else
-                   newparam = newparam / (1.0 + newparam);
-
+                  newparam = newparam / (1.0 - std::abs(newparam));
                  });
  }
  else {
   for_each_tuple(params, newparams, bounds,
-                 [](auto& param, auto& newparam, auto& bound) {
+                 [](auto param, auto& newparam, auto& bound) {
                   double a = bound.left;
                   double b = bound.right;
-
-                  if (param < 0)
-                   newparam = param / (1 + param);
-                  else
-                   newparam = param / (1 - param);
+                  if (param > 0.9 || param < -0.9)
+                   newparam = param / (1.0 + std::abs(param));
                   newparam = a + (b - a) * (1 + newparam) / 2.0;
 
                  });
