@@ -1,62 +1,105 @@
+#include "MinA/algorithm/SimplexT.h"
+#include "MinA/common/algorithm.hpp"
+
+//#include "MinA/algorithm/SimplexParallel.h"
+//#include "MinA/common/Minimizer.h"
+//#include "MinA/common/Result.h"
+//#include "TestFunction.cpp"
+#include "mpi.h"
 #include <iostream>
 #include <map>
-#include "mpi.h"
-#include "MinA/common/Minimizer.h"
-#include "MinA/common/Result.h"
-#include "TestFunction.cpp"
-#include "MinA/algorithm/Simplex.h"
-#include "MinA/algorithm/SimplexParallel.h"
 #include <utility>
+using namespace std;
+
+template <typename Function>
+class TestA
+  : public MinA::Algorithm<int, std::tuple<double, double>, Function> {
+ public:
+ TestA() { this->mMetaBoundaries = { { 0.0, 2.0 }, { 0.0, 1.0 } }; }
+ MinA::Result<typename Function::parametertype> run()
+ {
+  MinA::Result<typename Function::parametertype> r;
+  r.parameters = this->f.startvalues;
+  r.value = this->f.evaluate(this->f.startvalues);
+  return r;
+ };
+ void reset(){};
+};
+
+// Himmelblau minimia are at
+
+//  f ( 3.0 , 2.0 ) = 0.0
+//    f ( − 2.805118 , 3.131312 ) = 0.0
+//    f(-3.779310,-3.283186)=0.0
+//  f ( 3.584428 , − 1.848126 ) =00
+
+class Himmelblau : public MinA::Function<double, double> {
+ public:
+ Himmelblau() : Function()
+ {
+  startvalues = decltype(startvalues){ 3., 4. };
+  bounds = decltype(bounds)({ { -10, 10 }, { -10, 10 } });
+ };
+ double evaluate(std::tuple<double, double> para)
+ {
+  double params[2];
+  params[0] = std::get<0>(para);
+  params[1] = std::get<1>(para);
+  return std::pow((std::pow(params[1], 2) + params[1] - 11), 2) +
+         std::pow(params[0] + (std::pow(params[1], 2) - 7), 2);
+ }
+};
+
+// class McCormick : public MinA::Function<double, double> {
+// MCCormick minimum is -1.911 at x=-0.54719,-1.54719
+class McCormick : public MinA::Function<double, double> {
+ public:
+ McCormick() : Function()
+ {
+  startvalues = decltype(startvalues)({ 0., 0. });
+  bounds = decltype(bounds)({ { -1.5, 4. }, { -3., 4. } });
+ };
+ void reset()
+ {
+  startvalues = decltype(startvalues)({ 0., 0. });
+  bounds = decltype(bounds)({ { -1.5, 4. }, { -3., 4. } });
+ }
+ double evaluate(std::tuple<double, double> params)
+ {
+  auto a = std::get<0>(params);
+  auto b = std::get<1>(params);
+  double fz = std::sin(a + b) + std::pow(a - b, 2) - 1.5 * a + 2.5 * b + 1;
+  return fz;
+ }
+};
+template <typename T, size_t N>
+class Gaussian : public MinA::Function<typename TArray<T, N>::type> {
+ public:
+ Gaussian() : MinA::Function<typename TArray<T, N>::type>::Function()
+ {
+  for_each(this->startvalues, [](auto& s) { s = 5; });
+  for_each(this->bounds, [](auto& i) {
+   i.left = -10;
+   i.right = 10;
+  });
+ }
+ double evaluate(typename TArray<T, N>::type params)
+ {
+  double sum_xsin = 0;
+  for_each(params,
+           [&sum_xsin](auto para) { sum_xsin += std::pow(para + 1., 2); });
+  return -exp(-sum_xsin);
+ }
+};
 
 int main(int argc, char** argv)
 {
 
-    if (!MPI::Is_initialized())
-        MPI::Init();
-    Minimizer mina;
-    int world_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+ TestA<McCormick> t;
+ MinA::Simplex<McCormick> s;
+ s.setMaxIterations(1000);
+ auto r = s.run();
+ r.print();
 
-    std::shared_ptr<Simplex> altest1(new Simplex(100));
-    altest1->setFunctionName("Square");
-    std::shared_ptr<SimplexParallel> altest2(new SimplexParallel(1000));
-    altest2->setFunctionName("Square");
-    altest2->setOptimizationAlgorithmParameter("beta", 0.2);
-    altest2->setOptimizationAlgorithmParameter("tau", 0.2);
-
-    std::shared_ptr<SquareFunction> test5(new SquareFunction(10));
-    std::shared_ptr<McCormick_function> test31(new McCormick_function);
-    std::shared_ptr<Modify_Matthias_function> test32(new Modify_Matthias_function(6));
-    std::shared_ptr<Gaussian_function> gauss(new Gaussian_function(10));
-    
-    std::shared_ptr<Schwefel_function> test1(new Schwefel_function(1));
-    /*
-    map<string, double> input;
-    double s,e,r;
-    s=-5;
-    e=5;
-    r=0.05;
-  
-   	 ofstream data;
-   	 data.open("z_test_function_plot", std::ios::app);
-	 for(double i=s;i<=e;i+=0.01){
-		input["x0"]=i;
-		data<<" "<<i<<" "<<test5->getEvaluation(input)<<std::endl;
-	
-	}
-    data.close();*/
-    
-    vector<double> stepSize;
-    stepSize.resize(test5->getParameterSize());
-
-/*    for (int i = 0; i < test5->getParameterSize(); i++)
-    stepSize[i] = 1;
-    altest1->setStepSize(stepSize);
-    altest2->setStepSize(stepSize);*/
-    if (world_rank == 0)
-        cout << "function minimized value=" << mina.minimize(gauss, altest2).result << endl;
-    else
-        auto rs = mina.minimize(gauss, altest2);
-    MPI_Finalize();
-    return (0);
+ return (0);
 }

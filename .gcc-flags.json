@@ -1,0 +1,8 @@
+{
+  "execPath": "/usr/bin/mpic++",
+  "gccDefaultCFlags": "-Wall",
+  "gccDefaultCppFlags": "-Wall -std=c++1z -fsyntax-only",
+  "gccErrorLimit": 15,
+  "gccIncludePaths": ".,./include,./path",
+  "gccSuppressWarnings": true
+}

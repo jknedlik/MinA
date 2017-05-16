@@ -1,39 +1,23 @@
 #ifndef MYFUNCTION_CPP
-#include <iostream>
-#include <map>
-#include <cmath>
 #include "MinA/common/FunctionToBeOptimized.h"
-
-#define PI 3.14159265358979323846
+#include <cmath>
 #define MYFUNCTION_CPP
 using namespace std;
 
 class BadTen : public FunctionToBeOptimized {
-    int i;
+ int mCounter;
 
-  public:
-    BadTen() : i(0)
-    {
-        Parameter first, second, third;
+ public:
+ BadTen(vector<Parameter> pars) : FunctionToBeOptimized(pars) {}
+ // if (pars.size() != 3) throw
 
-        first.setName("x");
-        first.setStartingPoint(3);
-        second.setName("y");
-        second.setStartingPoint(4);
-        third.setName("z");
-        third.setStartingPoint(5);
-        parameters.insert(second);
-        parameters.insert(first);
-        parameters.insert(third);
-    };
-
-    double getEvaluation(map<string, double> para)
-    {
-        i++;
-        if (!(i % 10))
-            return (1.0 / 0.0);
-        return pow(para["x"], 2) + pow(para["y"], 2) + pow(para["z"], 2);
-    }
+ double getEvaluation(vector<double> params)
+ {
+  mCounter++;
+  if (!(mCounter % 10))
+   return (1.0 / 0.0);
+  return pow(params[0], 2) + pow(params[1], 2) + pow(params[2], 2);
+ }
 };
 
 #endif
