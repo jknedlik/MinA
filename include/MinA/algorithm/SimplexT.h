@@ -200,7 +200,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
   return simplexSize / A.size();
  }
 
- void setSize()
+ void setStepSize()
  {
   for_each_tuple(
     std::get<SIMPLEX_AI_STEPSIZES>(this->mAlgorithmInformations),
