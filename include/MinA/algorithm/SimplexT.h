@@ -200,17 +200,18 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
   return simplexSize / A.size();
  }
 
- void setStepSize()
+ void setSize()
  {
-  auto tStart =
-    TranslateVal<mDimension>(this->f.startvalues, this->f.bounds, false);
-  for_each_tuple(std::get<SIMPLEX_AI_STEPSIZES>(this->mAlgorithmInformations),
-                 tStart, [](auto& step, auto& start) {
-                  //  step = std::min(start - bound.left, bound.right - start)
-                  //  / 2.;
-                  step = 0.5;
-                  // step = std::min(start - 1, 1 - start) / 2.f;
-                 });
+  for_each_tuple(
+    std::get<SIMPLEX_AI_STEPSIZES>(this->mAlgorithmInformations),
+    this->f.startvalues, this->f.bounds,
+    [](auto& step, auto& start, auto bound) {
+     if (std::abs(start - bound.left) > std::abs(bound.right - start))
+      step = start - bound.left;
+     else
+      step = bound.right - start;
+     step *= 0.8;
+    });
  };
  void setStepSize(typename Function::parametertype& s)
  {
