@@ -1,6 +1,6 @@
 #include "MinA/algorithm/MetaT.h"
 #include "MinA/algorithm/Multi.h"
-#include "MinA/algorithm/SimplexT.h"
+#include "MinA/algorithm/ParallelSimplex.h"
 #include "MinA/common/TestFunctions.hpp"
 #include "MinA/common/algorithm.hpp"
 #include "MinA/common/communicator.hpp"
@@ -11,7 +11,7 @@ using namespace std;
 using mTup = TArray<size_t, 4>::type;
 size_t mtup_mpi(mTup tup)
 {
- size_t res = 0;
+ size_t res = 1;
  for_each_tuple(tup, [&res](auto& t) { res *= t; });
  return res;
 }
@@ -25,13 +25,15 @@ auto create_mt(size_t V)
 
 int main(int argc, char** argv)
 {
- auto test = std::make_tuple(1, 2, 3, 4);
+ auto test = std::make_tuple(2, 2, 2, 1);
  for_each_tuple_i(test, [](size_t index, auto& te) {
   auto tup = create_mt<4>(te);
-  MinA::Communicator<MinA::MPIContext> cx(mtup_mpi(tup));
+  MinA::Communicator<MinA::MPIContext> cx(mtup_mpi(tup) * 5);
   if (cx) {
-   MinA::Multi<MinA::F<MinA::Simplex<Michalewicz<10>>>> mc;
+   MinA::Multi<MinA::F<MinA::ParallelSimplex<Michalewicz<10>>>> mc;
    mc.setMetaParameters(tup);
+   mc.f.mpi_procs = 5;
+   mc.f.alg.mpi_procs = 5;
    mc.setFileName(".MultiTest" + std::to_string(index));
    auto r = mc.run();
    if (cx == 0) {
