@@ -13,18 +13,18 @@ int main(int argc, char** argv)
 {
  std::vector<int> iv;
 
- MinA::Communicator<MinA::MPIContext> cx(300);
+ MinA::Communicator<MinA::MPIContext> cx(200);
 
  if (cx) {
   auto t = std::make_tuple(cx.getIdent());
   for (int i = 0; i < 1000; i++) {
-   if (i % 300 == cx.getIdent()) {
+   if (i % 200 == cx.getIdent()) {
     // cx.broadcast(t);
     for (int j = 0; j < cx.getSize(); j++)
      cx.send(j, t);
    }
    else {
-    auto y = cx.receive<decltype(t)>(i % 300);
+    auto y = cx.receive<decltype(t)>(i % 200);
     std::cout << std::get<0>(y) << std::endl;
    }
   }
