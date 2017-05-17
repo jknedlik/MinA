@@ -13,11 +13,11 @@ int main(int argc, char** argv)
 {
  std::vector<int> iv;
 
- MinA::Communicator<MinA::MPIContext> cx(256);
+ MinA::Communicator<MinA::MPIContext> cx(64);
 
  if (cx) {
   MinA::Multi<MinA::F<MinA::Simplex<McCormick>>> mc;
-  mc.setMetaParameters({ 4, 4, 4, 4 });
+  mc.setMetaParameters({ 4, 4, 4, 1 });
   mc.setFileName(".MultiTest");
 
   auto r = mc.run();
