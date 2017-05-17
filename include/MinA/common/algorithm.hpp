@@ -21,12 +21,14 @@ template <typename AlgoInfo, typename MetaPara, typename Function>
 class Algorithm {
  protected:
  bool restored;
+ bool checkBounds;
 
  public:
  size_t mpi_procs;
 
  protected:
- Algorithm() : restored(false), mpi_procs(1), filename(".algo.save"){};
+ Algorithm()
+   : restored(false), mpi_procs(1), checkBounds(true), filename(".algo.save"){};
  virtual void save() const
  {
   std::ofstream out(filename);
@@ -46,11 +48,13 @@ class Algorithm {
  };
  virtual void checkBoundaryCondition(typename Function::parametertype& v)
  {
-  for_each_tuple(v, f.bounds, [](auto& value, auto& boundary) {
+  if (checkBounds) {
+   for_each_tuple(v, f.bounds, [](auto& value, auto& boundary) {
 
-   value = std::max(value, boundary.left);
-   value = std::min(value, boundary.right);
-  });
+    value = std::max(value, boundary.left);
+    value = std::min(value, boundary.right);
+   });
+  }
  }
 
  protected:
@@ -73,8 +77,9 @@ class Algorithm {
  {
   mMetaBoundaries = mb;
  }
+ void setCheckBounds(bool toc) { checkBounds = toc; }
  virtual Result<typename Function::parametertype> run() = 0;
  virtual void reset() = 0;
 };
-} // MinA
+} // namespace MinA
 #endif
