@@ -144,5 +144,5 @@ class MPIContext {
  }
  operator bool() const { return insplit; }
 };
-}
+} // namespace MinA
 #endif

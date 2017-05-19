@@ -16,6 +16,7 @@ int main(int argc, char** argv)
  MinA::Communicator<MinA::MPIContext> cx(200);
 
  if (cx) {
+  ScopedTimer x;
   auto t = std::make_tuple(cx.getIdent());
   for (int i = 0; i < 1000; i++) {
    if (i % 200 == cx.getIdent()) {
@@ -25,7 +26,21 @@ int main(int argc, char** argv)
    }
    else {
     auto y = cx.receive<decltype(t)>(i % 200);
-    std::cout << std::get<0>(y) << std::endl;
+    // std::cout << std::get<0>(y) << std::endl;
+   }
+  }
+ }
+ if (cx) {
+  ScopedTimer x;
+  auto t = std::make_tuple(cx.getIdent());
+  auto y = std::make_tuple(cx.getIdent());
+  for (int i = 0; i < 1000; i++) {
+   if (i % 200 == cx.getIdent()) {
+    cx.broadcast(t);
+   }
+   else {
+    cx.broadcast(y);
+    // std::cout << std::get<0>(y) << std::endl;
    }
   }
  }
