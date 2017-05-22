@@ -17,8 +17,9 @@
 #include <vector>
 
 namespace MinA {
-template <typename AlgoInfo, typename MetaPara, typename Function>
-class Algorithm {
+template <typename AlgoInfo, typename MetaPara, typename Function,
+          typename ResultType>
+class BaseAlgorithm {
  protected:
  bool restored;
  bool checkBounds;
@@ -27,7 +28,7 @@ class Algorithm {
  size_t mpi_procs;
 
  protected:
- Algorithm()
+ BaseAlgorithm()
    : restored(false), mpi_procs(1), checkBounds(true), filename(".algo.save"){};
  virtual void save() const
  {
@@ -57,7 +58,7 @@ class Algorithm {
   }
  }
 
- protected:
+ public:
  std::string filename;
  AlgoInfo mAlgorithmInformations;
  MetaPara mMetaParameters;
@@ -78,8 +79,18 @@ class Algorithm {
   mMetaBoundaries = mb;
  }
  void setCheckBounds(bool toc) { checkBounds = toc; }
- virtual Result<typename Function::parametertype> run() = 0;
+ virtual ResultType run() = 0;
+ // virtual auto run() = 0;
  virtual void reset() = 0;
+};
+template <typename AlgoInfo, typename MetaPara, typename Function>
+class Algorithm
+  : public BaseAlgorithm<AlgoInfo, MetaPara, Function,
+                         Result<typename Function::parametertype>> {
+ public:
+ Algorithm()
+   : BaseAlgorithm<AlgoInfo, MetaPara, Function,
+                   Result<typename Function::parametertype>>(){};
 };
 } // namespace MinA
 #endif
