@@ -21,14 +21,14 @@ using Algoinfo = typename TArray<
 
 template <typename Function>
 
-class Multi : public MinA::Algorithm<int, Algoinfo<Function>, Function> {
+class Multi : public MinA::Algorithm<int, Algoinfo<Function>, Function, void> {
  public:
- Multi() : MinA::Algorithm<int, Algoinfo<Function>, Function>::Algorithm()
+ Multi() : MinA::Algorithm<int, Algoinfo<Function>, Function, void>::Algorithm()
  {
   for_each_tuple(this->mMetaParameters, [](auto& p) { p = 1; });
  }
  void reset(){};
- Result<typename Function::parametertype> run()
+ typename Function::result run()
  {
   typename TupleVector<typename Function::parametertype>::type tv;
   std::vector<std::pair<double, typename Function::parametertype>> vec;
@@ -51,7 +51,7 @@ class Multi : public MinA::Algorithm<int, Algoinfo<Function>, Function> {
                  std::to_string(all.getIdent() / this->f.mpi_procs) +
                  this->f.fn;
 
-    r = this->f.evaluate(vec[all.getIdent() / this->f.mpi_procs].second);
+    r = this->f(vec[all.getIdent() / this->f.mpi_procs].second);
 
     if (all == 0) { // means i am rank 0
      vec[0].first = r;
@@ -72,11 +72,11 @@ class Multi : public MinA::Algorithm<int, Algoinfo<Function>, Function> {
     }
    }
   }
-  MinA::Result<typename Function::parametertype> result;
+  typename Function::result result;
   result.parameters = vec[0].second;
   result.value = vec[0].first;
   return result;
  }
 };
-}
+} // namespace MinA
 #endif

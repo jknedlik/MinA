@@ -40,11 +40,13 @@ template <typename Function>
 using ai = std::tuple<size_t, size_t, typename Function::parametertype,
                       simplext<Function>>;
 template <typename Function>
-class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
+class Simplex
+  : public MinA::Algorithm<ai<Function>, SimplexMeta, Function, void> {
  public:
  static constexpr size_t mDimension =
    std::tuple_size<typename Function::parametertype>::value;
- Simplex() : MinA::Algorithm<ai<Function>, SimplexMeta, Function>::Algorithm()
+ Simplex()
+   : MinA::Algorithm<ai<Function>, SimplexMeta, Function, void>::Algorithm()
  {
   reset();
  }
@@ -119,7 +121,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
   this->checkBoundaryCondition(M.first);
 
   M.second =
-    this->f.evaluate(TranslateVal<mDimension>(M.first, this->f.bounds, true));
+    this->f(TranslateVal<mDimension>(M.first, this->f.bounds, true)).value;
   return M;
  }
  vertex<Function> getReflectedPoint(vertex<Function>& M, vertex<Function>& Aj)
@@ -135,7 +137,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
   });
   this->checkBoundaryCondition(Ar.first);
   Ar.second =
-    this->f.evaluate(TranslateVal<mDimension>(Ar.first, this->f.bounds, true));
+    this->f(TranslateVal<mDimension>(Ar.first, this->f.bounds, true)).value;
   return Ar;
  }
 
@@ -150,7 +152,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
   });
   this->checkBoundaryCondition(Ae.first);
   Ae.second =
-    this->f.evaluate(TranslateVal<mDimension>(Ae.first, this->f.bounds, true));
+    this->f(TranslateVal<mDimension>(Ae.first, this->f.bounds, true)).value;
   return Ae;
  }
  vertex<Function> getContractedPoint(vertex<Function>& M, vertex<Function>& Ajp)
@@ -165,7 +167,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
 
   this->checkBoundaryCondition(Ac.first);
   Ac.second =
-    this->f.evaluate(TranslateVal<mDimension>(Ac.first, this->f.bounds, true));
+    this->f(TranslateVal<mDimension>(Ac.first, this->f.bounds, true)).value;
   return Ac;
  }
  vertex<Function> getShrinkedPoint(vertex<Function>& Ap, vertex<Function>& A0)
@@ -253,7 +255,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
   return (cur < max);
  }
 
- virtual Result<typename Function::parametertype> run()
+ virtual Result<typename Function::parametertype, ai<Function>> run()
  {
   constexpr size_t mDimension =
     std::tuple_size<typename Function::parametertype>::value;
@@ -283,7 +285,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
      Ap; // reflection, contraction, extension, shrinked point
    for (int iVertex = 0; iVertex <= mDimension; ++iVertex) {
     auto e = TranslateVal<mDimension>(A[iVertex].first, this->f.bounds, true);
-    A[iVertex].second = this->f.evaluate(e);
+    A[iVertex].second = this->f(e).value;
    }
    sort(A.begin(), A.end(),
         [](vertex<Function>& a, vertex<Function>& b) -> bool {
@@ -341,8 +343,8 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
    else {
     for (int i = 1; i <= mDimension; i++) {
      Anew = getShrinkedPoint(A[i], A[0]);
-     Anew.second = this->f.evaluate(
-       TranslateVal<mDimension>(Anew.first, this->f.bounds, true));
+     Anew.second =
+       this->f(TranslateVal<mDimension>(Anew.first, this->f.bounds, true));
      A[i] = Anew;
     }
    }
@@ -359,7 +361,7 @@ class Simplex : public MinA::Algorithm<ai<Function>, SimplexMeta, Function> {
    printOutVertex(A[0], "A[0]", fValueFile);
    fValueFile.close();
   }
-  MinA::Result<typename Function::parametertype> r;
+  MinA::Result<typename Function::parametertype, ai<Function>> r;
   r.parameters = TranslateVal<mDimension>(A[0].first, this->f.bounds, true);
   r.value = A[0].second;
   return r;

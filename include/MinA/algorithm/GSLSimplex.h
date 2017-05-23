@@ -29,12 +29,14 @@ namespace MinA {
 
 template <typename Function>
 class GSLSimplex
-  : public MinA::Algorithm<std::tuple<int>, std::tuple<int>, Function> {
+  : public MinA::Algorithm<std::tuple<int>, std::tuple<int>, Function, void> {
  public:
  static constexpr size_t mDimension =
    std::tuple_size<typename Function::parametertype>::value;
+
  GSLSimplex()
-   : MinA::Algorithm<std::tuple<int>, std::tuple<int>, Function>::Algorithm()
+   : MinA::Algorithm<std::tuple<int>, std::tuple<int>, Function,
+                     void>::Algorithm()
  {
   reset();
  }
@@ -46,10 +48,10 @@ class GSLSimplex
   typename Function::parametertype inparam;
   for_each_tuple_i(
     inparam, [&v](size_t index, auto& ip) { ip = gsl_vector_get(v, index); });
-  return f.evaluate(inparam);
+  return f(inparam);
  }
 
- virtual Result<typename Function::parametertype> run()
+ virtual typename Function::result run()
  {
 
   // GSL-stuff
@@ -118,7 +120,7 @@ class GSLSimplex
   for_each_tuple_i(outparam, [&minimizer](size_t index, auto& ip) {
    ip = gsl_vector_get(minimizer->x, index);
   });
-  MinA::Result<typename Function::parametertype> r;
+  typename Function::result r;
   r.value = minimizer->fval;
   r.parameters = outparam;
 

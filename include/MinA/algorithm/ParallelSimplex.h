@@ -18,7 +18,7 @@ class ParallelSimplex : public Simplex<Function> {
    std::tuple_size<typename Function::parametertype>::value;
  ParallelSimplex() : Simplex<Function>(){};
 
- Result<typename Function::parametertype> run()
+ Result<typename Function::parametertype, ai> run()
  {
 
   constexpr size_t mDimension =
@@ -132,7 +132,7 @@ class ParallelSimplex : public Simplex<Function> {
 
     mode = 0;
 
-    MinA::Result<typename Function::parametertype> r;
+    MinA::Result<typename Function::parametertype, ai> r;
     r.parameters = A[0].first;
     r.value = A[0].second;
     for (int i = 1; i < all.getSize(); i++) {
@@ -162,7 +162,7 @@ class ParallelSimplex : public Simplex<Function> {
 
      if (mode == 0) {
 
-      MinA::Result<typename Function::parametertype> r;
+      MinA::Result<typename Function::parametertype, ai> r;
       vertex v = receiveVertex(0, all);
       r.parameters = v.first;
       r.value = v.second;
@@ -170,8 +170,8 @@ class ParallelSimplex : public Simplex<Function> {
      }
      if (mode == 2) {
       vertex v = receiveVertex(0, all);
-      v.second = this->f.evaluate(
-        TranslateVal<mDimension>(v.first, this->f.bounds, true));
+      v.second =
+        this->f(TranslateVal<mDimension>(v.first, this->f.bounds, true));
 
       sendVertex(v, 0, all);
      }
@@ -180,7 +180,7 @@ class ParallelSimplex : public Simplex<Function> {
   }
   // real ugly leftover from v1, needs to be refactored
 
-  MinA::Result<typename Function::parametertype> r;
+  MinA::Result<typename Function::parametertype, ai> r;
   return r;
  }
 
@@ -196,8 +196,7 @@ class ParallelSimplex : public Simplex<Function> {
      ac = std::get<SIMPLEXT_BETA>(this->mMetaParameters) * (ajp + m);
     });
 
-  Ac.second =
-    this->f.evaluate(TranslateVal<mDimension>(Ac.first, this->f.bounds, true));
+  Ac.second = this->f(TranslateVal<mDimension>(Ac.first, this->f.bounds, true));
   return Ac;
  }
  void sendVertex(vertex& v, int u_id, MinA::Communicator<MinA::MPIContext>& all)
@@ -272,8 +271,8 @@ class ParallelSimplex : public Simplex<Function> {
  {
   for (int i = A.size(); i >= 0; i--) {
    if (i % all.getSize() == 0)
-    A[i - 1].second = this->f.evaluate(
-      TranslateVal<mDimension>(A[i - 1].first, this->f.bounds, true));
+    A[i - 1].second =
+      this->f(TranslateVal<mDimension>(A[i - 1].first, this->f.bounds, true));
    else {
     sendMode(2, all, i % all.getSize());
     sendVertex(A[i - 1], i % all.getSize(), all);
@@ -287,5 +286,5 @@ class ParallelSimplex : public Simplex<Function> {
        [](vertex& a, vertex& b) -> bool { return a.second < b.second; });
  }
 };
-}
+} // namespace MinA
 #endif

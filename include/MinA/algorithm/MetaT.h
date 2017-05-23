@@ -1,4 +1,5 @@
 #include "MinA/common/algorithm.hpp"
+#include "MinA/common/utility.hpp"
 #include <sstream>
 #include <stdlib.h>
 // template <size_t numA, typename Algo, typename Func>
@@ -8,10 +9,14 @@ template <typename Algo>
 using mptype = decltype(Algo().getMetaParameters());
 template <typename Algo>
 class F : public Function<mptype<Algo>> {
+
  public:
+ using Basetype = Function<mptype<Algo>>;
+ using result =
+   MinA::Result<mptype<Algo>, typename decltype(Algo::f)::parametertype>;
  Algo alg;
  size_t index;
- Result<typename decltype(Algo::f)::parametertype> rs;
+ result rs;
  F() : Function<mptype<Algo>>::Function(), alg()
  {
   this->bounds = alg.getMetaBoundaries();
@@ -19,14 +24,18 @@ class F : public Function<mptype<Algo>> {
   index = 0;
   this->fn = alg.getFileName();
  };
- double evaluate(mptype<Algo> mp)
+ result operator()(mptype<Algo> mp)
  {
   alg.reset();
   alg.setFileName(this->fn + std::to_string(index));
   alg.setMetaParameters(mp);
   index++;
-  rs = alg.run();
-  return rs.value;
+
+  auto res = alg.run();
+  rs.parameters = mp;
+  rs.informations = res.parameters;
+  rs.value = res.value;
+  return rs;
  }
 };
-}
+} // namespace MinA

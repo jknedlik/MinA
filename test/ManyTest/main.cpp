@@ -10,23 +10,8 @@
 #include <map>
 #include <utility>
 using namespace std;
-
 template <size_t N>
-class NTest : public MinA::Function<typename TArray<double, N>::type> {
- public:
- NTest() : MinA::Function<typename TArray<double, N>::type>::Function() {}
- double evaluate(typename TArray<double, N>::type params)
- {
-  std::vector<double> vec;
-  for_each_tuple(params, [&vec](auto val) { vec.push_back(val); });
-
-  double x = 0;
-  for (auto v : vec) {
-   x += v;
-  }
-  return x;
- }
-};
+using NTest = Schwefel7<N>;
 
 template <size_t N, template <size_t> typename T,
           template <typename> typename P>

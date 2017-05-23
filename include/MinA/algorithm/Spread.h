@@ -24,14 +24,15 @@ using ftype =
   typename TArray<size_t, std::tuple_size<paratype<Algo>>::value>::type;
 
 template <typename Algo>
-class Spread : public MinA::Algorithm<int, ftype<Algo>, MFUNCTION<Algo>> {
+class Spread : public MinA::Algorithm<int, ftype<Algo>, MFUNCTION<Algo>, void> {
  public:
- Spread() : MinA::Algorithm<int, ftype<Algo>, MFUNCTION<Algo>>::Algorithm()
+ Spread()
+   : MinA::Algorithm<int, ftype<Algo>, MFUNCTION<Algo>, void>::Algorithm()
  {
   for_each_tuple(this->mMetaParameters, [](auto& p) { p = 1; });
  }
  void reset(){};
- Result<paratype<Algo>> run()
+ Result<paratype<Algo>, void> run()
  {
   typename TupleVector<paratype<Algo>>::type tv;
   std::vector<std::pair<double, paratype<Algo>>> vec;
@@ -83,11 +84,11 @@ class Spread : public MinA::Algorithm<int, ftype<Algo>, MFUNCTION<Algo>> {
     }
    }
   }
-  MinA::Result<paratype<Algo>> result;
+  MinA::Result<paratype<Algo>, void> result;
   result.parameters = vec[0].second;
   result.value = vec[0].first;
   return result;
  }
 };
-}
+} // namespace MinA
 #endif

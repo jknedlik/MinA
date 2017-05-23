@@ -92,6 +92,8 @@ template <typename... Ts>
 struct Boundarytuple<std::tuple<Ts...>> {
  using type = typename Boundarytuple<Ts...>::type;
 };
+
+/*
 template <typename... Ts>
 class Function {
  private:
@@ -111,7 +113,8 @@ class Function {
 template <typename... Ts>
 class Function<std::tuple<Ts...>> : public Function<Ts...> {
 };
-
+*/
+/*
 template <typename... T>
 struct Result;
 template <typename... T>
@@ -133,6 +136,53 @@ struct Result {
 template <typename... T>
 struct Result<std::tuple<T...>> : Result<T...> {
 };
+*/
+
+template <typename ParameterType, typename ResultInfo>
+struct Result {
+ using ptype = ParameterType;
+ using rinfo = ResultInfo;
+ double value;
+ ptype parameters;
+ rinfo informations;
+ Result() : value(0){};
+ Result(double fx) : value(fx) {}
+ operator double()
+ {
+  return value;
+ } // (double) cast important for backwards compatability
+ void print()
+ {
+  std::cout << "Result value: " << value << "\nResult parameter: \n{";
+  for_each_tuple_i(parameters, [](size_t index, auto x) {
+   std::cout << ((index > 0) ? "," : "") << x;
+  });
+  std::cout << "}\n";
+ }
+};
+template <typename ParameterType>
+struct Result<ParameterType, void> : Result<ParameterType, std::tuple<>> {
+};
+
+template <typename ps>
+class Function {
+ public:
+ using Basetype = Function<ps>;
+ using parametertype = ps;
+ using Parameters = ps;
+ using boundarytype = typename Boundarytuple<ps>::type;
+ using result = Result<parametertype, void>;
+ Function() : mpi_procs(1), fn(".Function"){};
+ Function(parametertype start, boundarytype bs)
+   : startvalues(start), bounds(bs), mpi_procs(1), fn(".Function"){};
+
+ public:
+ boundarytype bounds;
+ parametertype startvalues;
+ std::string fn;
+ size_t mpi_procs;
+};
+
 } // namespace MinA
 
 template <template <size_t... Is> typename T, size_t... Is>

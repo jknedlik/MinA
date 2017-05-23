@@ -38,6 +38,11 @@ int main(int argc, char** argv)
    auto r = mc.run();
    if (cx == 0) {
     r.print();
+    auto paras = r.informations;
+    std::cout << "parameters:" << std::endl;
+    for_each_tuple_i(paras, [](size_t index, auto x) {
+     std::cout << "para #" << index << ": " << x << std::endl;
+    });
    }
   }
  });
