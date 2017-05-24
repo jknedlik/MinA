@@ -104,7 +104,7 @@ class MPIContext {
  template <typename Tuple>
  void send(int destination, Tuple tup)
  {
-  auto type = createMPIType(tup);
+  auto type = MPITYPE<Tuple>::get();
   MPI_Type_commit(&type);
   int err = MPI_Send((&tup), 1, type, destination, 0, comm);
  }
@@ -112,7 +112,7 @@ class MPIContext {
  Tuple receive(int source)
  {
   Tuple tup;
-  auto type = createMPIType(tup);
+  auto type = MPITYPE<Tuple>::get();
   MPI_Type_commit(&type);
   MPI_Status a;
   int err = MPI_Recv(&tup, 1, type, source, 0, comm, &a);
@@ -121,7 +121,7 @@ class MPIContext {
  template <typename Tuple>
  void broadcast(Tuple tup)
  {
-  auto type = createMPIType(tup);
+  auto type = MPITYPE<Tuple>::get();
   MPI_Type_commit(&type);
   int err = MPI_Bcast(&tup, 1, type, 0, comm);
  }
