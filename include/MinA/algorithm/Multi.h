@@ -30,6 +30,8 @@ class Multi : public MinA::Algorithm<int, Algoinfo<Function>, Function, void> {
  void reset(){};
  typename Function::result run()
  {
+
+  decltype(this->f(typename Function::parametertype())) r;
   typename TupleVector<typename Function::parametertype>::type tv;
   std::vector<std::pair<double, typename Function::parametertype>> vec;
   for_each_tuple(tv, this->f.bounds, this->mMetaParameters,
@@ -42,7 +44,6 @@ class Multi : public MinA::Algorithm<int, Algoinfo<Function>, Function, void> {
   constructTuple(tv, [&vec](auto x) { vec.emplace_back(0.0, x); });
   {
    Communicator<MPIContext> all(vec.size() * this->f.mpi_procs);
-   double r;
    if (all) {
     // divide context in same sized pieces by "dividing" the all-context
     Communicator<MPIContext> fEvaluator = all.divide(this->f.mpi_procs);
@@ -52,30 +53,27 @@ class Multi : public MinA::Algorithm<int, Algoinfo<Function>, Function, void> {
                  this->f.fn;
 
     r = this->f(vec[all.getIdent() / this->f.mpi_procs].second);
-
     if (all == 0) { // means i am rank 0
-     vec[0].first = r;
+     std::vector<decltype(r)> rvec;
+     rvec.push_back(r);
+
      for (int i = 1; i < vec.size(); i++) {
-      std::tuple<double> tmp =
-        all.receive<std::tuple<double>>(i * this->f.mpi_procs);
-      vec[i].first = std::get<0>(tmp);
+      rvec.push_back(all.receive<decltype(r)>(i * this->f.mpi_procs));
      }
-     sort(vec.begin(), vec.end(),
-          [](auto& a, auto& b) -> bool { return a.first < b.first; });
+     sort(rvec.begin(), rvec.end(),
+          [](auto& a, auto& b) -> bool { return a.value < b.value; });
+     r = *rvec.begin();
     }
     else {
      // only rank zero of one evaluator context returns the result back to the
      // head
      // of the multi context  (rank 0 of all)
      if (fEvaluator.getIdent() == 0)
-      all.send(0, std::tuple<double>(r));
+      all.send(0, r);
     }
    }
   }
-  typename Function::result result;
-  result.parameters = vec[0].second;
-  result.value = vec[0].first;
-  return result;
+  return r;
  }
 };
 } // namespace MinA

@@ -23,6 +23,26 @@ int main(int argc, char** argv)
   auto r = mc.run();
   if (cx == 0) {
    r.print();
+   for_each_tuple_i(r.informations,
+                    [](size_t i, auto& r) { std::cout << r << std::endl; });
+  }
+ }
+
+ {
+  MinA::Communicator<MinA::MPIContext> cy(2);
+  if (cy) {
+   if (cy == 0) {
+    Result<std::tuple<double, double>, int> p;
+    p.value = 10;
+    p.parameters = { 20, 20 };
+    p.informations = 2;
+    cy.send(1, p);
+   }
+   else {
+    auto p = cy.receive<Result<std::tuple<double, double>, int>>(0);
+    p.print();
+    std::cout << "inform:" << p.informations << std::endl;
+   }
   }
  }
 

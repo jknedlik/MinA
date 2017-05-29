@@ -32,7 +32,7 @@ class Spread : public MinA::Algorithm<int, ftype<Algo>, MFUNCTION<Algo>, void> {
   for_each_tuple(this->mMetaParameters, [](auto& p) { p = 1; });
  }
  void reset(){};
- Result<paratype<Algo>, void> run()
+ auto run()
  {
   typename TupleVector<paratype<Algo>>::type tv;
   std::vector<std::pair<double, paratype<Algo>>> vec;
