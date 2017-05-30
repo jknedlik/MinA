@@ -26,7 +26,7 @@ class F : public Function<mptype<Algo>> {
  };
  result operator()(mptype<Algo> mp)
  {
-  alg.reset();
+  //alg.reset();
   alg.setFileName(this->fn + std::to_string(index));
   alg.setMetaParameters(mp);
   index++;
