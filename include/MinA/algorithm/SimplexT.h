@@ -56,7 +56,13 @@ class Simplex
   this->mMetaBoundaries = decltype(this->mMetaBoundaries){
    { 0.0, 2.0 }, { 0.0, 1.0 }, { 0.0, 2.0 }, { 0.0, 1.0 }
   };
-  this->mMetaParameters = decltype(this->mMetaParameters){ 1.0, 0.5, 1.0, 0.5 };
+  if (mDimension == 1)
+   this->mMetaParameters =
+     decltype(this->mMetaParameters){ 1.0, 0.5, 1.0, 0.5 };
+  else
+   this->mMetaParameters =
+     decltype(this->mMetaParameters){ 1.0, 0.75 - (1.0 / (2.0 * mDimension)),
+                                      2.0 / mDimension, 1.0 / mDimension };
   std::get<SIMPLEX_CURR_ITERATIONS>(this->mAlgorithmInformations) = 0;
   std::get<SIMPLEX_MAX_ITERATIONS>(this->mAlgorithmInformations) = 100;
  }
