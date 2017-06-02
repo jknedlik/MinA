@@ -22,26 +22,49 @@ using Algoinfo = typename TArray<
 template <typename Function>
 
 class Multi : public MinA::Algorithm<int, Algoinfo<Function>, Function, void> {
+ using RType =
+   decltype(std::declval<Function>()(typename Function::parametertype()));
+
+ std::vector<RType> vec;
+
  public:
  Multi() : MinA::Algorithm<int, Algoinfo<Function>, Function, void>::Algorithm()
  {
-  for_each_tuple(this->mMetaParameters, [](auto& p) { p = 1; });
+  for_each_tuple(this->mMetaParameters, [this](auto& p) { p = 1; });
  }
- void reset(){};
- typename Function::result run()
- {
 
-  decltype(this->f(typename Function::parametertype())) r;
-  typename TupleVector<typename Function::parametertype>::type tv;
-  std::vector<std::pair<double, typename Function::parametertype>> vec;
-  for_each_tuple(tv, this->f.bounds, this->mMetaParameters,
-                 [](auto& ti, auto b, auto mp) {
-                  auto step = (b.right - b.left) / (double)(mp + 1);
-                  for (int i = 1; i <= mp; i++) {
-                   ti.push_back(b.left + i * step);
-                  }
-                 });
-  constructTuple(tv, [&vec](auto x) { vec.emplace_back(0.0, x); });
+ void reset(){};
+ void setVec(std::vector<typename Function::parametertype> tovec)
+ {
+  vec.clear();
+  for (auto v : tovec) {
+   RType tmp;
+   tmp.parameters = v;
+   vec.emplace_back(tmp);
+  }
+ };
+ void initializeVec()
+ {
+  if (vec.empty()) {
+   typename TupleVector<typename Function::parametertype>::type tv;
+   for_each_tuple(tv, this->f.bounds, this->mMetaParameters,
+                  [](auto& ti, auto b, auto mp) {
+                   auto step = (b.right - b.left) / (double)(mp + 1);
+                   for (int i = 1; i <= mp; i++) {
+                    ti.push_back(b.left + i * step);
+                   }
+                  });
+   constructTuple(tv, [this](auto x) {
+    RType tmp;
+    tmp.parameters = x;
+    vec.emplace_back(tmp);
+   });
+  }
+ };
+ RType run()
+ {
+  RType r;
+  initializeVec();
   {
    Communicator<MPIContext> all(vec.size() * this->f.mpi_procs);
    if (all) {
@@ -51,18 +74,18 @@ class Multi : public MinA::Algorithm<int, Algoinfo<Function>, Function, void> {
     this->f.fn = this->filename + "multi." +
                  std::to_string(all.getIdent() / this->f.mpi_procs) +
                  this->f.fn;
-
-    r = this->f(vec[all.getIdent() / this->f.mpi_procs].second);
+    r = this->f(vec[all.getIdent() / this->f.mpi_procs].parameters);
     if (all == 0) { // means i am rank 0
-     std::vector<decltype(r)> rvec;
-     rvec.push_back(r);
+     vec[0] = r;
 
      for (int i = 1; i < vec.size(); i++) {
-      rvec.push_back(all.receive<decltype(r)>(i * this->f.mpi_procs));
+      vec[i] = (all.receive<decltype(r)>(i * this->f.mpi_procs));
      }
-     sort(rvec.begin(), rvec.end(),
+     sort(vec.begin(), vec.end(),
           [](auto& a, auto& b) -> bool { return a.value < b.value; });
-     r = *rvec.begin();
+     r = *vec.begin();
+     for (auto a : vec) {
+     }
     }
     else {
      // only rank zero of one evaluator context returns the result back to the
