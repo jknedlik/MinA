@@ -4,9 +4,13 @@
 #include <assert.h>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/array.hpp>
+#include <boost/serialization/list.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
+#include <cmath>
+#include <cstdlib>
 #include <fstream>
 #include <functional>
 #include <iostream>
@@ -225,7 +229,7 @@ TA<N> TranslateVal(TA<N> params, typename Boundarytuple<TA<N>>::type bounds,
                   double a = bound.left;
                   double b = bound.right;
                   newparam = (a + b - 2.0 * param) / (a - b);
-                  newparam = newparam / (1.0 - std::abs(newparam));
+                  newparam = newparam / (1.0 - std::fabs(newparam));
                  });
  }
  else {
@@ -234,9 +238,8 @@ TA<N> TranslateVal(TA<N> params, typename Boundarytuple<TA<N>>::type bounds,
                   double a = bound.left;
                   double b = bound.right;
                   if (param > 0.9 || param < -0.9)
-                   newparam = param / (1.0 + std::abs(param));
+                   newparam = param / (1.0 + std::fabs(param));
                   newparam = a + (b - a) * (1 + newparam) / 2.0;
-
                  });
  }
  return newparams;

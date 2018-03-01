@@ -44,10 +44,10 @@ class Communicator {
   cvec[myelement].send(destination, t);
  };
  template <typename T>
- T receive(decltype(COMTYPE::ident) source)
+ T receive(int source)
  {
-  return cvec[myelement].receive<T>(source);
- }
+  return cvec[myelement].receive(source,T());
+};
  template <typename T>
  void broadcast(T t)
  {
@@ -109,9 +109,9 @@ class MPIContext {
   int err = MPI_Send((&tup), 1, type, destination, 0, comm);
  }
  template <typename Tuple>
- Tuple receive(int source)
+ Tuple receive(int source, Tuple tup)
  {
-  Tuple tup;
+
   auto type = MPITYPE<Tuple>::get();
   MPI_Type_commit(&type);
   MPI_Status a;
