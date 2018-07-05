@@ -120,16 +120,21 @@ class ScopedTimer {
  private:
  std::chrono::high_resolution_clock::time_point t1;
  std::chrono::high_resolution_clock::time_point t2;
+ bool nowrite;
 
  public:
- ScopedTimer() { t1 = std::chrono::high_resolution_clock::now(); }
+ ScopedTimer(bool nowrite = true) : nowrite(nowrite)
+ {
+  t1 = std::chrono::high_resolution_clock::now();
+ }
  ~ScopedTimer()
  {
   t2 = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> time_span =
     std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
-  std::cout << "ScopedTimer took: " << time_span.count() << "seconds"
-            << std::endl;
+  if (!nowrite)
+   std::cout << "ScopedTimer took: " << time_span.count() << "seconds"
+             << std::endl;
  }
 };
 

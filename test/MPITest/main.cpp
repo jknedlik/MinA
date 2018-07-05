@@ -16,7 +16,7 @@ int main(int argc, char** argv)
  MinA::Communicator<MinA::MPIContext> cx(200);
 
  if (cx) {
-  ScopedTimer x;
+  ScopedTimer x(cx.getIdent());
   auto t = std::make_tuple(cx.getIdent());
   for (int i = 0; i < 1000; i++) {
    if (i % 200 == cx.getIdent()) {
@@ -31,7 +31,7 @@ int main(int argc, char** argv)
   }
  }
  if (cx) {
-  ScopedTimer x;
+  ScopedTimer x(cx.getIdent());
   auto t = std::make_tuple(cx.getIdent());
   auto y = std::make_tuple(cx.getIdent());
   for (int i = 0; i < 1000; i++) {
