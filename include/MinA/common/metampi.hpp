@@ -90,8 +90,7 @@ bool MPITYPE<std::tuple<Ts...>>::set(false);
 template <typename... Ts>
 MPI_Datatype MPITYPE<std::tuple<Ts...>>::value;
 
-template <template <typename L, typename R> typename Result, typename L,
-          typename R>
+template <typename L, typename R>
 struct MPITYPE<Result<L, R>> {
 
  static bool set;
@@ -124,14 +123,12 @@ struct MPITYPE<Result<L, R>> {
   return value;
  }
 };
-template <template <typename L, typename R> typename Result, typename L,
-          typename R>
+template <typename L, typename R>
 bool MPITYPE<Result<L, R>>::set(false);
-template <template <typename L, typename R> typename Result, typename L,
-          typename R>
+template <typename L, typename R>
 MPI_Datatype MPITYPE<Result<L, R>>::value;
 
-template <template <typename L, typename R> typename Result, typename L>
+template <typename L>
 struct MPITYPE<Result<L, void>> {
  static bool set;
  static MPI_Datatype value;
@@ -160,9 +157,9 @@ struct MPITYPE<Result<L, void>> {
  }
 };
 
-template <template <typename L, typename R> typename Result, typename L>
+template <typename L>
 bool MPITYPE<Result<L, void>>::set(false);
-template <template <typename L, typename R> typename Result, typename L>
+template <typename L>
 MPI_Datatype MPITYPE<Result<L, void>>::value;
 
 #endif
