@@ -97,51 +97,6 @@ struct Boundarytuple<std::tuple<Ts...>> {
  using type = typename Boundarytuple<Ts...>::type;
 };
 
-/*
-template <typename... Ts>
-class Function {
- private:
- public:
- using parametertype = std::tuple<Ts...>;
- using boundarytype = typename Boundarytuple<Ts...>::type;
-
- boundarytype bounds;
- size_t mpi_procs;
- std::string fn;
- std::tuple<Ts...> startvalues;
-
- Function() : mpi_procs(1), fn(".Function"){};
- virtual double evaluate(std::tuple<Ts...> tup) = 0;
-};
-
-template <typename... Ts>
-class Function<std::tuple<Ts...>> : public Function<Ts...> {
-};
-*/
-/*
-template <typename... T>
-struct Result;
-template <typename... T>
-struct Result {
-
- double value;
- std::tuple<T...> parameters;
- using type = std::tuple<T...>;
-
- void print()
- {
-  std::cout << "Result value: " << value << "\nResult parameter: \n{";
-  for_each_tuple_i(parameters, [](size_t index, auto x) {
-   std::cout << ((index > 0) ? "," : "") << x;
-  });
-  std::cout << "}\n";
- }
-};
-template <typename... T>
-struct Result<std::tuple<T...>> : Result<T...> {
-};
-*/
-
 template <typename ParameterType, typename ResultInfo>
 struct Result {
  using ptype = ParameterType;
