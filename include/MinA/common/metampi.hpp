@@ -50,6 +50,15 @@ struct MPITYPE<char> {
  constexpr static MPI_Datatype value = MPI_CHAR;
  static auto get() { return value; };
 };
+template <typename T, size_t N>
+struct MPITYPE<std::array<T, N>> {
+ static auto get() { return value; }
+} std::array<int, N> block;
+for (auto i = 0; i < sizeof...(Ts); i++) {
+ block[i] = 1;
+}
+}
+
 template <typename T>
 auto getType(T type)
 {
